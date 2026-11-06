@@ -107,15 +107,15 @@ export default function PropertyCard({
       ) : (
         <p>
           {b.kind === "oceania"
-            ? "Al caer aquí pierdes tres turnos. Los dobles permiten salir antes."
+            ? "Groenlandia es de visita al caer con dados. Al ser deportado, cumple tres turnos, paga $50 o usa una carta de salida."
             : b.kind === "start"
               ? "Cobra $200 al pasar o caer aquí."
               : b.kind === "tax"
                 ? `Paga $${b.tax} al Banco.`
                 : b.kind === "go-oceania"
-                  ? "Viaja a Oceanía sin cobrar por México."
+                  ? "Viaja a Groenlandia sin cobrar por México."
                   : b.kind === "rest"
-                    ? "Respira. Aquí no se paga."
+                    ? "Oceanía: pierdes tres turnos; los dobles permiten salir antes."
                     : "Roba una carta y sigue sus instrucciones."}
         </p>
       )}

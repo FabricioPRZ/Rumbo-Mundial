@@ -1,7 +1,7 @@
 import { BOARD } from "@/lib/game/board";
 import { liquidationValue, netWorth } from "@/lib/game/rules";
 import type { Action, Game, Player } from "@/lib/game/types";
-import Dice from "./Dice";
+import { DENOMINATIONS, wallet } from "@/lib/game/money";
 export default function PlayerPanel({
   game,
   me,
@@ -47,9 +47,34 @@ export default function PlayerPanel({
       <small>
         Patrimonio neto: ${netWorth(game, me).toLocaleString("es-MX")}
       </small>
-      <Dice values={game.dice} />
+      <details className="wallet">
+        <summary>Tus billetes</summary>
+        <div className="wallet-summary">
+          {DENOMINATIONS.map((value) => (
+            <span key={value}>
+              ${value} × {wallet(me)[value] ?? 0}
+            </span>
+          ))}
+        </div>
+      </details>
+      {!me.bankrupt && (
+        <button
+          className="primary trade-trigger"
+          onClick={onTrade}
+          disabled={busy || !!game.debt}
+          title={game.debt ? "Primero debe resolverse el pago pendiente." : ""}
+        >
+          Proponer trato
+        </button>
+      )}
       {me.jailed > 0 && (
-        <p>Oceanía: quedan {me.jailed} turnos. Tira para intentar dobles.</p>
+        <p>
+          {me.detention === "oceania" ? "Oceanía" : "Groenlandia"}: faltan{" "}
+          {me.jailed} turnos de castigo.{" "}
+          {me.detention === "oceania"
+            ? "Los dobles permiten salir antes."
+            : "Los dobles no eliminan el castigo de prisión."}
+        </p>
       )}
       {me.bankrupt ? (
         <p>Terminó tu viaje. Puedes seguir viendo la partida.</p>
@@ -85,11 +110,23 @@ export default function PlayerPanel({
           ) : (
             <>
               {game.phase === "roll" &&
+                (!me.jailed || me.detention === "oceania" || !mine) &&
                 button(
                   "Tirar dados",
                   { type: "roll" },
                   mine ? null : "Espera tu turno.",
                 )}
+              {mine && me.jailed > 0 && game.phase === "roll" && (
+                <>
+                  {button("Cumplir un turno de castigo", { type: "wait" })}
+                  {me.detention !== "oceania" &&
+                    button(
+                      "Pagar multa de $50 y salir",
+                      { type: "bail" },
+                      me.money < 50 ? "Saldo insuficiente." : null,
+                    )}
+                </>
+              )}
               {mine && game.phase === "buy" && (
                 <>
                   {button(
@@ -112,14 +149,8 @@ export default function PlayerPanel({
                 me.jailed > 0 &&
                 me.passes.length > 0 &&
                 game.phase === "roll" &&
+                (!me.jailed || me.detention === "oceania" || !mine) &&
                 button("Usar salida de Oceanía", { type: "pass" })}
-              <button
-                onClick={onTrade}
-                disabled={!mine || busy}
-                title={!mine ? "Espera tu turno." : ""}
-              >
-                Proponer trato
-              </button>
             </>
           )}
         </div>

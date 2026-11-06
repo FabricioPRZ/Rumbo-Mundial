@@ -35,6 +35,9 @@ export interface Player {
   jailed: number;
   bankrupt: boolean;
   passes: ("email" | "sms")[];
+  bills?: Record<string, number>;
+  detention?: "prison" | "oceania";
+  eliminatedAt?: number;
 }
 export interface Trade {
   id: string;
@@ -44,6 +47,18 @@ export interface Trade {
   take: number[];
   giveMoney: number;
   takeMoney: number;
+}
+export interface GameEvent {
+  id: number;
+  type: "log" | "roll" | "card" | "purchase" | "move" | "payment";
+  text: string;
+  player?: string;
+  dice?: [number, number];
+  square?: number;
+  deck?: "email" | "sms";
+  path?: number[];
+  from?: number;
+  teleport?: boolean;
 }
 export interface Game {
   id: string;
@@ -67,8 +82,11 @@ export interface Game {
   winner: string[];
   motion: { serial: number; player: string; path: number[] } | null;
   lastCard: string | null;
+  events?: GameEvent[];
+  eventSerial?: number;
+  eliminated?: string[];
 }
-export type Action =
+export type Action = (
   | {
       type:
         | "start"
@@ -78,7 +96,9 @@ export type Action =
         | "end"
         | "settle"
         | "bankrupt"
-        | "pass";
+        | "pass"
+        | "wait"
+        | "bail";
     }
   | {
       type: "build" | "sell" | "mortgage" | "redeem" | "return";
@@ -94,7 +114,9 @@ export type Action =
       takeMoney: number;
     }
   | { type: "accept" | "reject"; trade: string }
-  | { type: "skip" | "expel" };
+  | { type: "skip" | "expel" }
+  | { type: "change"; denomination: number }
+) & { bills?: Record<string, number> };
 export interface Context {
   now: number;
   dice: [number, number];

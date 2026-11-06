@@ -97,7 +97,7 @@ export const BOARD: Square[] = [
     [8, 40, 100, 300, 450, 600],
     50,
   ),
-  special(10, "Oceanía / Australia", "oceania"),
+  special(10, "Groenlandia / Prisión", "oceania"),
   country(
     11,
     "España",
@@ -155,7 +155,7 @@ export const BOARD: Square[] = [
     [16, 80, 220, 600, 800, 1000],
     100,
   ),
-  special(20, "Descanso", "rest"),
+  special(20, "Oceanía / Australia", "rest"),
   country(
     21,
     "India",
@@ -213,7 +213,7 @@ export const BOARD: Square[] = [
     [24, 120, 360, 850, 1025, 1200],
     150,
   ),
-  special(30, "Ve a Oceanía", "go-oceania"),
+  special(30, "Deportado a Groenlandia", "go-oceania"),
   country(
     31,
     "Corea del Sur",

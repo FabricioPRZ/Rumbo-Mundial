@@ -1,7 +1,7 @@
 "use client";
 import { useEffect, useRef, useState } from "react";
 import { BOARD } from "@/lib/game/board";
-import type { Game } from "@/lib/game/types";
+import type { Game, GameEvent } from "@/lib/game/types";
 export function coordinates(id: number): [number, number] {
   if (id <= 10) return [10 - id, 10];
   if (id <= 20) return [0, 20 - id];
@@ -16,35 +16,66 @@ export default function Board({
   onSelect: (id: number) => void;
 }) {
   const [zoom, setZoom] = useState(1);
-  const [animated, setAnimated] = useState<{
-    player: string;
-    position: number;
-  } | null>(null);
-  const previous = useRef(game.motion?.serial ?? 0);
-  const latestMotion = useRef(game.motion);
-  latestMotion.current = game.motion;
-  const serial = game.motion?.serial;
+  const [positions, setPositions] = useState<Record<string, number>>(() =>
+    Object.fromEntries(game.players.map((p) => [p.id, p.position])),
+  );
+  const seen = useRef(game.eventSerial ?? 0);
+  const queue = useRef<GameEvent[]>([]);
+  const timer = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const latest = useRef(game.players);
+  latest.current = game.players;
   useEffect(() => {
-    const motion = latestMotion.current;
-    if (!motion || motion.serial === previous.current) return;
-    previous.current = motion.serial;
-    if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) return;
-    let step = 0;
-    setAnimated({ player: motion.player, position: motion.path[0] });
-    const timer = setInterval(() => {
-      step++;
-      if (step >= motion.path.length) {
-        clearInterval(timer);
-        setAnimated(null);
-      } else
-        setAnimated({ player: motion.player, position: motion.path[step] });
-    }, 100);
-    return () => clearInterval(timer);
-  }, [serial]);
+    const events = game.events ?? [];
+    const moves = events.filter(
+      (e) =>
+        e.id > seen.current && e.type === "move" && e.player && e.path?.length,
+    );
+    const gap =
+      events.length > 0 && seen.current > 0 && events[0].id > seen.current + 1;
+    seen.current = game.eventSerial ?? 0;
+    const snapshot = () =>
+      Object.fromEntries(latest.current.map((p) => [p.id, p.position]));
+    if (gap || window.matchMedia("(prefers-reduced-motion: reduce)").matches) {
+      if (timer.current) clearTimeout(timer.current);
+      timer.current = null;
+      queue.current = [];
+      setPositions(snapshot());
+      return;
+    }
+    queue.current.push(...moves);
+    if (timer.current) return;
+    const play = () => {
+      const move = queue.current.shift();
+      if (!move?.player || !move.path) {
+        timer.current = null;
+        setPositions(snapshot());
+        return;
+      }
+      const player = move.player,
+        path = move.path;
+      let step = 0;
+      if (move.from !== undefined)
+        setPositions((p) => ({ ...p, [player]: move.from! }));
+      const advance = () => {
+        const destination=path[step];
+        setPositions((p) => ({ ...p, [player]: destination }));
+        step++;
+        timer.current = setTimeout(step < path.length ? advance : play, 110);
+      };
+      timer.current = setTimeout(advance, move.teleport ? 0 : 110);
+    };
+    play();
+  }, [game.events, game.eventSerial, game.players]);
+  useEffect(
+    () => () => {
+      if (timer.current) clearTimeout(timer.current);
+    },
+    [],
+  );
   const icons: Record<string, string> = {
     start: "⚑",
-    oceania: "🏝",
-    rest: "☀",
+    oceania: "🔒",
+    rest: "🏝",
     "go-oceania": "➜",
     email: "✉",
     sms: "☏",
@@ -128,8 +159,7 @@ export default function Board({
           {game.players
             .filter((p) => !p.bankrupt)
             .map((p, i) => {
-              const pos =
-                animated?.player === p.id ? animated.position : p.position;
+              const pos = positions[p.id] ?? p.position;
               const [x, y] = coordinates(pos);
               return (
                 <span
@@ -138,8 +168,7 @@ export default function Board({
                   title={p.name}
                   aria-label={`${p.name} en ${BOARD[pos].name}`}
                   style={{
-                    left: `${((x + 0.18 + (i % 3) * 0.27) * 100) / 11}%`,
-                    top: `${((y + 0.57 + Math.floor(i / 3) * 0.2) * 100) / 11}%`,
+                    transform: `translate(${((x + 0.18 + (i % 3) * 0.27) * 10000) / (11 * 2.35)}%, ${((y + 0.57 + Math.floor(i / 3) * 0.2) * 10000) / (11 * 2.35)}%)`,
                     background: p.color,
                   }}
                 >

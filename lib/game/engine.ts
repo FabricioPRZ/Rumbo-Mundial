@@ -1,3 +1,5 @@
+import { INITIAL_BILLS, pay, exchange } from "./money";
+import type { GameEvent } from "./types";
 import { BOARD } from "./board";
 import { CARDS } from "./cards";
 import { assetError, group, liquidationValue, netWorth, rent } from "./rules";
@@ -11,8 +13,16 @@ import {
 function requireRule(ok: unknown, message: string): asserts ok {
   if (!ok) throw new Error(message);
 }
-export function addLog(s: Game, text: string) {
+export function addLog(
+  s: Game,
+  text: string,
+  event: Omit<GameEvent, "id" | "text"> = { type: "log" },
+) {
   s.log = [...s.log, text].slice(-50);
+  s.eventSerial = (s.eventSerial ?? 0) + 1;
+  s.events = [...(s.events ?? []), { ...event, id: s.eventSerial, text }].slice(
+    -100,
+  );
 }
 export function newGame(id: string, host: Player, duration: number): Game {
   return {
@@ -42,6 +52,9 @@ export function newGame(id: string, host: Player, duration: number): Game {
     winner: [],
     motion: null,
     lastCard: null,
+    events: [],
+    eventSerial: 0,
+    eliminated: [],
   };
 }
 export function newPlayer(id: string, name: string, color: string): Player {
@@ -54,10 +67,10 @@ export function newPlayer(id: string, name: string, color: string): Player {
     jailed: 0,
     bankrupt: false,
     passes: [],
+    bills: { ...INITIAL_BILLS },
   };
 }
 function nextTurn(s: Game, now: number) {
-  s.trades = [];
   s.debt = null;
   s.doubles = 0;
   s.extra = false;
@@ -94,21 +107,21 @@ function winner(s: Game) {
 }
 function charge(s: Game, p: Player, amount: number, creditor: string | null) {
   if (amount <= 0) return;
-  if (p.money < amount) {
-    s.debt = { amount, creditor };
-    addLog(s, `${p.name} debe $${amount}. Debe liquidar sus activos.`);
-    return;
-  }
-  p.money -= amount;
-  const recipient = s.players.find((x) => x.id === creditor);
-  if (recipient) recipient.money += amount;
+  s.debt = { amount, creditor };
   addLog(
     s,
-    `${p.name} pagó $${amount}${recipient ? ` de renta a ${recipient.name}` : " al Banco"}.`,
+    `${p.name} debe pagar $${amount} a ${s.players.find((x) => x.id === creditor)?.name ?? "el Banco"}.`,
+    { type: "payment", player: p.id },
   );
 }
-function jail(s: Game, p: Player, viaBoard = false) {
-  p.position = 10;
+function jail(
+  s: Game,
+  p: Player,
+  detention: "prison" | "oceania" = "prison",
+) {
+  const from = p.position;
+  p.position = detention === "prison" ? 10 : 20;
+  p.detention = detention;
   p.jailed = 3;
   s.extra = false;
   s.doubles = 0;
@@ -116,11 +129,16 @@ function jail(s: Game, p: Player, viaBoard = false) {
   s.motion = {
     serial: (s.motion?.serial ?? 0) + 1,
     player: p.id,
-    path: [...(viaBoard ? (s.motion?.path ?? []) : []), 10],
+    path: [p.position],
   };
-  addLog(s, `${p.name} va a Oceanía por tres turnos.`);
+  addLog(
+    s,
+    `${p.name} va a ${detention === "prison" ? "Groenlandia" : "Oceanía"} por tres turnos.`,
+    { type: "move", player: p.id, path: [p.position], from, teleport: true },
+  );
 }
 function move(s: Game, p: Player, steps: number) {
+  const from = p.position;
   const path: number[] = [];
   for (let i = 0; i < steps; i++) {
     p.position = (p.position + 1) % 40;
@@ -131,12 +149,22 @@ function move(s: Game, p: Player, steps: number) {
     }
   }
   s.motion = { serial: (s.motion?.serial ?? 0) + 1, player: p.id, path };
+  if (path.length)
+    addLog(
+      s,
+      `${p.name} avanza ${steps} casillas hasta ${BOARD[p.position].name}.`,
+      { type: "move", player: p.id, path, from },
+    );
 }
 function land(s: Game, p: Player) {
   const b = BOARD[p.position];
   s.phase = "end";
-  if (b.kind === "oceania" || b.kind === "go-oceania") {
-    jail(s, p, true);
+  if (b.kind === "go-oceania") {
+    jail(s, p);
+    return;
+  }
+  if (b.kind === "rest") {
+    jail(s, p, "oceania");
     return;
   }
   if (b.kind === "tax") {
@@ -156,7 +184,11 @@ function land(s: Game, p: Player) {
     requireRule(index !== undefined, "Mazo vacío.");
     const c = CARDS[b.kind][index];
     s.lastCard = c.text;
-    addLog(s, `${p.name} · ${b.name}: ${c.text}`);
+    addLog(s, `${p.name} · ${b.name}: ${c.text}`, {
+      type: "card",
+      player: p.id,
+      deck: b.kind,
+    });
     if (c.kind === "pass") {
       p.passes.push(b.kind);
       return;
@@ -166,7 +198,7 @@ function land(s: Game, p: Player) {
       if (c.amount >= 0) p.money += c.amount;
       else charge(s, p, -c.amount, null);
     }
-    if (c.kind === "jail") jail(s, p, true);
+    if (c.kind === "jail") jail(s, p);
     if (c.kind === "repairs") {
       const amount = Object.values(s.properties)
         .filter((a) => a.owner === p.id)
@@ -178,11 +210,11 @@ function land(s: Game, p: Player) {
       charge(s, p, amount, null);
     }
     if (c.kind === "move") {
-      const oldPath = s.motion?.path ?? [];
-      move(s, p, (c.target - p.position + 40) % 40 || 40);
-      const newPath = s.motion?.path ?? [];
-      land(s, p);
-      if (!p.jailed && s.motion) s.motion.path = [...oldPath, ...newPath];
+      const steps = (c.target - p.position + BOARD.length) % BOARD.length;
+      if (steps > 0) {
+        move(s, p, steps);
+        land(s, p);
+      }
     }
   }
 }
@@ -191,6 +223,9 @@ function eliminate(s: Game, p: Player, creditor: string | null) {
   if (recipient) recipient.money += p.money;
   p.money = 0;
   p.bankrupt = true;
+  p.eliminatedAt = s.version;
+  s.eliminated = [...(s.eliminated ?? []), p.id];
+  s.trades = s.trades.filter((t) => t.from !== p.id && t.to !== p.id);
   for (const a of Object.values(s.properties))
     if (a.owner === p.id) {
       a.owner = recipient?.id ?? null;
@@ -289,7 +324,10 @@ export function engine(
     addLog(s, `${p.name} aceptó el trato de ${from.name}.`);
     return s;
   }
-  requireRule(s.players[s.turn].id === p.id, "Espera tu turno.");
+  if (action.type === "change") {
+    exchange(p, action.denomination);
+    return s;
+  }
   if (action.type === "trade") {
     const to = s.players.find((x) => x.id === action.to);
     requireRule(
@@ -305,10 +343,14 @@ export function engine(
       action.giveMoney,
       action.takeMoney,
     );
-    s.trades = [{ ...action, id: `${s.version}-${p.id}`, from: p.id }];
+    s.trades = [
+      ...s.trades.filter((t) => t.from !== p.id),
+      { ...action, id: `${s.version}-${p.id}`, from: p.id },
+    ];
     addLog(s, `${p.name} propuso un trato a ${to.name}.`);
     return s;
   }
+  requireRule(s.players[s.turn].id === p.id, "Espera tu turno.");
   if ("square" in action) {
     const err = assetError(s, p, action.square, action.type);
     requireRule(!err, err ?? "Acción ilegal.");
@@ -316,7 +358,7 @@ export function engine(
       b = BOARD[action.square];
     if (action.type === "build") {
       a.buildings++;
-      p.money -= b.buildCost;
+      pay(p, b.buildCost, action.bills);
     }
     if (action.type === "sell") {
       a.buildings--;
@@ -328,7 +370,7 @@ export function engine(
     }
     if (action.type === "redeem") {
       a.mortgaged = false;
-      p.money -= Math.ceil(b.mortgage * 1.1);
+      pay(p, Math.ceil(b.mortgage * 1.1), action.bills);
     }
     if (action.type === "return") {
       p.money += a.mortgaged ? 0 : b.price / 2;
@@ -352,7 +394,14 @@ export function engine(
     );
     const d = s.debt;
     s.debt = null;
-    charge(s, p, d.amount, d.creditor);
+    pay(p, d.amount, action.bills);
+    const recipient = s.players.find((x) => x.id === d.creditor);
+    if (recipient) recipient.money += d.amount;
+    addLog(
+      s,
+      `${p.name} pagó $${d.amount} a ${recipient?.name ?? "el Banco"}.`,
+      { type: "payment", player: p.id },
+    );
     return s;
   }
   if (action.type === "bankrupt") {
@@ -372,15 +421,39 @@ export function engine(
     return s;
   }
   requireRule(!s.debt, "Liquida tu deuda antes de continuar.");
+  if (action.type === "bail") {
+    requireRule(
+      s.phase === "roll" && p.jailed > 0 && p.detention !== "oceania",
+      "La multa solo permite salir de Groenlandia antes de tirar.",
+    );
+    pay(p, 50, action.bills);
+    p.jailed = 0;
+    addLog(s, `${p.name} pagó $50 y salió de Groenlandia.`);
+    return s;
+  }
+  if (action.type === "wait") {
+    requireRule(
+      s.phase === "roll" && p.jailed > 0,
+      "No tienes un turno de castigo pendiente.",
+    );
+    p.jailed--;
+    s.phase = "end";
+    s.extra = false;
+    addLog(s, `${p.name} cumple un turno de castigo; quedan ${p.jailed}.`);
+    return s;
+  }
   if (action.type === "pass") {
     requireRule(
-      s.phase === "roll" && p.jailed > 0 && p.passes.length,
+      s.phase === "roll" &&
+        p.jailed > 0 &&
+        p.passes.length &&
+        p.detention !== "oceania",
       "No puedes usar una salida ahora.",
     );
     const deck = p.passes.shift()!;
     s.decks[deck].push(CARDS[deck].findIndex((c) => c.kind === "pass"));
     p.jailed = 0;
-    addLog(s, `${p.name} usó una salida de Oceanía.`);
+    addLog(s, `${p.name} usó una salida de Groenlandia.`);
     return s;
   }
   if (action.type === "roll") {
@@ -388,17 +461,24 @@ export function engine(
     s.dice = ctx.dice;
     s.lastCard = null;
     const double = ctx.dice[0] === ctx.dice[1];
-    addLog(s, `${p.name} tiró ${ctx.dice.join(" + ")}.`);
+    addLog(
+      s,
+      `${p.name} tiró ${ctx.dice.join(" + ")} = ${ctx.dice[0] + ctx.dice[1]}.`,
+      { type: "roll", player: p.id, dice: ctx.dice },
+    );
     if (p.jailed) {
       s.extra = false;
-      if (double) {
+      if (double && p.detention === "oceania") {
         p.jailed = 0;
         move(s, p, ctx.dice[0] + ctx.dice[1]);
         land(s, p);
       } else {
         p.jailed--;
         s.phase = "end";
-        addLog(s, `${p.name} pierde el turno en Oceanía; quedan ${p.jailed}.`);
+        addLog(
+          s,
+          `${p.name} cumple un turno en ${p.detention === "oceania" ? "Oceanía" : "Groenlandia"}; quedan ${p.jailed}.`,
+        );
       }
       return s;
     }
@@ -421,16 +501,19 @@ export function engine(
         a && !a.owner && p.money >= b.price,
         "La propiedad no está disponible o falta saldo.",
       );
-      p.money -= b.price;
+      pay(p, b.price, action.bills);
       a.owner = p.id;
-      addLog(s, `${p.name} compró ${b.name}.`);
+      addLog(s, `${p.name} compró ${b.name} por $${b.price}.`, {
+        type: "purchase",
+        player: p.id,
+        square: b.id,
+      });
     }
     s.phase = "end";
     return s;
   }
   if (action.type === "end") {
     requireRule(s.phase === "end", "Resuelve la tirada o la compra primero.");
-    s.trades = [];
     if (s.extra) {
       s.phase = "roll";
       s.extra = false;

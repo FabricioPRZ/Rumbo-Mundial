@@ -80,3 +80,31 @@ export const liquidationValue = (s: Game, p: Player) =>
         : 0)
     );
   }, 0);
+
+export function ranking(s: Game) {
+  const score = (p: Player) =>
+    netWorth(s, p) -
+    (s.debt && s.players[s.turn].id === p.id ? s.debt.amount : 0);
+  const ordered = [...s.players].sort((a, b) => {
+    if (a.bankrupt !== b.bankrupt) return a.bankrupt ? 1 : -1;
+    if (a.bankrupt)
+      return (
+        (s.eliminated ?? []).indexOf(b.id) -
+          (s.eliminated ?? []).indexOf(a.id) ||
+        (b.eliminatedAt ?? 0) - (a.eliminatedAt ?? 0)
+      );
+    return score(b) - score(a);
+  });
+  let previousRank = 0;
+  return ordered.map((player, i) => {
+    const before = ordered[i - 1];
+    const tied =
+      before &&
+      !player.bankrupt &&
+      !before.bankrupt &&
+      score(player) === score(before);
+    const place = tied ? previousRank : i + 1;
+    previousRank = place;
+    return { player, place, score: score(player) };
+  });
+}

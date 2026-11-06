@@ -17,9 +17,9 @@ export const CARDS: Record<"email" | "sms", Card[]> = {
       kind: "move",
       target: 0,
     },
-    { text: "Escala de tres turnos en Oceanía. Ni modo.", kind: "jail" },
+    { text: "Escala de tres turnos en Groenlandia. Ni modo.", kind: "jail" },
     {
-      text: "Tu prima conoce al piloto. Guarda una salida de Oceanía.",
+      text: "Tu prima conoce al piloto. Guarda una salida de Groenlandia.",
       kind: "pass",
     },
     {
@@ -79,9 +79,9 @@ export const CARDS: Record<"email" | "sms", Card[]> = {
       kind: "move",
       target: 0,
     },
-    { text: "Vuelo equivocado: destino Oceanía.", kind: "jail" },
+    { text: "Vuelo equivocado: destino Groenlandia.", kind: "jail" },
     {
-      text: "Pase de salida de Oceanía. Guárdalo para la escala.",
+      text: "Pase de salida de Groenlandia. Guárdalo para la escala.",
       kind: "pass",
     },
     {

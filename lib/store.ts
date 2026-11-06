@@ -2,6 +2,7 @@ import { Redis } from "@upstash/redis";
 import { createHash, randomInt, randomUUID } from "node:crypto";
 import { z } from "zod";
 import { CARDS } from "./game/cards";
+import { shuffleDeck } from "./game/shuffle";
 import {
   addLog,
   engine,
@@ -45,7 +46,7 @@ export const identity = z.object({
   color: z.enum(COLORS as [string, ...string[]]).optional(),
 });
 const square = z.number().int().min(0).max(39);
-export const actionSchema: z.ZodType<Action> = z.discriminatedUnion("type", [
+const baseActionSchema = z.discriminatedUnion("type", [
   z.object({
     type: z.enum([
       "start",
@@ -56,6 +57,8 @@ export const actionSchema: z.ZodType<Action> = z.discriminatedUnion("type", [
       "settle",
       "bankrupt",
       "pass",
+      "wait",
+      "bail",
       "skip",
       "expel",
     ]),
@@ -78,10 +81,19 @@ export const actionSchema: z.ZodType<Action> = z.discriminatedUnion("type", [
   }),
   z.object({ type: z.literal("accept"), trade: z.string().max(100) }),
   z.object({ type: z.literal("reject"), trade: z.string().max(100) }),
+  z.object({
+    type: z.literal("change"),
+    denomination: z.number().int().positive(),
+  }),
 ]);
+export const actionSchema: z.ZodType<Action> = baseActionSchema.and(
+  z.object({
+    bills: z.record(z.number().int().nonnegative().max(100000000)).optional(),
+  }),
+);
 const CAS = `local old=redis.call('GET',KEYS[1]); if not old then return -1 end; local parsed=cjson.decode(old); if parsed.game.version~=tonumber(ARGV[1]) then return 0 end; redis.call('SET',KEYS[1],ARGV[2],'EX',86400); return 1`;
 async function save(id: string, old: number, value: Stored) {
-  const result = await redis().eval<number>(
+  const result = await redis().eval(
     CAS,
     [key(id)],
     [old, JSON.stringify(value)],
@@ -107,21 +119,13 @@ function authorize(stored: Stored, token: string) {
 export function publicGame(s: Game): Game {
   return { ...s, decks: { email: [], sms: [] } };
 }
-function shuffled(n: number) {
-  const a = Array.from({ length: n }, (_, i) => i);
-  for (let i = n - 1; i > 0; i--) {
-    const j = randomInt(i + 1);
-    [a[i], a[j]] = [a[j], a[i]];
-  }
-  return a;
-}
 function context(): Context {
   return {
     now: Date.now(),
     dice: [randomInt(1, 7), randomInt(1, 7)],
     shuffled: {
-      email: shuffled(CARDS.email.length),
-      sms: shuffled(CARDS.sms.length),
+      email: shuffleDeck(CARDS.email.length, randomInt),
+      sms: shuffleDeck(CARDS.sms.length, randomInt),
     },
   };
 }

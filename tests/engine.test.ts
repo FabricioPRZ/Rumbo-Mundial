@@ -89,26 +89,29 @@ describe("Tablero y motor", () => {
     expect(s.players[0].money).toBe(1530);
     expect(s.properties[1].owner).toBeNull();
   });
-  it("Oceanía al caer: pierde tres turnos y dobles permiten salir", () => {
+  it("Oceanía descuenta tres turnos completos y permite salir con dobles", () => {
     let s = game();
-    s.players[0].position = 7;
-    s = go(s, { type: "roll" });
+    s.players[0].position = 17;
+    s = go(s, { type: "roll" }, [1, 2]);
     expect(s.players[0].jailed).toBe(3);
-    for (let i = 2; i >= 0; i--) {
+    expect(s.players[0].position).toBe(20);
+    for (let remaining = 2; remaining >= 0; remaining--) {
       s.phase = "roll";
-      s = go(s, { type: "roll" });
-      expect(s.players[0].jailed).toBe(i);
-      expect(s.players[0].position).toBe(10);
+      s = go(s, { type: "wait" });
+      expect(s.players[0].jailed).toBe(remaining);
+      expect(s.players[0].position).toBe(20);
+      expect(s.phase).toBe("end");
     }
     s.phase = "roll";
     s = go(s, { type: "roll" }, [1, 2]);
-    expect(s.players[0].position).toBe(13);
+    expect(s.players[0].position).toBe(23);
     s.players[0].jailed = 3;
-    s.players[0].position = 10;
+    s.players[0].detention = "oceania";
+    s.players[0].position = 20;
     s.phase = "roll";
     s = go(s, { type: "roll" }, [2, 2]);
     expect(s.players[0].jailed).toBe(0);
-    expect(s.players[0].position).toBe(14);
+    expect(s.players[0].position).toBe(24);
     expect(s.extra).toBe(false);
   });
   it("tercer doble manda a Oceanía sin cobrar salida", () => {
@@ -233,6 +236,8 @@ describe("Tablero y motor", () => {
     s.properties[3] = { owner: "a", buildings: 4, mortgaged: false };
     s.decks.email = [5, ...s.decks.email.filter((i) => i !== 5)];
     s = go(s, { type: "roll" }, [1, 1]);
+    expect(s.debt?.amount).toBe(200);
+    s = go(s, { type: "settle" });
     expect(s.players[0].money).toBe(1300);
   });
   it("modo por tiempo admite empate y descuenta hipotecas", () => {

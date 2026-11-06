@@ -4,13 +4,15 @@ import Link from "next/link";
 import type { Action, Game } from "@/lib/game/types";
 import { COLORS } from "@/lib/game/types";
 import { BOARD } from "@/lib/game/board";
-import { netWorth } from "@/lib/game/rules";
+import { ranking } from "@/lib/game/rules";
 import Board from "./Board";
 import EntryForm from "./EntryForm";
 import PropertyCard from "./PropertyCard";
 import PlayerPanel from "./PlayerPanel";
 import TradeModal from "./TradeModal";
 import Log from "./Log";
+import Activity from "./Activity";
+import PaymentModal from "./PaymentModal";
 export default function Room({ id }: { id: string }) {
   const [game, setGame] = useState<Game | null>(null),
     [token, setToken] = useState<string | null>(null),
@@ -25,6 +27,11 @@ export default function Room({ id }: { id: string }) {
     [notice, setNotice] = useState(""),
     [sound, setSound] = useState(false),
     [now, setNow] = useState(Date.now());
+  const [payment, setPayment] = useState<{
+    action: Action;
+    amount: number;
+    label: string;
+  } | null>(null);
   const state = useRef<Game | null>(null),
     heartbeat = useRef(0),
     inFlight = useRef(false),
@@ -90,7 +97,7 @@ export default function Room({ id }: { id: string }) {
       document.removeEventListener("visibilitychange", visible);
     };
   }, [loaded, refresh]);
-  const send = async (action: Action): Promise<boolean> => {
+  const commit = async (action: Action): Promise<boolean> => {
     if (!token || !state.current || actionFlight.current) return false;
     actionFlight.current = true;
     setBusy(true);
@@ -135,6 +142,38 @@ export default function Room({ id }: { id: string }) {
       setBusy(false);
       actionFlight.current = false;
     }
+  };
+  const send = async (action: Action): Promise<boolean> => {
+    const s = state.current;
+    const p = s?.players.find((x) => x.id === playerId);
+    if (!s || !p) return false;
+    let amount = 0,
+      label = "";
+    if (action.type === "buy") {
+      amount = BOARD[p.position].price;
+      label = `Comprar ${BOARD[p.position].name}`;
+    }
+    if (action.type === "settle" && s.debt) {
+      amount = s.debt.amount;
+      label = `Pago a ${s.players.find((x) => x.id === s.debt?.creditor)?.name ?? "el Banco"}`;
+    }
+    if (action.type === "bail") {
+      amount = 50;
+      label = "Multa para salir de Groenlandia";
+    }
+    if (action.type === "build") {
+      amount = BOARD[action.square].buildCost;
+      label = `Construir en ${BOARD[action.square].name}`;
+    }
+    if (action.type === "redeem") {
+      amount = Math.ceil(BOARD[action.square].mortgage * 1.1);
+      label = `Deshipotecar ${BOARD[action.square].name}`;
+    }
+    if (amount > 0) {
+      setPayment({ action, amount, label });
+      return false;
+    }
+    return commit(action);
   };
   const copy = async (value: string) => {
     try {
@@ -211,18 +250,19 @@ export default function Room({ id }: { id: string }) {
               .join(" y ")}{" "}
             {game.winner.length > 1 ? "ganan" : "gana"} la partida
           </h1>
-          {game.players.map((p) => (
-            <p key={p.id}>
-              {p.name}: $
-              {(
-                netWorth(game, p) -
-                (game.debt && game.players[game.turn].id === p.id
-                  ? game.debt.amount
-                  : 0)
-              ).toLocaleString("es-MX")}
-              {p.bankrupt ? " · En quiebra" : ""}
-            </p>
-          ))}
+          <ol className="ranking">
+            {ranking(game).map(({ player: p, place, score }) => (
+              <li key={p.id}>
+                <strong>
+                  {place}. {p.name}
+                </strong>
+                <span>
+                  ${score.toLocaleString("es-MX")}
+                  {p.bankrupt ? " · En quiebra" : ""}
+                </span>
+              </li>
+            ))}
+          </ol>
           <Link href="/">Organizar la revancha ↗</Link>
         </section>
       )}
@@ -308,8 +348,8 @@ export default function Room({ id }: { id: string }) {
                 Cinco construcciones se convierten en un hotel.
               </p>
               <p>
-                Oceanía implica tres turnos de espera. Los dobles o una carta te
-                sacan antes.
+                Groenlandia implica tres turnos completos: puedes pagar $50 o
+                usar una carta para salir. En Oceanía puedes intentar dobles.
               </p>
               <p>Selecciona cualquier casilla para consultar su tarjeta.</p>
             </section>
@@ -330,6 +370,7 @@ export default function Room({ id }: { id: string }) {
             )}
             <span>Versión {game.version}</span>
           </div>
+          <Activity game={game} />
           <div className="game-layout">
             <section>
               <Board game={game} onSelect={setSelected} />
@@ -348,10 +389,30 @@ export default function Room({ id }: { id: string }) {
                         ? "En quiebra"
                         : `$${p.money.toLocaleString("es-MX")}`}
                     </span>
+                    <details>
+                      <summary>
+                        {
+                          Object.values(game.properties).filter(
+                            (a) => a.owner === p.id,
+                          ).length
+                        }{" "}
+                        propiedades
+                      </summary>
+                      <div className="owned">
+                        {BOARD.filter(
+                          (b) => game.properties[b.id]?.owner === p.id,
+                        ).map((b) => (
+                          <button key={b.id} onClick={() => setSelected(b.id)}>
+                            {b.name}
+                            {game.properties[b.id].mortgaged ? " · H" : ""}
+                          </button>
+                        ))}
+                      </div>
+                    </details>
                   </div>
                 ))}
               </div>
-              <Log events={game.log} />
+              <Log events={game.log} history={game.events} />
             </section>
             <aside>
               {me && game.status === "playing" && (
@@ -436,6 +497,14 @@ export default function Room({ id }: { id: string }) {
             </aside>
           </div>
         </>
+      )}
+      {payment && me && (
+        <PaymentModal
+          player={me}
+          {...payment}
+          onClose={() => setPayment(null)}
+          commit={commit}
+        />
       )}
       {tradeOpen && me && (
         <TradeModal

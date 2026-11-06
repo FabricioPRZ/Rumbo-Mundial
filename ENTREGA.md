@@ -3658,7 +3658,7 @@ export const actionSchema: z.ZodType<Action> = z.discriminatedUnion("type", [
 ]);
 const CAS = `local old=redis.call('GET',KEYS[1]); if not old then return -1 end; local parsed=cjson.decode(old); if parsed.game.version~=tonumber(ARGV[1]) then return 0 end; redis.call('SET',KEYS[1],ARGV[2],'EX',86400); return 1`;
 async function save(id: string, old: number, value: Stored) {
-  const result = await redis().eval<number>(
+  const result = await redis().eval(
     CAS,
     [key(id)],
     [old, JSON.stringify(value)],
