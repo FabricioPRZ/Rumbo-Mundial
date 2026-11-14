@@ -1,7 +1,7 @@
 import type { Metadata } from "next";
 import "./globals.css";
 export const metadata: Metadata = {
-  title: "Turista Mundial · El mundo en tu mesa",
+  title: "Rumbo Mundial · El mundo en tu mesa",
   description:
     "Viaja, compra y negocia con tus amigos. Juego de mesa multijugador en español.",
 };

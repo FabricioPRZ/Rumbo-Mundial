@@ -1,14 +1,8 @@
 import type { Player } from "./types";
-export const DENOMINATIONS = [500, 100, 50, 20, 10, 5, 1] as const;
+export const DENOMINATIONS = [50000, 10000, 5000, 2000, 1000, 500, 100, 50, 10, 1] as const;
 export type Bills = Record<string, number>;
 export const INITIAL_BILLS: Bills = {
-  500: 2,
-  100: 2,
-  50: 2,
-  20: 6,
-  10: 5,
-  5: 6,
-  1: 0,
+  50000: 2, 10000: 2, 5000: 2, 2000: 1, 1000: 2, 500: 1,
 };
 export const totalBills = (bills: Bills) =>
   Object.entries(bills).reduce(
@@ -68,4 +62,11 @@ export function exchange(player: Player, value: number) {
     rest %= smaller;
   }
   player.bills = held;
+}
+
+export function credit(player: Player, amount: number) {
+  if (!Number.isSafeInteger(amount) || amount < 0) throw new Error("Abono inválido.");
+  const held = wallet(player);
+  for (const [value, count] of Object.entries(change(amount))) held[value] = (held[value] ?? 0) + count;
+  player.money += amount; player.bills = held;
 }

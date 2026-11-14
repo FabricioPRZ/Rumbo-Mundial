@@ -1,6 +1,7 @@
 import { Redis } from "@upstash/redis";
 import { createHash, randomInt, randomUUID } from "node:crypto";
 import { z } from "zod";
+import { RULES_VERSION } from "./game/board";
 import { CARDS } from "./game/cards";
 import { shuffleDeck } from "./game/shuffle";
 import {
@@ -9,6 +10,7 @@ import {
   finishByTime,
   newGame,
   newPlayer,
+  waitingPlayer,
 } from "./game/engine";
 import { COLORS, type Action, type Context, type Game } from "./game/types";
 interface Stored {
@@ -61,10 +63,14 @@ const baseActionSchema = z.discriminatedUnion("type", [
       "bail",
       "skip",
       "expel",
+      "salary",
+      "opening-roll",
+      "fold",
+      "auction-expire",
     ]),
   }),
   z.object({
-    type: z.enum(["build", "sell", "mortgage", "redeem", "return"]),
+    type: z.enum(["build", "sell", "sell-group", "mortgage", "redeem", "return"]),
     square,
   }),
   z.object({
@@ -74,11 +80,14 @@ const baseActionSchema = z.discriminatedUnion("type", [
   z.object({
     type: z.literal("trade"),
     to: z.string().uuid(),
-    give: z.array(square).max(28),
-    take: z.array(square).max(28),
+    give: z.array(square).max(30),
+    take: z.array(square).max(30),
     giveMoney: z.number().int().nonnegative().max(100000000),
     takeMoney: z.number().int().nonnegative().max(100000000),
   }),
+  z.object({ type: z.literal("bid"), amount: z.number().int().positive().max(100000000), square: square.optional() }),
+  z.object({ type: z.literal("collect"), target: z.string().uuid() }),
+  z.object({ type: z.literal("acquire"), square }),
   z.object({ type: z.literal("accept"), trade: z.string().max(100) }),
   z.object({ type: z.literal("reject"), trade: z.string().max(100) }),
   z.object({
@@ -109,6 +118,7 @@ async function read(id: string): Promise<Stored> {
   roomId.parse(id);
   const stored = await redis().get<Stored>(key(id));
   if (!stored) throw new HttpError(404, "Sala no encontrada.");
+  if (stored.game.rulesVersion !== RULES_VERSION) throw new HttpError(410, "Esta sala usa el tablero anterior. Crea una sala nueva para jugar Rumbo Mundial.");
   return stored;
 }
 function authorize(stored: Stored, token: string) {
@@ -227,7 +237,7 @@ export async function getRoom(
       stored = await read(id);
     }
   }
-  const active = stored.game.players[stored.game.turn];
+  const active = stored.game.players.find((p) => p.id === waitingPlayer(stored.game))!;
   const seen = await redis().get<number>(`turista:seen:${id}:${active.id}`);
   return {
     game: publicGame(stored.game),
@@ -255,7 +265,7 @@ export async function act(id: string, input: unknown) {
     throw new HttpError(409, "La sala cambió. Revisa el estado actualizado.");
   const ctx = context();
   if (data.action.type === "skip" || data.action.type === "expel") {
-    const active = stored.game.players[stored.game.turn];
+    const active = stored.game.players.find((p) => p.id === waitingPlayer(stored.game))!;
     const seen = await redis().get<number>(`turista:seen:${id}:${active.id}`);
     ctx.inactive = ctx.now - Math.max(stored.game.turnAt, seen ?? 0) >= 90000;
   }

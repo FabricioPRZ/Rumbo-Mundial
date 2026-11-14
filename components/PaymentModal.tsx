@@ -1,5 +1,6 @@
 "use client";
 import { useEffect, useRef, useState } from "react";
+import { Banknote } from "./TravelArt";
 import { DENOMINATIONS, totalBills, wallet } from "@/lib/game/money";
 import type { Action, Player } from "@/lib/game/types";
 export default function PaymentModal({
@@ -9,11 +10,13 @@ export default function PaymentModal({
   action,
   onClose,
   commit,
+  error,
 }: {
   player: Player;
   amount: number;
   label: string;
   action: Action;
+  error?: string;
   onClose: () => void;
   commit: (a: Action) => Promise<boolean>;
 }) {
@@ -46,34 +49,25 @@ export default function PaymentModal({
           </button>
         </div>
         <p>{label}</p>
+        {error && <p className="error" role="alert">{error}</p>}
         <p className="balance">Por pagar: ${amount.toLocaleString("es-MX")}</p>
         <small>
           Tu saldo: ${player.money.toLocaleString("es-MX")}. El Banco entrega el
           cambio automáticamente.
         </small>
         <div className="banknotes">
-          {DENOMINATIONS.map((value, i) => (
+          {DENOMINATIONS.filter((value) => held[value]).map((value) => (
             <div
               key={value}
               className="banknote"
-              style={{
-                borderColor: [
-                  "#754c99",
-                  "#427f60",
-                  "#b07b36",
-                  "#397e9e",
-                  "#b65155",
-                  "#8c7851",
-                  "#6b7280",
-                ][i],
-              }}
             >
-              <strong>${value}</strong>
+              <button type="button" className="pick-note" disabled={busy || (selected[value] ?? 0) >= (held[value] ?? 0)} aria-label={`Añadir billete de $${value}`} onClick={() => setSelected({...selected, [value]: Math.min(held[value] ?? 0, (selected[value] ?? 0) + 1)})}><Banknote value={value} /></button>
               <small>Tienes {held[value] ?? 0}</small>
               <label>
                 Cantidad
                 <input
                   type="number"
+                  disabled={busy}
                   min="0"
                   max={held[value] ?? 0}
                   value={selected[value] ?? 0}
@@ -103,7 +97,7 @@ export default function PaymentModal({
           ))}
         </div>
         <div className="row">
-          <span>Entregas: ${total}</span>
+          <span>Entregas: ${total.toLocaleString("es-MX")}</span>
           <span>Cambio: ${Math.max(0, total - amount)}</span>
         </div>
         <button

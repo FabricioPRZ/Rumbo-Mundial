@@ -8,14 +8,16 @@ export default function TradeModal({
   me,
   onClose,
   send,
+  error,
 }: {
   game: Game;
   me: Player;
+  error?: string;
   onClose: () => void;
   send: (a: Action) => Promise<boolean>;
 }) {
   const dialog = useRef<HTMLDialogElement>(null);
-  const others = game.players.filter((p) => p.id !== me.id && !p.bankrupt);
+  const others = game.players.filter((p) => p.id !== me.id && !p.bankrupt && !(p.jailed && p.detention === "prison"));
   const [to, setTo] = useState(others[0]?.id ?? "");
   const [give, setGive] = useState<number[]>([]);
   const [take, setTake] = useState<number[]>([]);
@@ -58,6 +60,7 @@ export default function TradeModal({
             ×
           </button>
         </div>
+        {error && <p className="error" role="alert">{error}</p>}
         <label>
           Negociar con
           <select

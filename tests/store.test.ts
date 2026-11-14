@@ -76,8 +76,8 @@ describe("Persistencia autoritativa (adaptador Redis simulado)", () => {
       request(a.playerToken, b.game.version, { type: "start" }),
     );
     const results = await Promise.allSettled([
-      act(a.id, request(a.playerToken, start.game.version, { type: "roll" })),
-      act(a.id, request(a.playerToken, start.game.version, { type: "roll" })),
+      act(a.id, request(a.playerToken, start.game.version, { type: "opening-roll" })),
+      act(a.id, request(a.playerToken, start.game.version, { type: "opening-roll" })),
     ]);
     expect(results.filter((r) => r.status === "fulfilled")).toHaveLength(1);
     const failure = results.find((r) => r.status === "rejected");
@@ -160,4 +160,24 @@ it("no acepta que un cliente elija un token nuevo al unirse", async () => {
     joinRoom(a.id, { name: "Luis", token: randomUUID() }),
   ).rejects.toMatchObject({ status: 401 });
   expect((await getRoom(a.id, null, false)).game.players).toHaveLength(1);
+});
+
+it("compras simultáneas no duplican ni el título ni el dinero",async()=>{
+  const {a,b}=await setup();
+  const k=`turista:room:${a.id}`;const stored=JSON.parse(memory.get(k)!);
+  stored.game.status="playing";stored.game.phase="buy";stored.game.players[0].position=1;
+  memory.set(k,JSON.stringify(stored));
+  const results=await Promise.allSettled([
+    act(a.id,request(a.playerToken,b.game.version,{type:"buy"})),
+    act(a.id,request(a.playerToken,b.game.version,{type:"buy"})),
+  ]);
+  expect(results.filter((r)=>r.status==="fulfilled")).toHaveLength(1);
+  const view=await getRoom(a.id,a.playerToken,false);
+  expect(view.game.properties[1].owner).toBe(a.playerId);
+  expect(view.game.players[0].money).toBe(122500);
+});
+it("una sala antigua no puede reinterpretarse con precios e índices nuevos",async()=>{
+  const {a}=await setup();const k=`turista:room:${a.id}`;const stored=JSON.parse(memory.get(k)!);
+  delete stored.game.rulesVersion;memory.set(k,JSON.stringify(stored));
+  await expect(getRoom(a.id,a.playerToken,false)).rejects.toMatchObject({status:410});
 });

@@ -4,9 +4,10 @@ import Link from "next/link";
 import type { Action, Game } from "@/lib/game/types";
 import { COLORS } from "@/lib/game/types";
 import { BOARD } from "@/lib/game/board";
-import { ranking } from "@/lib/game/rules";
+import { ranking, redemptionCost, buildingBidders } from "@/lib/game/rules";
 import Board from "./Board";
 import EntryForm from "./EntryForm";
+import PropertyDialog from "./PropertyDialog";
 import PropertyCard from "./PropertyCard";
 import PlayerPanel from "./PlayerPanel";
 import TradeModal from "./TradeModal";
@@ -18,10 +19,12 @@ export default function Room({ id }: { id: string }) {
     [token, setToken] = useState<string | null>(null),
     [playerId, setPlayerId] = useState<string | null>(null),
     [error, setError] = useState(""),
+    [connectionError, setConnectionError] = useState(""),
     [busy, setBusy] = useState(false),
     [loaded, setLoaded] = useState(false),
     [missing, setMissing] = useState(false),
     [selected, setSelected] = useState(0),
+    [propertyOpen, setPropertyOpen] = useState(false),
     [tradeOpen, setTradeOpen] = useState(false),
     [inactive, setInactive] = useState(0),
     [notice, setNotice] = useState(""),
@@ -74,9 +77,9 @@ export default function Room({ id }: { id: string }) {
       if (data.game) apply(data.game);
       setPlayerId(data.playerId);
       setInactive(data.inactiveFor ?? 0);
-      setError("");
+      setConnectionError("");
     } catch (e) {
-      setError(e instanceof Error ? e.message : "Reconectando…");
+      setConnectionError(e instanceof Error ? e.message : "Reconectando…");
     } finally {
       inFlight.current = false;
     }
@@ -158,16 +161,21 @@ export default function Room({ id }: { id: string }) {
       label = `Pago a ${s.players.find((x) => x.id === s.debt?.creditor)?.name ?? "el Banco"}`;
     }
     if (action.type === "bail") {
-      amount = 50;
-      label = "Multa para salir de Groenlandia";
+      amount = 5000;
+      label = "Multa para salir de Deportado";
     }
     if (action.type === "build") {
+      if (Object.keys(buildingBidders(s, action.square)).length > 1) return commit(action);
       amount = BOARD[action.square].buildCost;
       label = `Construir en ${BOARD[action.square].name}`;
     }
     if (action.type === "redeem") {
-      amount = Math.ceil(BOARD[action.square].mortgage * 1.1);
+      amount = redemptionCost(s, action.square);
       label = `Deshipotecar ${BOARD[action.square].name}`;
+    }
+    if (action.type === "acquire") {
+      const b = BOARD[action.square]; amount = s.properties[b.id].owner ? b.rents[0] : b.price - 1000;
+      label = `Completar bloque con ${b.name}`;
     }
     if (amount > 0) {
       setPayment({ action, amount, label });
@@ -175,6 +183,7 @@ export default function Room({ id }: { id: string }) {
     }
     return commit(action);
   };
+  const selectProperty = (square: number) => { setSelected(square); setPropertyOpen(true); };
   const copy = async (value: string) => {
     try {
       await navigator.clipboard.writeText(value);
@@ -195,7 +204,7 @@ export default function Room({ id }: { id: string }) {
     return (
       <main className="empty panel">
         <h1>Preparando tu viaje…</h1>
-        <p role="status">{error || "Conectando con la sala."}</p>
+        <p role="status">{error || connectionError || "Conectando con la sala."}</p>
         <Link href="/">Volver al inicio</Link>
       </main>
     );
@@ -208,7 +217,7 @@ export default function Room({ id }: { id: string }) {
     <main className="room">
       <header className="room-header">
         <Link href="/" className="brand">
-          ✈ TURISTA MUNDIAL
+          ✈ RUMBO MUNDIAL
         </Link>
         <div className="room-code">
           <span>
@@ -236,19 +245,20 @@ export default function Room({ id }: { id: string }) {
           {notice}
         </p>
       )}
-      {error && (
+      {(error || connectionError) && (
         <p role="alert" className="error">
-          {error}
+          {error || connectionError}
         </p>
       )}
       {game.status === "finished" && (
         <section className="victory panel">
           <p className="eyebrow">VIAJE COMPLETADO</p>
           <h1>
+            {!game.winner.length && "Todos los viajeros quedaron en quiebra"}
             {game.winner
               .map((w) => game.players.find((p) => p.id === w)?.name)
               .join(" y ")}{" "}
-            {game.winner.length > 1 ? "ganan" : "gana"} la partida
+            {game.winner.length ? `${game.winner.length > 1 ? "ganan" : "gana"} la partida` : ""}
           </h1>
           <ol className="ranking">
             {ranking(game).map(({ player: p, place, score }) => (
@@ -342,14 +352,13 @@ export default function Room({ id }: { id: string }) {
           ) : (
             <section className="panel guide">
               <h2>Antes de despegar</h2>
-              <p>Todos empiezan con $1,500. Cobra $200 al pasar por México.</p>
+              <p>Todos empiezan con $134,500. Reclama $20,000 al pasar por Salida, antes de terminar tu turno.</p>
               <p>
-                Compra países y completa grupos para construir restaurantes.
+                Compra países y completa grupos para construir casas.
                 Cinco construcciones se convierten en un hotel.
               </p>
               <p>
-                Groenlandia implica tres turnos completos: puedes pagar $50 o
-                usar una carta para salir. En Oceanía puedes intentar dobles.
+                Deportado: multa de $5,000 o tres turnos. Cárcel: fianza de $10,000 y tres turnos completos. Australia es descanso.
               </p>
               <p>Selecciona cualquier casilla para consultar su tarjeta.</p>
             </section>
@@ -368,12 +377,12 @@ export default function Room({ id }: { id: string }) {
                 {String(seconds % 60).padStart(2, "0")}
               </span>
             )}
-            <span>Versión {game.version}</span>
+            <span>Viaje compartido · {game.players.filter((p) => !p.bankrupt).length} en juego</span>
           </div>
           <Activity game={game} />
           <div className="game-layout">
             <section>
-              <Board game={game} onSelect={setSelected} />
+              <Board game={game} onSelect={selectProperty} />
               <div className="players-strip">
                 {game.players.map((p) => (
                   <div
@@ -402,7 +411,7 @@ export default function Room({ id }: { id: string }) {
                         {BOARD.filter(
                           (b) => game.properties[b.id]?.owner === p.id,
                         ).map((b) => (
-                          <button key={b.id} onClick={() => setSelected(b.id)}>
+                          <button key={b.id} onClick={() => selectProperty(b.id)}>
                             {b.name}
                             {game.properties[b.id].mortgaged ? " · H" : ""}
                           </button>
@@ -422,7 +431,7 @@ export default function Room({ id }: { id: string }) {
                   busy={busy}
                   send={(a) => void send(a)}
                   onTrade={() => setTradeOpen(true)}
-                  onSelect={setSelected}
+                  onSelect={selectProperty}
                 />
               )}
               <PropertyCard
@@ -498,10 +507,13 @@ export default function Room({ id }: { id: string }) {
           </div>
         </>
       )}
-      {payment && me && (
+      {propertyOpen && <PropertyDialog id={selected} game={game} me={me} busy={busy} send={(a)=>void send(a)} onClose={()=>setPropertyOpen(false)} />}
+      {payment && me && game.status === "playing" && (
+
         <PaymentModal
           player={me}
           {...payment}
+          error={error}
           onClose={() => setPayment(null)}
           commit={commit}
         />
@@ -510,6 +522,7 @@ export default function Room({ id }: { id: string }) {
         <TradeModal
           game={game}
           me={me}
+          error={error}
           send={send}
           onClose={() => setTradeOpen(false)}
         />

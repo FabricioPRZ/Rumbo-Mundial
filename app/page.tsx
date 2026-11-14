@@ -1,9 +1,10 @@
+import { Globe } from "@/components/TravelArt";
 import EntryForm from "@/components/EntryForm";
 export default function Home() {
   return (
     <main className="home">
       <header className="brand">
-        ✈ TURISTA MUNDIAL <span>EDICIÓN ENTRE AMIGOS</span>
+        ✈ RUMBO MUNDIAL <span>EDICIÓN ENTRE AMIGOS</span>
       </header>
       <div className="home-grid">
         <section className="hero">
@@ -14,9 +15,10 @@ export default function Home() {
             en tu mesa<span>.</span>
           </h1>
           <p>
-            Compra países, abre restaurantes y negocia con tus amigos. La
+            Compra países, construye casas y hoteles y negocia con tus amigos. La
             próxima escala la deciden los dados.
           </p>
+          <Globe className="hero-globe" />
           <div className="route-art" aria-hidden="true">
             <span>MEX</span>
             <i>✈</i>
@@ -40,8 +42,7 @@ export default function Home() {
         <EntryForm />
       </div>
       <footer>
-        Adaptación independiente de reglas de juego de mesa. Datos del tablero
-        no oficiales.
+        Rumbo Mundial · Un viaje entre amigos. Ilustraciones y textos originales.
       </footer>
     </main>
   );

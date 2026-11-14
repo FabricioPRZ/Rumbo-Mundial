@@ -1,12 +1,13 @@
 "use client";
 import { useEffect, useRef, useState } from "react";
-import { BOARD } from "@/lib/game/board";
+import { Globe, Building } from "./TravelArt";
+import { BOARD, cash } from "@/lib/game/board";
 import type { Game, GameEvent } from "@/lib/game/types";
 export function coordinates(id: number): [number, number] {
-  if (id <= 10) return [10 - id, 10];
-  if (id <= 20) return [0, 20 - id];
-  if (id <= 30) return [id - 20, 0];
-  return [10, id - 30];
+  if (id <= 10) return [0, id];
+  if (id <= 20) return [id - 10, 10];
+  if (id <= 30) return [10, 30 - id];
+  return [40 - id, 0];
 }
 export default function Board({
   game,
@@ -16,6 +17,10 @@ export default function Board({
   onSelect: (id: number) => void;
 }) {
   const [zoom, setZoom] = useState(1);
+  const [deckInfo, setDeckInfo] = useState<"email" | "sms" | null>(null);
+  const scroll = useRef<HTMLDivElement>(null);
+  const fit = () => { if (scroll.current) setZoom(Math.min(1, (scroll.current.clientWidth - 4) / 760)); };
+  useEffect(() => { if (window.innerWidth < 780 && scroll.current) setZoom(Math.min(1, (scroll.current.clientWidth - 4) / 760)); }, []);
   const [positions, setPositions] = useState<Record<string, number>>(() =>
     Object.fromEntries(game.players.map((p) => [p.id, p.position])),
   );
@@ -74,14 +79,14 @@ export default function Board({
   );
   const icons: Record<string, string> = {
     start: "⚑",
-    oceania: "🔒",
+    oceania: "↩",
     rest: "🏝",
-    "go-oceania": "➜",
+    "go-oceania": "▥",
     email: "✉",
     sms: "☏",
     tax: "$",
     airline: "✈",
-    utility: "⚡",
+    utility: "⚖",
   };
   return (
     <section className="board-section">
@@ -90,7 +95,7 @@ export default function Board({
         <input
           aria-label="Escala del tablero"
           type="range"
-          min="0.5"
+          min="0.35"
           max="1.25"
           step="0.05"
           value={zoom}
@@ -98,7 +103,8 @@ export default function Board({
         />
         <span>{Math.round(zoom * 100)}%</span>
       </label>
-      <div className="board-scroll">
+      <button className="fit-board" onClick={fit}>Ver tablero completo</button>
+      <div className="board-scroll" ref={scroll}>
         <div
           className="board"
           style={{ zoom }}
@@ -112,11 +118,12 @@ export default function Board({
               <button
                 key={b.id}
                 onClick={() => onSelect(b.id)}
-                className={`square ${b.kind}`}
+                className={`square ${b.kind} ${game.players[game.turn]?.position === b.id ? "current-square" : ""}`}
                 style={{
                   gridColumn: x + 1,
                   gridRow: y + 1,
                   borderColor: owner?.color,
+                  boxShadow: owner ? `inset 0 -4px ${owner.color}` : undefined,
                 }}
                 aria-label={`${b.name}${a?.owner ? `, de ${owner?.name}` : ""}${a?.mortgaged ? ", hipotecada" : ""}`}
               >
@@ -124,14 +131,14 @@ export default function Board({
                   className="stripe"
                   style={{ background: b.color ?? "transparent" }}
                 />
-                <span className="square-icon">{icons[b.kind]}</span>
+                <span className="square-icon">{b.flag ?? icons[b.kind]}</span>
                 <strong>{b.name}</strong>
                 <small>
-                  {b.price ? `$${b.price}` : b.tax ? `$${b.tax}` : ""}
+                  {b.price ? cash(b.price) : b.tax ? cash(b.tax) : ""}
                 </small>
                 {a?.buildings ? (
                   <span className="buildings">
-                    {a.buildings === 5 ? "🏨" : "🍴".repeat(a.buildings)}
+                    {a.buildings === 5 ? <Building hotel /> : Array.from({ length: a.buildings }, (_, i) => <Building key={i} />)}
                   </span>
                 ) : null}
                 {a?.mortgaged && <span className="mortgage-badge">H</span>}
@@ -139,22 +146,19 @@ export default function Board({
             );
           })}
           <div className="board-center">
-            <p className="eyebrow">EL MUNDO ES TUYO</p>
-            <h2>
-              Turista
-              <br />
-              Mundial
-            </h2>
+            <Globe className="board-globe" />
+            <p className="eyebrow">TU PRÓXIMA GRAN AVENTURA</p>
+            <h2>Rumbo<br />Mundial<span>✦</span></h2>
             <div className="deck-cards">
-              <div>
-                ✉<b>E-Mail</b>
-              </div>
-              <div>
-                ☏<b>SMS</b>
-              </div>
+              <button onClick={() => setDeckInfo(deckInfo === "email" ? null : "email")} aria-pressed={deckInfo === "email"}>
+                <span aria-hidden="true">✉</span><b>Correo</b><small>EL MUNDO TE ESCRIBE</small>
+              </button>
+              <button onClick={() => setDeckInfo(deckInfo === "sms" ? null : "sms")} aria-pressed={deckInfo === "sms"}>
+                <span aria-hidden="true">☏</span><b>Mensaje</b><small>UN NUEVO DESTINO</small>
+              </button>
             </div>
-            <p>{game.lastCard ?? "Cada viaje comienza con una tirada."}</p>
-            <small>MÉXICO · $200 POR VUELTA</small>
+            <p className="deck-description">{deckInfo ? `El mazo de ${deckInfo === "email" ? "Correo" : "Mensaje"} se baraja en cada partida. La carta se revela al caer en su casilla y vuelve al fondo, salvo los permisos que conserves.` : "24 países. Una mesa. Mil historias."}</p>
+            <small>SALIDA ↓ MARRUECOS · SUELDO $20,000</small>
           </div>
           {game.players
             .filter((p) => !p.bankrupt)

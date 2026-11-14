@@ -1,5 +1,6 @@
+import { Building } from "./TravelArt";
 import { BOARD } from "@/lib/game/board";
-import { assetError } from "@/lib/game/rules";
+import { assetError, group } from "@/lib/game/rules";
 import type { Action, Game, Player } from "@/lib/game/types";
 export default function PropertyCard({
   id,
@@ -23,7 +24,9 @@ export default function PropertyCard({
       style={{ borderTopColor: b.color ?? "#175344" }}
     >
       <p className="eyebrow">{b.group ?? "ESCALA DEL VIAJE"}</p>
-      <h2>{b.name}</h2>
+      <h2>{b.flag} {b.name}</h2>
+      {!!a?.buildings && <div className="property-buildings">{a.buildings === 5 ? <Building hotel /> : Array.from({length: a.buildings}, (_, i) => <Building key={i} />)}</div>}
+      {me?.acquisitionCard && b.kind === "country" && a?.owner !== me.id && group(id).every((x) => x.id === id || game.properties[x.id].owner === me.id) && <button className="primary" disabled={busy || !!game.debt || !!game.auction} onClick={() => send({type:"acquire", square:id})}>Usar permiso para completar bloque</button>}
       {b.price ? (
         <>
           <p>
@@ -52,10 +55,10 @@ export default function PropertyCard({
                 {b.kind === "country"
                   ? [
                       "Base",
-                      "1 restaurante",
-                      "2 restaurantes",
-                      "3 restaurantes",
-                      "4 restaurantes",
+                      "1 casa",
+                      "2 casas",
+                      "3 casas",
+                      "4 casas",
                       "Hotel",
                     ][i]
                   : b.kind === "airline"
@@ -73,12 +76,10 @@ export default function PropertyCard({
           )}
           {me && a?.owner === me.id && game.status === "playing" && (
             <div className="asset-actions">
-              {(["build", "sell", "mortgage", "redeem", "return"] as const).map(
+              {(["build", "sell", "sell-group", "mortgage", "redeem", "return"] as const).map(
                 (type) => {
                   const reason =
-                    game.players[game.turn].id !== me.id
-                      ? "Espera tu turno."
-                      : assetError(game, me, id, type);
+                    assetError(game, me, id, type);
                   return (
                     <div key={type}>
                       <button
@@ -90,6 +91,7 @@ export default function PropertyCard({
                           {
                             build: "Construir",
                             sell: "Vender edificio",
+                            "sell-group": "Vender edificios del bloque",
                             mortgage: "Hipotecar",
                             redeem: "Deshipotecar",
                             return: "Devolver al Banco",
@@ -107,15 +109,15 @@ export default function PropertyCard({
       ) : (
         <p>
           {b.kind === "oceania"
-            ? "Groenlandia es de visita al caer con dados. Al ser deportado, cumple tres turnos, paga $50 o usa una carta de salida."
+            ? "De visita al caer con dados. Si te envían aquí: paga $5,000 o cumple tres turnos completos; después regresas a Salida sin sueldo. Puedes administrar tus propiedades."
             : b.kind === "start"
-              ? "Cobra $200 al pasar o caer aquí."
+              ? "Reclama $20,000 al pasar o caer aquí, antes de ceder el turno."
               : b.kind === "tax"
                 ? `Paga $${b.tax} al Banco.`
                 : b.kind === "go-oceania"
-                  ? "Viaja a Groenlandia sin cobrar por México."
+                  ? "Paga $10,000 de fianza y cumple tres turnos completos. No cobras rentas ni administras propiedades. Los dobles no te liberan."
                   : b.kind === "rest"
-                    ? "Oceanía: pierdes tres turnos; los dobles permiten salir antes."
+                    ? "Australia es descanso: no hay castigo al caer con dados. Algunas cartas pueden indicar una estancia especial."
                     : "Roba una carta y sigue sus instrucciones."}
         </p>
       )}

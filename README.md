@@ -1,100 +1,146 @@
-# Turista Mundial
+# Rumbo Mundial
 
-Juego multijugador en español de México con Next.js App Router, TypeScript estricto, Tailwind y Upstash Redis. Adaptación independiente; no es una edición oficial. Los 40 espacios y valores están centralizados en `lib/game/board.ts`, con aviso `// VERIFICAR`.
+Juego de mesa multijugador en español de México, con Next.js App Router, TypeScript estricto, Tailwind y Upstash Redis. Conserva los nombres y posiciones de los países del tablero de referencia aportado por el usuario, con ilustraciones SVG, billetes, casas, hoteles y textos de cartas creados en código. No muestra las fotografías ni utiliza logotipos o personajes del producto de referencia.
 
-## Ejecutar localmente
+## Ejecutar el proyecto
 
-1. Instala Node.js 22 o posterior.
-2. Ejecuta `npm install`.
-3. Copia `.env.example` a `.env.local`.
-4. Crea una base Redis en Upstash y copia su REST URL y REST TOKEN en `UPSTASH_REDIS_REST_URL` y `UPSTASH_REDIS_REST_TOKEN`. También se admiten `KV_REST_API_URL` y `KV_REST_API_TOKEN`. No uses prefijos `NEXT_PUBLIC_`.
-5. Ejecuta `npm run dev` y abre `http://localhost:3000`.
-6. Ejecuta `npm test`, `npm run lint` y `npm run build` para verificar el proyecto.
+Necesitas Node.js 22 y las credenciales de Redis que ya configuraste. No hay servidor adicional ni base SQL.
 
-No existe una persistencia alternativa en memoria o archivos. Sin credenciales Redis válidas la interfaz explica la configuración pendiente; crear salas requiere Redis.
+```sh
+npm ci
+cp .env.example .env.local
+```
 
-## Publicar en Vercel desde GitHub
+En `.env.local`, coloca el REST URL y REST TOKEN de Upstash:
 
-1. Crea un repositorio vacío en GitHub.
-2. Desde la carpeta del proyecto ejecuta:
+```dotenv
+UPSTASH_REDIS_REST_URL=https://TU_BASE.upstash.io
+UPSTASH_REDIS_REST_TOKEN=TU_TOKEN
+```
+
+También se aceptan `KV_REST_API_URL` y `KV_REST_API_TOKEN`. No agregues `NEXT_PUBLIC_` a estas variables ni publiques `.env.local`.
+
+```sh
+npm run dev
+```
+
+Abre `http://localhost:3000`. Redis es indispensable para compartir salas en Vercel: las funciones serverless no conservan estado entre solicitudes. La aplicación no utiliza almacenamiento del servidor en memoria o archivos, WebSockets, Socket.io ni un proceso residente.
+
+## Actualizar tu despliegue existente en Vercel
+
+1. Sube los archivos modificados a la rama de producción de tu repositorio, normalmente `main`.
+2. Vercel generará un despliegue automáticamente. Si subiste el proyecto con CLI, ejecuta `npx vercel --prod` desde esta carpeta.
+3. Conserva las variables de Upstash en **Settings → Environment Variables**, habilitadas para Production. Si cambias variables, crea un nuevo despliegue para aplicarlas.
+4. Abre la URL y **crea una sala nueva**. Las salas del tablero anterior se rechazan con un mensaje explícito para evitar mezclar países, posiciones y precios.
+
+Las fotografías de referencia se conservan localmente en `public`, pero `.vercelignore` excluye sus seis carpetas del despliegue. No se cargan desde la interfaz. El proyecto no necesita esas fotos para compilar o funcionar. Los archivos de entrega también excluyen fotos y credenciales.
+
+## Publicar por primera vez desde GitHub
+
+Crea un repositorio vacío y ejecuta estos comandos, sustituyendo la URL por la tuya:
 
 ```sh
 git init
 git add .
-git commit -m "Implementa Turista Mundial multijugador"
+git commit -m "Implementa Rumbo Mundial"
 git branch -M main
-git remote add origin https://github.com/TU_USUARIO/turista-mundial.git
+git remote add origin https://github.com/TU_USUARIO/rumbo-mundial.git
 git push -u origin main
 ```
 
-3. En Vercel selecciona **Add New → Project**, importa el repositorio y conserva el preset Next.js, con la raíz del repositorio como directorio raíz.
-4. En Marketplace busca **Upstash Redis**, crea o conecta una base y asígnala al proyecto. Comprueba que las variables de entorno tengan uno de los dos pares admitidos. Si la integración usa otro prefijo, copia manualmente REST URL y REST TOKEN en los nombres indicados arriba.
-5. Activa las variables para Production y, si vas a probar previews, también Preview y Development.
-6. Ejecuta Deploy. Si agregaste variables después de un despliegue, usa Redeploy.
-7. Abre la URL HTTPS, crea una sala y copia su enlace para compartirlo.
-
-Alternativa por CLI: ejecuta `npx vercel`, enlaza el proyecto, configura las mismas variables en su panel y ejecuta `npx vercel --prod`. No requiere servidor separado, procesos persistentes, WebSockets ni dependencias nativas.
+En Vercel, importa el repositorio como proyecto Next.js. Usa la carpeta del proyecto como Root Directory. Desde Marketplace agrega o conecta Upstash Redis y comprueba que haya uno de los pares de variables admitidos. También puedes copiarlas manualmente desde Upstash. Habilítalas para Production y, si lo necesitas, Preview y Development. Ejecuta Deploy. No hace falta configurar otro backend.
 
 ## Probar con amigos
 
-- Abre el sitio en dos navegadores o en una ventana normal y otra privada. Cada perfil representa a un jugador distinto.
-- Crea una sala, copia su ID de seis caracteres o el enlace `/sala/ABC234` y únete desde el otro navegador.
-- Elige colores distintos en el lobby. El anfitrión inicia con 2–6 participantes.
-- Tira, compra o declina, y termina el turno. Los dobles conceden otro tiro; el tercer doble envía a Oceanía.
-- Refresca: el token en localStorage permite volver al mismo jugador. No borres los datos del sitio; el token es la llave privada de tu asiento y no debe compartirse.
-- Prueba dos acciones a la vez: una operación que utiliza una versión desactualizada recibe HTTP 409 y debe revisarse con el estado actualizado.
-- Cierra la pestaña del jugador activo. Tras 90 segundos sin heartbeat o acción, el anfitrión puede saltarlo o declararlo en quiebra; no se puede saltar una deuda pendiente.
-- Reúne grupos, construye de forma pareja, intercambia bienes y continúa hasta que quede un jugador. También puedes crear una sala de 30, 60 o 90 minutos.
+1. Abre la página en dos perfiles distintos: dos navegadores o una ventana normal y otra privada.
+2. Crea una sala; comparte el ID o el enlace. Cada participante elige nombre y color.
+3. El anfitrión inicia. Cada jugador tira **un dado de salida**; el mayor comienza. Los empatados repiten.
+4. Tira los dados y selecciona una casilla para abrir su título. Todos ven las tiradas, cartas y compras.
+5. Compra seleccionando los billetes con un toque, o envía la propiedad a subasta. Las ofertas válidas se guardan en Redis; al terminar el plazo o retirarse los demás se adjudica automáticamente.
+6. Refresca la página: debes seguir en tu mismo asiento. El token se conserva en localStorage. No compartas ese token ni borres los datos del navegador si quieres reconectarte.
+7. Abre **Proponer trato**; el destinatario verá la propuesta y podrá aceptarla o rechazarla. Se puede negociar fuera del turno propio, excepto desde la cárcel o mientras haya un pago/subasta pendiente.
+8. Completa un bloque y construye casas de forma pareja. Revisa la lista y cantidad de propiedades de los demás.
+9. Al pasar por Salida, pulsa **Cobrar sueldo** antes de ceder el turno.
+10. Cierra la pestaña de quien debe responder. Tras 90 segundos, el anfitrión puede saltarlo cuando sea posible o declararlo en quiebra. Las subastas vencen por su propio plazo.
 
-## Reglas y decisiones de esta adaptación
+El zoom permite ver el tablero completo en un teléfono o ampliar para leer casillas. Las animaciones respetan la preferencia de movimiento reducido. El sonido es opcional.
 
-Cada jugador comienza con $1,500; el Banco no tiene límite. Los billetes solicitados en el enunciado sumarían $1,500: se presenta únicamente el saldo. Pasar o caer en México paga $200, excepto el traslado directo a Oceanía. Caer en la propia casilla Oceanía también detiene al jugador, conforme a las reglas solicitadas; no existe “solo de visita”. Una tirada fallida consume uno de tres turnos detenidos; luego se tira normalmente en el siguiente turno. Salir con dobles desde Oceanía no concede un tiro adicional.
+## Reglas implementadas
 
-No hay subastas. La renta de un país sin edificios se duplica al poseer todas las propiedades del color. La hipoteca anula la renta únicamente de la propiedad hipotecada. Aerolíneas y servicios cuentan todas las propiedades del tipo que posee el dueño, incluidas las hipotecadas. Los servicios usan la tirada del turno, también al llegar por carta.
+- 40 casillas, 24 países en ocho bloques, cuatro aerolíneas, Embajada y Consulado. Recorrido antihorario: Salida → Marruecos → Egipto. México es una propiedad, no la salida.
+- Capital inicial de **$134,500**: dos billetes de $50,000, dos de $10,000, dos de $5,000, uno de $2,000, dos de $1,000 y uno de $500. El Banco da cambio y emite dinero sin límite. Hay denominaciones menores para intereses.
+- Sueldo de **$20,000**, reclamable en el turno correspondiente. No se obtiene por el traslado de deportación/cárcel.
+- Dobles dan un tiro extra. El tercer doble envía a Deportado.
+- Caer con dados en Deportado es una visita. Ser enviado allí permite pagar **$5,000** o perder tres turnos completos; después se vuelve a Salida sin sueldo. Se pueden administrar propiedades durante la deportación.
+- Cárcel cobra **$10,000** de fianza y exige tres turnos completos, salvo una carta que indique otra duración. Los dobles no liberan. No permite rentas ni administración voluntaria. El pase diplomático cancela la detención y la fianza que siga pendiente.
+- Australia es descanso al caer con dados. Una carta puede imponer una estancia adicional.
+- Renta según el título; base doble con bloque completo, cero en una propiedad hipotecada. Aerolíneas: $2,500 / $5,000 / $10,000 / $20,000. Embajada y Consulado: dados × $500 o × $1,000 al tener ambas.
+- Compra al Banco o subasta, incluso para quien rechazó la compra. Oferta mínima $500; incrementos mínimos de $500. Primera ronda de 30 s; una nueva oferta concede 20 s. Los jugadores en cárcel no participan. La oferta ganadora se paga automáticamente.
+- Construcción uniforme en bloques completos sin hipotecas, hasta cuatro casas y un hotel. El hotel sustituye cuatro casas y cuesta una construcción más. Venta al Banco a mitad del costo. Se permite administrar fuera del turno.
+- Inventario finito de 36 casas y 12 hoteles. Si queda una pieza y varios jugadores tienen países preparados, se subasta entre ellos. Si no hay piezas, se espera. **Vender edificios del bloque** permite liquidar todos a mitad de costo cuando no hay cuatro casas para deshacer un hotel.
+- Hipoteca por la mitad del precio; liberación con 10% de interés. No se puede hipotecar/intercambiar una propiedad de un bloque con edificios. Devolver una propiedad hipotecada no genera un segundo pago.
+- Tratos de propiedades y dinero revalidados al aceptar. No hay préstamos entre jugadores. Las propuestas sobreviven al cambio de turno; una aceptación invalida las demás para evitar ofertas desactualizadas.
+- Dos mazos de 16 cartas, barajados con aleatoriedad criptográfica en cada partida. Incluyen cobros, pagos, pagos colectivos, viajes, reparaciones, pausas, permisos, bono de renta, devolución de compras y expropiaciones. Las cartas ordinarias vuelven al fondo; los permisos se conservan hasta usarlos. Textos originales; no son una transcripción de las cartas comerciales.
+- Toda deuda queda pendiente hasta pagar o liquidar activos. Los pagos colectivos se procesan en cola identificando a cada deudor, incluso fuera de turno. Solo se admite quiebra cuando ni la liquidación cubriría la obligación.
+- Al quebrar, los edificios se liquidan a mitad de precio. El acreedor recibe el efectivo y bienes; paga al Banco el 10% del valor original de las propiedades heredadas hipotecadas. Puede redimir pagando solo el principal durante ese turno; después vuelve a aplicar el interés normal. Si el acreedor es el Banco, los títulos se subastan mientras siga la partida.
+- Gana el último superviviente. El modo de 30/60/90 minutos compara patrimonio neto: efectivo + precios originales + costo de edificios − hipotecas − deudas. Empates comparten puesto. Los quebrados aparecen detrás, del último eliminado al primero.
 
-Construir requiere poseer todas las propiedades del grupo y que ninguna esté hipotecada. Las construcciones se compran y venden de forma pareja, exclusivamente al Banco. Un hotel es el nivel cinco: al venderlo se recupera medio costo de una construcción y queda con cuatro restaurantes. No se impone inventario físico limitado de edificios. Para hipotecar, devolver o intercambiar una propiedad deben haberse vendido todos los edificios de su grupo. Devolver una propiedad hipotecada no paga nuevamente la mitad del precio: ese dinero ya se recibió en la hipoteca. Deshipotecar cuesta el principal más 10%, redondeado al peso superior.
+## Criterios de adaptación y referencias contradictorias
 
-La gestión de propiedades y las propuestas de trato se hacen durante el turno propio; el destinatario puede aceptar o rechazar durante ese turno. Terminar el turno cancela las propuestas. Las propiedades hipotecadas se pueden intercambiar conservando su hipoteca. Los tratos se revalidan al aceptar y no se permiten durante una deuda. No se cobra interés adicional por transferir una hipoteca; liberarla posteriormente sí cobra 10%.
+Los datos numéricos y nombres están centralizados en `lib/game/board.ts`. El documento de referencia original del usuario permanece en `reglas_turista_mundial.md` sin modificaciones. Para obtener un reglamento consistente:
 
-Si falta efectivo, la deuda se conserva íntegra sin pagos parciales. El jugador vende edificios y puede hipotecar o devolver bienes. Solo se admite quiebra cuando sus activos realizables no cubren la deuda y ya no quedan edificios ni propiedades sin hipotecar. El acreedor recibe el efectivo y propiedades restantes con sus hipotecas; si es el Banco, las propiedades quedan libres. Las cartas de salida vuelven a su mazo.
+- La sección general del instructivo dice que caer con dados en Deportado es visita; la sección dedicada dice “por algún motivo”. Se aplica visita para dados y castigo al ser enviado por carta o tercer doble.
+- El ejemplo del instructivo agrupa Chile/Argentina/Perú, pero los títulos fotografiados agrupan **Brasil/Chile/Argentina** y **Colombia/Venezuela/Perú**. Se siguen los títulos.
+- México vale $26,000 en el tablero; se aplica hipoteca de $13,000, coherente con la regla del 50%, aunque uno de sus reversos fotografiados indique $12,000.
+- Se conservan valores inusuales impresos en títulos: Japón con tres casas $144,000; Brasil con cuatro casas $112,000. No se sustituyen por una progresión inventada.
+- La transcripción no fija el número de piezas ni el protocolo digital de subasta. El inventario y los plazos indicados arriba son parámetros de esta adaptación. La subasta de edificios se activa con la última pieza disponible.
+- Para que la fianza no bloquee una partida, la cárcel permite liquidación forzosa destinada a pagar una deuda, pero no gestión voluntaria ni cobro de rentas.
+- Las cartas con pruebas físicas se sustituyen por efectos digitales. Algunas cartas también tienen ajustes explícitos en su nuevo texto. El permiso de adquisición exige completar un bloque sin edificios y usa la renta base del título como precio frente a otro propietario.
+- La partida por tiempo utiliza patrimonio neto, descontando hipotecas y deudas para que endeudarse no aumente artificialmente el resultado.
 
-El patrimonio para modo por tiempo suma efectivo, valor original de propiedades y costo original de edificios, menos el principal de hipotecas y deudas pendientes. Los empates comparten victoria. El vencimiento se calcula con hora del servidor y se materializa en la siguiente consulta o acción; no necesita cron. El anfitrión no se reasigna automáticamente.
+El nombre nuevo y el arte propio no constituyen una comprobación de disponibilidad de marca ni una garantía legal.
 
-## Pruebas automatizadas
+## Comprobar el código
 
-`npm test` ejecuta 32 pruebas: reglas del motor, una partida completa simulada hasta quiebra, autenticación, reconexión, idempotencia y carreras de escritura. Las pruebas del almacén utilizan un doble de Redis exclusivamente dentro del archivo de prueba; la aplicación nunca usa ese estado simulado.
+```sh
+npm test
+npm run lint
+npm run build
+```
 
-Con el sitio ejecutándose y Redis configurado, ejecuta `npm run test:api`. Para probar un despliegue usa `TEST_BASE_URL=https://TU_PROYECTO.vercel.app npm run test:api`. Crea una sala real de prueba y verifica tokens, dos jugadores, reconexión, polling sin cambios, idempotencia y dos tiradas concurrentes. La sala de prueba expira por TTL; la prueba no borra salas existentes.
+La suite cubre tablero, precios, sueldo, construcción uniforme, inventario, hipotecas, detenciones, cartas, subastas, tratos, pagos, quiebra, ranking, tres partidas simuladas completas, tokens, reconexión, idempotencia y compras simultáneas. Los tests del almacén usan un doble de Redis **solo en pruebas**; la aplicación sigue usando exclusivamente Redis real.
 
-## Estado de validación de esta entrega
+Para verificar los Route Handlers contra Redis real con el servidor abierto:
 
-- 32 pruebas Vitest ejecutadas y aprobadas usando paquetes disponibles en la caché local.
-- Motor comprobado con TypeScript estricto; revisión adicional de código con reglas recomendadas de TypeScript ESLint aprobada.
-- `npm run build` y la configuración completa de ESLint de Next.js no pudieron verificarse en este entorno: el acceso al registro npm falla por resolución DNS, y Next.js, su configuración de ESLint y el SDK de Upstash no están disponibles en la caché. No se afirma que el build haya pasado.
-- No se ha ejecutado la prueba contra Redis real ni una partida en dos navegadores. No se han proporcionado credenciales Upstash ni publicado un despliegue.
-- Ejecuta instalación, pruebas, lint, build y `test:api` con las variables reales antes de publicar.
+```sh
+npm run test:api
+```
 
-## Arquitectura y seguridad
+O contra tu despliegue:
 
-- `lib/game/engine.ts`: reducer puro, sin reloj, red ni aleatoriedad propios. Recibe dados, mazos y hora mediante contexto del servidor. Devuelve una copia o lanza un error sin mutar la entrada.
-- `lib/game/rules.ts`: rentas, grupos, validación de activos y patrimonio.
-- `lib/game/board.ts` y `cards.ts`: tablero y 16 cartas por mazo.
-- `lib/store.ts`: Redis REST, tokens, creación y unión, control de versiones, expiración y presencia.
-- `app/api/rooms/**`: Route Handlers dinámicos con runtime Node.js y respuestas sin caché.
-- `components/Room.tsx`: polling secuencial aproximadamente cada segundo, pausa al ocultarse la pestaña, heartbeat cada 20 segundos y reconexión automática.
+```sh
+TEST_BASE_URL=https://TU_PROYECTO.vercel.app npm run test:api
+```
 
-Redis conserva cada sala durante 24 horas desde su última creación, unión o acción guardada. Los tokens UUID se almacenan como hashes SHA-256 y nunca aparecen en el estado público. No se acepta un playerId del cliente como autenticación. La secuencia de mazos también se excluye de las respuestas. Los dados y barajados usan `node:crypto` en el servidor.
+Esta prueba crea una sala de dos jugadores, valida tokens, reconexión, polling sin cambios y una carrera de solicitudes. No borra salas existentes; la sala de prueba expira en 24 horas. No reemplaza la prueba visual entre navegadores.
 
-Cada escritura compara y cambia la versión dentro de un único script Lua atómico en Redis. Si otra solicitud ganó la carrera, se rechaza la escritura; no hay ventana de expiración de lock que permita una escritura tardía. El endpoint de acciones además acepta un `requestId` UUID y recuerda los últimos 100 recibos para evitar reejecuciones de solicitudes ya guardadas. La interfaz no reintenta automáticamente una acción cuando desconoce su resultado; el polling recupera el estado confirmado.
+En el entorno de esta entrega se ejecutaron las pruebas, lint y compilación. La prueba visual y de API contra Redis real debe hacerse en tu equipo o despliegue: el entorno de edición no permite abrir el puerto del servidor ni ejecutar el navegador.
 
-Las lecturas usan `GET /api/rooms/[id]?since=<version>` y devuelven `{changed:false}` cuando no cambió la sala. El token se transmite en Authorization para recuperar identidad y presencia. Los espectadores con el ID pueden leer el tablero pero no actuar. Los estados de presencia se guardan por separado en Redis y no incrementan la versión del juego.
+## Arquitectura
 
-El polling consume solicitudes Redis incluso sin cambios: dimensiona la cuota según jugadores y duración. Este proyecto no incluye un servicio antispam de terceros ni recuperación de tokens perdidos. Usa HTTPS y comparte enlaces únicamente con los participantes deseados.
+- `lib/game/engine.ts`: reducer determinista. Recibe dados, mazos y hora del servidor; nunca usa reloj o aleatoriedad propios.
+- `lib/game/board.ts`, `cards.ts`, `rules.ts`, `money.ts`: datos y reglas centralizados.
+- `lib/store.ts`: Redis REST, tokens UUID almacenados como hashes, control de versiones, recibos de idempotencia y presencia.
+- `app/api/rooms/**`: Route Handlers dinámicos, runtime Node.js, respuestas sin caché.
+- `components/Room.tsx`: polling secuencial cada segundo, pausa al ocultar pestaña, heartbeat cada 20 s y reconexión por token.
+- `components/TravelArt.tsx`: ilustraciones originales de globo, billetes y edificios en SVG/CSS. No descarga imágenes ni fuentes externas.
+- `components/Board.tsx`: recorrido de fichas por eventos, casilla por casilla, sin repetir movimientos al refrescar.
+- `components/Activity.tsx`: dados y cola de avisos compartidos. `Log.tsx`: bitácora con los últimos 50 eventos.
 
-## Referencias
+Las escrituras usan un único script Lua que compara la versión y guarda el nuevo estado atómicamente. Una carrera pierde con HTTP 409. La caducidad de sala se renueva a 24 horas en cada acción guardada. Cada acción lleva un `requestId`; se conservan los últimos 100 recibos para no duplicar efectos al repetir solicitudes. Los mazos y los tokens no se incluyen en el estado público. No se confía en un playerId enviado por el cliente.
 
-- [Upstash Redis TypeScript SDK](https://upstash.com/docs/redis/sdks/ts/getstarted)
-- [Redis EVAL](https://redis.io/docs/latest/commands/eval/)
-- [Next.js Route Handlers](https://nextjs.org/docs/app/api-reference/file-conventions/route)
+El vencimiento de partidas y subastas se resuelve durante la siguiente consulta o acción usando la hora del servidor, sin cron ni temporizadores persistentes. Los espectadores pueden leer, pero necesitan un token válido para actuar. El código conserva el prefijo interno `turista:` en las claves y en localStorage por compatibilidad; la presentación usa Rumbo Mundial.
 
-La versión mínima de Next.js es 15.5.29, conforme al [aviso oficial de seguridad del 3 de noviembre de 2026](https://nextjs.org/blog/november-2026-security-release).
+## Entrega completa
+
+`npm run entrega` genera `ENTREGA.md` con árbol y código completo archivo por archivo, README al final. El archivo `rumbo-mundial.zip` contiene el proyecto desplegable sin credenciales, dependencias instaladas, compilaciones o fotografías de referencia.

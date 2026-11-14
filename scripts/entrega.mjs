@@ -4,6 +4,8 @@ const directories = ["app", "components", "lib", "tests", "scripts"];
 const files = [
   ".env.example",
   ".gitignore",
+  ".vercelignore",
+  "package-lock.json",
   "package.json",
   "tsconfig.json",
   "next-env.d.ts",
@@ -38,7 +40,7 @@ function render(branch, prefix = "") {
   });
 }
 let markdown =
-  "```text\nturista-mundial/\n" + render(tree).join("\n") + "\n```\n";
+  "```text\nrumbo-mundial/\n" + render(tree).join("\n") + "\n```\n";
 for (const file of files) {
   const ext = path.extname(file);
   const lang =

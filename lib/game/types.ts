@@ -15,6 +15,7 @@ export interface Square {
   kind: SquareKind;
   price: number;
   mortgage: number;
+  flag?: string;
   group?: string;
   color?: string;
   rents: number[];
@@ -25,6 +26,7 @@ export interface Property {
   owner: string | null;
   buildings: number;
   mortgaged: boolean;
+  inheritanceTurn?: number;
 }
 export interface Player {
   id: string;
@@ -38,6 +40,12 @@ export interface Player {
   bills?: Record<string, number>;
   detention?: "prison" | "oceania";
   eliminatedAt?: number;
+  salary?: number;
+  skipTurns?: number;
+  rentBonus?: boolean;
+  acquisitionCard?: boolean;
+  lastBought?: number;
+
 }
 export interface Trade {
   id: string;
@@ -63,16 +71,23 @@ export interface GameEvent {
 export interface Game {
   id: string;
   version: number;
+  rulesVersion?: number;
   host: string;
   status: "lobby" | "playing" | "finished";
   players: Player[];
   properties: Record<number, Property>;
   turn: number;
+  turnNumber?: number;
   phase: "roll" | "buy" | "end";
   doubles: number;
   extra: boolean;
   dice: [number, number];
-  debt: { amount: number; creditor: string | null } | null;
+  debt: Debt | null;
+  debts?: Debt[];
+  auction?: Auction | null;
+  auctionQueue?: number[];
+  choice?: { player: string; kind: "collect"; amount: number } | null;
+  opening?: { candidates: string[]; rolls: Record<string, number>; round: number } | null;
   trades: Trade[];
   decks: { email: number[]; sms: number[] };
   log: string[];
@@ -98,10 +113,14 @@ export type Action = (
         | "bankrupt"
         | "pass"
         | "wait"
-        | "bail";
+        | "bail"
+        | "salary"
+        | "opening-roll"
+        | "fold"
+        | "auction-expire";
     }
   | {
-      type: "build" | "sell" | "mortgage" | "redeem" | "return";
+      type: "build" | "sell" | "sell-group" | "mortgage" | "redeem" | "return";
       square: number;
     }
   | { type: "color"; color: string }
@@ -116,6 +135,9 @@ export type Action = (
   | { type: "accept" | "reject"; trade: string }
   | { type: "skip" | "expel" }
   | { type: "change"; denomination: number }
+  | { type: "bid"; amount: number; square?: number }
+  | { type: "collect"; target: string }
+  | { type: "acquire"; square: number }
 ) & { bills?: Record<string, number> };
 export interface Context {
   now: number;
@@ -131,3 +153,19 @@ export const COLORS = [
   "#218a65",
   "#d3508c",
 ];
+
+export interface Debt {
+  amount: number;
+  creditor: string | null;
+  payer?: string;
+  reason?: "bail" | "purchase" | "inheritance";
+  square?: number;
+}
+export interface Auction {
+  buildingOptions?: Record<string, number[]>;
+  square: number;
+  amount: number;
+  bidder: string | null;
+  passed: string[];
+  endsAt: number;
+}

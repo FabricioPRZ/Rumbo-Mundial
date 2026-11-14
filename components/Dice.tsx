@@ -1,20 +1,6 @@
-"use client";
-export default function Dice({
-  values,
-  rollId = 0,
-}: {
-  values: [number, number];
-  rollId?: number;
-}) {
-  return (
-    <div
-      key={rollId}
-      className={`dice ${rollId ? "rolling" : ""}`}
-      aria-label={`Dados: ${values[0]} y ${values[1]}. Total ${values[0] + values[1]}.`}
-    >
-      {values.map((n, i) => (
-        <span key={i}>{["⚀", "⚁", "⚂", "⚃", "⚄", "⚅"][n - 1]}</span>
-      ))}
-    </div>
-  );
+const positions: Record<number, number[]> = {1:[4],2:[0,8],3:[0,4,8],4:[0,2,6,8],5:[0,2,4,6,8],6:[0,2,3,5,6,8]};
+export default function Dice({ values, rollId = 0 }: { values: [number, number]; rollId?: number }) {
+  return <div className={`dice ${rollId ? "rolling" : ""}`} key={rollId} aria-label={`Dados: ${values.filter(Boolean).join(" y ")}`}>
+    {values.filter(Boolean).map((value,i) => <span className="die-face" key={i} aria-hidden="true">{Array.from({length:9},(_,dot) => <i key={dot} className={positions[value]?.includes(dot) ? "pip visible" : "pip"}/>)}</span>)}
+  </div>;
 }

@@ -1,312 +1,156 @@
 import { describe, expect, it } from "vitest";
-import { engine, finishByTime, newGame, newPlayer } from "../lib/game/engine";
-import { BOARD } from "../lib/game/board";
+import { engine, finishByTime } from "../lib/game/engine";
+import { BOARD, INITIAL_MONEY, SALARY } from "../lib/game/board";
 import { CARDS } from "../lib/game/cards";
-import { assetError, rent } from "../lib/game/rules";
-import type { Action, Context, Game } from "../lib/game/types";
-const ctx: Context = {
-  now: 1000,
-  dice: [1, 2],
-  shuffled: {
-    email: CARDS.email.map((_, i) => i),
-    sms: CARDS.sms.map((_, i) => i),
-  },
-};
-function game() {
-  const s = newGame("ABC234", newPlayer("a", "Ana", "#a00"), 0);
-  s.players.push(newPlayer("b", "Luis", "#00a"));
-  return engine(s, { type: "start" }, "a", ctx);
-}
-const go = (s: Game, a: Action, dice: [number, number] = [1, 2], who = "a") =>
-  engine(s, a, who, { ...ctx, dice });
-describe("Tablero y motor", () => {
-  it("tiene 40 casillas y mazos de 16 cartas", () => {
+import { assetError, bankStock, rent, redemptionCost } from "../lib/game/rules";
+import { totalBills, wallet } from "../lib/game/money";
+import { game, go, ctx } from "./helpers";
+
+describe("Tablero de referencia y reglas", () => {
+  it("conserva 40 posiciones, 24 países y dos mazos originales de 16 cartas", () => {
     expect(BOARD).toHaveLength(40);
-    expect(CARDS.email).toHaveLength(16);
-    expect(CARDS.sms).toHaveLength(16);
+    expect(BOARD.filter((b)=>b.kind==="country")).toHaveLength(24);
+    expect(BOARD.map((b)=>b.id)).toEqual(Array.from({length:40},(_,i)=>i));
+    expect(BOARD.filter((b)=>b.kind==="country").map((b)=>b.name)).toEqual(["Marruecos","Egipto","Sudáfrica","Rusia","China","Japón","Canadá","Estados Unidos","México","Guatemala","Costa Rica","Panamá","Colombia","Venezuela","Perú","Brasil","Chile","Argentina","España","Francia","Inglaterra","Italia","Suiza","Alemania"]);
+    expect(CARDS.email).toHaveLength(16);expect(CARDS.sms).toHaveLength(16);
+    expect(BOARD[29].rents[2]).toBe(27500);
+    expect(BOARD.filter((b)=>b.price).every((b)=>b.mortgage===b.price/2)).toBe(true);
   });
-  it("cobra al pasar y al caer en México sin mutar el estado", () => {
-    const s = game();
-    s.players[0].position = 38;
-    const a = go(s, { type: "roll" }, [1, 2]);
-    expect(a.players[0].money).toBe(1700);
-    expect(a.players[0].position).toBe(1);
-    expect(s.players[0].position).toBe(38);
-    expect(go(s, { type: "roll" }, [1, 1]).players[0].money).toBe(1700);
+  it("entrega $134,500 y la distribución de billetes de referencia", () => {
+    const p=game().players[0];expect(p.money).toBe(INITIAL_MONEY);
+    expect(totalBills(wallet(p))).toBe(134500);expect(p.bills).toEqual({50000:2,10000:2,5000:2,2000:1,1000:2,500:1});
   });
-  it("dobla renta de grupo completo y respeta hipoteca", () => {
-    const s = game();
-    s.properties[1].owner = "a";
-    s.properties[3].owner = "a";
-    expect(rent(s, 1, 7)).toBe(4);
-    s.properties[1].mortgaged = true;
-    expect(rent(s, 1, 7)).toBe(0);
+  it("cobra salida solo al reclamar, una vez y sin mutar el estado original", () => {
+    const s=game();s.players[0].position=38;
+    let next=go(s,{type:"roll"},[1,2]);expect(next.players[0].position).toBe(1);
+    expect(next.players[0].money).toBe(INITIAL_MONEY);expect(next.players[0].salary).toBe(SALARY);
+    next=go(next,{type:"salary"});expect(next.players[0].money).toBe(INITIAL_MONEY+SALARY);
+    expect(()=>go(next,{type:"salary"})).toThrow();expect(s.players[0].position).toBe(38);
+    expect(go(s,{type:"roll"},[1,1]).players[0].salary).toBe(SALARY);
   });
-  it("construye parejo hasta hotel y vende en orden inverso", () => {
-    let s = game();
-    s.players[0].money = 10000;
-    for (const id of [6, 8, 9]) s.properties[id].owner = "a";
-    s = go(s, { type: "build", square: 6 });
-    expect(() => go(s, { type: "build", square: 6 })).toThrow(
-      /menos edificios/,
-    );
-    for (const id of [8, 9]) s = go(s, { type: "build", square: id });
-    for (let level = 2; level <= 5; level++)
-      for (const id of [6, 8, 9]) s = go(s, { type: "build", square: id });
-    expect(s.properties[6].buildings).toBe(5);
-    expect(s.players[0].money).toBe(9250);
-    s = go(s, { type: "sell", square: 6 });
-    expect(s.properties[6].buildings).toBe(4);
-    expect(s.players[0].money).toBe(9275);
-    expect(() => go(s, { type: "sell", square: 6 })).toThrow(/más edificios/);
+  it("pierde el sueldo no reclamado al ceder el turno",()=>{
+    let s=game();s.players[0].salary=20000;s.phase="end";
+    s=go(s,{type:"end"});expect(s.players[0].salary).toBe(0);
+    expect(()=>go(s,{type:"salary"})).toThrow();
   });
-  it("impide construir con hipotecas o grupo incompleto", () => {
-    const s = game();
-    s.properties[1].owner = "a";
-    expect(assetError(s, s.players[0], 1, "build")).toMatch(/grupo/);
-    s.properties[3].owner = "a";
-    s.properties[3].mortgaged = true;
-    expect(() => go(s, { type: "build", square: 1 })).toThrow(/hipotecas/);
+  it("dobla renta de bloque y no cobra hipotecas ni desde cárcel",()=>{
+    const s=game();for(const id of [1,2,4])s.properties[id].owner="a";
+    expect(rent(s,1,7)).toBe(3000);s.properties[2].mortgaged=true;
+    expect(rent(s,1,7)).toBe(3000);s.properties[1].mortgaged=true;
+    expect(rent(s,1,7)).toBe(0);s.properties[1].mortgaged=false;
+    s.players[0].jailed=3;s.players[0].detention="prison";expect(rent(s,1,7)).toBe(0);
   });
-  it("hipoteca y libera con 10% de interés", () => {
-    let s = game();
-    s.properties[1].owner = "a";
-    s = go(s, { type: "mortgage", square: 1 });
-    expect(s.players[0].money).toBe(1530);
-    s = go(s, { type: "redeem", square: 1 });
-    expect(s.players[0].money).toBe(1497);
+  it("construye de forma pareja hasta hotel incluso fuera de turno",()=>{
+    let s=game();s.players[1].money=500000;for(const id of [16,17,19])s.properties[id].owner="b";
+    s=go(s,{type:"build",square:16},[1,2],"b");
+    expect(()=>go(s,{type:"build",square:16},[1,2],"b")).toThrow(/menos edificios/);
+    for(const id of [17,19])s=go(s,{type:"build",square:id},[1,2],"b");
+    for(let level=2;level<=5;level++)for(const id of [16,17,19])s=go(s,{type:"build",square:id},[1,2],"b");
+    expect(s.properties[16].buildings).toBe(5);expect(s.players[1].money).toBe(425000);
+    expect(bankStock(s)).toEqual({houses:36,hotels:9});
+    s=go(s,{type:"sell",square:16},[1,2],"b");expect(s.players[1].money).toBe(427500);
+    expect(()=>go(s,{type:"sell",square:16},[1,2],"b")).toThrow(/más edificios/);
+  });
+  it("exige bloque completo sin hipotecas y suficientes piezas",()=>{
+    const s=game();s.properties[1].owner="a";
+    expect(assetError(s,s.players[0],1,"build")).toMatch(/grupo/);
+    for(const id of [2,4])s.properties[id].owner="a";s.properties[2].mortgaged=true;
+    expect(()=>go(s,{type:"build",square:1})).toThrow(/hipotecas/);
+    s.properties[2].mortgaged=false;
+    for(const b of BOARD.filter((b)=>b.kind==="country"&&b.group!=="África").slice(0,9))s.properties[b.id].buildings=4;
+    expect(()=>go(s,{type:"build",square:1})).toThrow(/casas disponibles/);
+  });
+  it("hipoteca fuera de turno y redime con diez por ciento",()=>{
+    let s=game();s.properties[1].owner="b";
+    s=go(s,{type:"mortgage",square:1},[1,2],"b");expect(s.players[1].money).toBe(140500);
+    s=go(s,{type:"redeem",square:1},[1,2],"b");expect(s.players[1].money).toBe(133900);
     expect(s.properties[1].mortgaged).toBe(false);
   });
-  it("no hipoteca un grupo con edificios ni paga dos veces al devolver", () => {
-    let s = game();
-    s.properties[1].owner = "a";
-    s.properties[3].owner = "a";
-    s.properties[3].buildings = 1;
-    expect(() => go(s, { type: "mortgage", square: 1 })).toThrow(/edificios/);
-    s.properties[3].buildings = 0;
-    s = go(s, { type: "mortgage", square: 1 });
-    s = go(s, { type: "return", square: 1 });
-    expect(s.players[0].money).toBe(1530);
-    expect(s.properties[1].owner).toBeNull();
+  it("no duplica dinero al devolver una propiedad hipotecada",()=>{
+    let s=game();s.properties[1].owner="a";
+    s=go(s,{type:"mortgage",square:1});s=go(s,{type:"return",square:1});
+    expect(s.players[0].money).toBe(140500);expect(s.properties[1].owner).toBeNull();
+    expect(()=>go(s,{type:"return",square:1})).toThrow();
   });
-  it("Oceanía descuenta tres turnos completos y permite salir con dobles", () => {
-    let s = game();
-    s.players[0].position = 17;
-    s = go(s, { type: "roll" }, [1, 2]);
-    expect(s.players[0].jailed).toBe(3);
-    expect(s.players[0].position).toBe(20);
-    for (let remaining = 2; remaining >= 0; remaining--) {
-      s.phase = "roll";
-      s = go(s, { type: "wait" });
-      expect(s.players[0].jailed).toBe(remaining);
-      expect(s.players[0].position).toBe(20);
-      expect(s.phase).toBe("end");
-    }
-    s.phase = "roll";
-    s = go(s, { type: "roll" }, [1, 2]);
-    expect(s.players[0].position).toBe(23);
-    s.players[0].jailed = 3;
-    s.players[0].detention = "oceania";
-    s.players[0].position = 20;
-    s.phase = "roll";
-    s = go(s, { type: "roll" }, [2, 2]);
-    expect(s.players[0].jailed).toBe(0);
-    expect(s.players[0].position).toBe(24);
-    expect(s.extra).toBe(false);
+  it("Australia y visita a Deportado no penalizan",()=>{
+    for(const [from,to] of [[17,20],[7,10]]){const s=game();s.players[0].position=from;
+      const next=go(s,{type:"roll"});expect(next.players[0].position).toBe(to);expect(next.players[0].jailed).toBe(0);}
   });
-  it("tercer doble manda a Oceanía sin cobrar salida", () => {
-    let s = game();
-    s.doubles = 2;
-    s.players[0].position = 39;
-    s = go(s, { type: "roll" }, [2, 2]);
-    expect(s.players[0].position).toBe(10);
-    expect(s.players[0].money).toBe(1500);
-    expect(s.extra).toBe(false);
+  it("Cárcel cobra fianza y pierde exactamente tres turnos; dobles no liberan",()=>{
+    let s=game();s.players[0].position=27;s=go(s,{type:"roll"});
+    expect(s.players[0].jailed).toBe(3);expect(s.debt?.amount).toBe(10000);
+    s=go(s,{type:"settle"});expect(s.players[0].money).toBe(124500);
+    for(let remaining=2;remaining>=0;remaining--){s.phase="roll";s=go(s,{type:"roll"},[2,2]);
+      expect(s.players[0].position).toBe(30);expect(s.players[0].jailed).toBe(remaining);expect(s.phase).toBe("end");}
+    s.phase="roll";s=go(s,{type:"roll"},[1,3]);expect(s.players[0].position).toBe(34);
   });
-  it("permite turno extra solamente tras dobles", () => {
-    let s = game();
-    s = go(s, { type: "roll" }, [3, 3]);
-    s = go(s, { type: "decline" });
-    s = go(s, { type: "end" });
-    expect(s.turn).toBe(0);
-    expect(s.phase).toBe("roll");
-    s = go(s, { type: "roll" }, [1, 2]);
-    s = go(s, { type: "decline" });
-    s = go(s, { type: "end" });
-    expect(s.turn).toBe(1);
+  it("tercer doble deporta; la multa devuelve a Salida sin sueldo",()=>{
+    let s=game();s.doubles=2;s.players[0].position=39;
+    s=go(s,{type:"roll"},[2,2]);expect(s.players[0].position).toBe(10);expect(s.players[0].jailed).toBe(3);
+    expect(s.players[0].money).toBe(INITIAL_MONEY);expect(s.extra).toBe(false);
+    s=go(s,{type:"bail"});expect(s.players[0].position).toBe(0);expect(s.players[0].money).toBe(129500);expect(s.players[0].salary).toBe(0);
   });
-  it("no permite comprar dos veces ni tirar fuera de turno", () => {
-    let s = game();
-    s = go(s, { type: "roll" });
-    s = go(s, { type: "buy" });
-    expect(() => go(s, { type: "buy" })).toThrow();
-    expect(() => go(s, { type: "roll" }, [1, 2], "b")).toThrow(/turno/);
+  it("deportación admite esperar tres turnos y no salir al segundo",()=>{
+    let s=game();s.doubles=2;s=go(s,{type:"roll"},[2,2]);
+    for(let remaining=2;remaining>=0;remaining--){s.phase="roll";s=go(s,{type:"wait"});expect(s.players[0].jailed).toBe(remaining);
+      expect(s.players[0].position).toBe(remaining ? 10 : 0);expect(s.phase).toBe("end");}
   });
-  it("cobra aerolíneas y servicios con factores exactos", () => {
-    const s = game();
-    s.properties[5].owner = "b";
-    s.properties[15].owner = "b";
-    expect(rent(s, 5, 7)).toBe(50);
-    s.properties[12].owner = "b";
-    expect(rent(s, 12, 7)).toBe(28);
-    s.properties[28].owner = "b";
-    expect(rent(s, 12, 7)).toBe(70);
+  it("renta de aerolíneas y diplomacia usa factores de referencia",()=>{
+    const s=game();s.properties[5].owner="b";s.properties[15].owner="b";expect(rent(s,5,7)).toBe(5000);
+    s.properties[3].owner="b";expect(rent(s,3,7)).toBe(3500);s.properties[22].owner="b";expect(rent(s,3,7)).toBe(7000);
   });
-  it("deuda bloquea turno y se paga al acreedor tras liquidar", () => {
-    let s = game();
-    s.players[0].money = 1;
-    s.properties[3].owner = "b";
-    s.properties[1].owner = "a";
-    s = go(s, { type: "roll" });
-    expect(s.debt?.amount).toBe(4);
-    expect(() => go(s, { type: "end" })).toThrow(/deuda/);
-    s = go(s, { type: "mortgage", square: 1 });
-    s = go(s, { type: "settle" });
-    expect(s.players[0].money).toBe(27);
-    expect(s.players[1].money).toBe(1504);
-    expect(s.debt).toBeNull();
+  it("deuda exige pago y admite hipoteca para reunir el importe",()=>{
+    let s=game();s.players[0].money=100;s.properties[3].owner="b";s.properties[1].owner="a";
+    s=go(s,{type:"roll"});expect(s.debt?.amount).toBe(1500);expect(()=>go(s,{type:"end"})).toThrow(/deuda/);
+    s=go(s,{type:"mortgage",square:1});s=go(s,{type:"settle"});expect(s.players[0].money).toBe(4600);expect(s.players[1].money).toBe(136000);
   });
-  it("quiebra exige liquidar, transfiere propiedades y termina partida", () => {
-    let s = game();
-    s.players[0].money = 0;
-    s.properties[39].owner = "b";
-    s.properties[39].buildings = 5;
-    s.properties[1].owner = "a";
-    s.players[0].position = 36;
-    s = go(s, { type: "roll" });
-    expect(() => go(s, { type: "bankrupt" })).toThrow(/Primero/);
-    s = go(s, { type: "mortgage", square: 1 });
-    s = go(s, { type: "bankrupt" });
-    expect(s.properties[1].owner).toBe("b");
-    expect(s.properties[1].mortgaged).toBe(true);
-    expect(s.players[1].money).toBe(1530);
-    expect(s.status).toBe("finished");
-    expect(s.winner).toEqual(["b"]);
+  it("quiebra transfiere hipotecas, cobra intereses al heredero y después declara ganador",()=>{
+    let s=game();s.players[0].money=0;s.properties[1].owner="a";s.properties[1].mortgaged=true;
+    s.debt={amount:200000,creditor:"b",payer:"a"};s=go(s,{type:"bankrupt"});
+    expect(s.properties[1].owner).toBe("b");expect(s.debt).toMatchObject({payer:"b",amount:1200});expect(s.status).toBe("playing");
+    expect(redemptionCost(s,1)).toBe(6000);
+    s=go(s,{type:"settle"},[1,2],"b");expect(s.players[1].money).toBe(133300);expect(s.winner).toEqual(["b"]);
   });
-  it("quiebra al Banco libera propiedades y no se permite si es solvente", () => {
-    let s = game();
-    s.players[0].money = 0;
-    s.properties[1].owner = "a";
-    s.debt = { amount: 10, creditor: null };
-    expect(() => go(s, { type: "bankrupt" })).toThrow(/cubrir/);
-    s.debt.amount = 200;
-    s = go(s, { type: "mortgage", square: 1 });
-    s = go(s, { type: "bankrupt" });
-    expect(s.properties[1]).toEqual({
-      owner: null,
-      buildings: 0,
-      mortgaged: false,
-    });
+  it("quiebra al Banco subasta bienes cuando quedan otros dos jugadores",()=>{
+    let s=game(3);s.players[0].money=0;s.properties[1].owner="a";s.debt={amount:100000,creditor:null,payer:"a"};
+    s=go(s,{type:"bankrupt"});expect(s.properties[1].owner).toBeNull();expect(s.auction?.square).toBe(1);
+    s=go(s,{type:"bid",amount:500},[1,2],"b");s=go(s,{type:"fold"},[1,2],"c");expect(s.properties[1].owner).toBe("b");expect(s.auction).toBeNull();
   });
-  it("tratos revalidan fondos y conservan hipotecas", () => {
-    let s = game();
-    s.properties[1].owner = "a";
-    s.properties[1].mortgaged = true;
-    s = go(s, {
-      type: "trade",
-      to: "b",
-      give: [1],
-      take: [],
-      giveMoney: 0,
-      takeMoney: 100,
-    });
-    const id = s.trades[0].id;
-    s = go(s, { type: "accept", trade: id }, [1, 2], "b");
-    expect(s.properties[1].owner).toBe("b");
-    expect(s.properties[1].mortgaged).toBe(true);
-    expect(s.players[0].money).toBe(1600);
-    expect(s.players[1].money).toBe(1400);
-    expect(() => go(s, { type: "accept", trade: id }, [1, 2], "b")).toThrow();
+  it("no permite quiebra mientras los bienes cubran la deuda",()=>{
+    const s=game();s.debt={amount:100,creditor:null,payer:"a"};expect(()=>go(s,{type:"bankrupt"})).toThrow(/cubrir/);
   });
-  it("carta de salida se retira y vuelve al mazo al usarla", () => {
-    let s = game();
-    s.decks.email = [4, ...s.decks.email.filter((i) => i !== 4)];
-    s = go(s, { type: "roll" }, [1, 1]);
-    expect(s.players[0].passes).toEqual(["email"]);
-    expect(s.decks.email).not.toContain(4);
-    s.players[0].jailed = 3;
-    s.phase = "roll";
-    s = go(s, { type: "pass" });
-    expect(s.players[0].jailed).toBe(0);
-    expect(s.decks.email.at(-1)).toBe(4);
+  it("rechazar compra abre subasta; el mismo jugador puede ganarla",()=>{
+    let s=game();s=go(s,{type:"roll"});s=go(s,{type:"decline"});expect(s.auction?.square).toBe(3);
+    s=go(s,{type:"bid",amount:500});s=go(s,{type:"fold"},[1,2],"b");
+    expect(s.properties[3].owner).toBe("a");expect(s.players[0].money).toBe(134000);expect(()=>go(s,{type:"buy"})).toThrow();
   });
-  it("cartas de reparación distinguen hoteles de restaurantes", () => {
-    let s = game();
-    s.properties[1] = { owner: "a", buildings: 5, mortgaged: false };
-    s.properties[3] = { owner: "a", buildings: 4, mortgaged: false };
-    s.decks.email = [5, ...s.decks.email.filter((i) => i !== 5)];
-    s = go(s, { type: "roll" }, [1, 1]);
-    expect(s.debt?.amount).toBe(200);
-    s = go(s, { type: "settle" });
-    expect(s.players[0].money).toBe(1300);
+  it("subasta vence durante polling sin temporizador residente",()=>{
+    let s=game();s=go(go(s,{type:"roll"}),{type:"decline"});s=go(s,{type:"bid",amount:1000});
+    expect(finishByTime(s,20999)).toBe(s);s=finishByTime(s,21000);expect(s.auction).toBeNull();expect(s.properties[3].owner).toBe("a");
   });
-  it("modo por tiempo admite empate y descuenta hipotecas", () => {
-    const s = game();
-    s.endsAt = 2000;
-    expect(finishByTime(s, 1999)).toBe(s);
-    expect(finishByTime(s, 2000).winner).toEqual(["a", "b"]);
-    s.properties[1].owner = "a";
-    s.properties[1].mortgaged = true;
-    expect(finishByTime(s, 2000).winner).toEqual(["a"]);
+  it("tratos fuera de turno revalidan propiedad y saldo",()=>{
+    let s=game();s.properties[1].owner="b";
+    s=go(s,{type:"trade",to:"a",give:[1],take:[],giveMoney:0,takeMoney:10000},[1,2],"b");
+    const id=s.trades[0].id;s=go(s,{type:"accept",trade:id});expect(s.properties[1].owner).toBe("a");
+    expect(s.players[0].money).toBe(124500);expect(s.players[1].money).toBe(144500);expect(()=>go(s,{type:"accept",trade:id})).toThrow();
   });
-  it("host solo salta por inactividad validada", () => {
-    const s = game();
-    expect(() => go(s, { type: "skip" })).toThrow(/90/);
-    expect(
-      engine(s, { type: "skip" }, "a", { ...ctx, inactive: true }).turn,
-    ).toBe(1);
+  it("prisión impide administrar propiedades pero permite liquidar para pagar fianza",()=>{
+    const s=game();s.players[0].jailed=3;s.players[0].detention="prison";s.properties[1].owner="a";
+    expect(()=>go(s,{type:"mortgage",square:1})).toThrow(/cárcel/);s.debt={payer:"a",creditor:null,amount:10000,reason:"bail"};
+    expect(go(s,{type:"mortgage",square:1}).properties[1].mortgaged).toBe(true);
   });
-});
-
-it("completa una partida de dos jugadores sin estados de bloqueo", () => {
-  let s = game();
-  let seed = 1234567;
-  const dice = (): [number, number] => {
-    const one = () => {
-      seed = (Math.imul(seed, 1664525) + 1013904223) >>> 0;
-      return (seed % 6) + 1;
-    };
-    return [one(), one()];
-  };
-  for (let step = 0; step < 15000 && s.status === "playing"; step++) {
-    const p = s.players[s.turn];
-    let action: Action;
-    const owned = BOARD.filter((b) => s.properties[b.id]?.owner === p.id);
-    if (s.debt) {
-      if (p.money >= s.debt.amount) action = { type: "settle" };
-      else {
-        const sell = owned.find((b) => !assetError(s, p, b.id, "sell"));
-        const mortgage = owned.find((b) => !assetError(s, p, b.id, "mortgage"));
-        action = sell
-          ? { type: "sell", square: sell.id }
-          : mortgage
-            ? { type: "mortgage", square: mortgage.id }
-            : { type: "bankrupt" };
-      }
-    } else if (s.phase === "roll") action = { type: "roll" };
-    else if (s.phase === "buy")
-      action = { type: p.money >= BOARD[p.position].price ? "buy" : "decline" };
-    else {
-      const build = owned.find(
-        (b) => p.money > 300 && !assetError(s, p, b.id, "build"),
-      );
-      action = build ? { type: "build", square: build.id } : { type: "end" };
-    }
-    s = engine(s, action, p.id, { ...ctx, now: 1000 + step, dice: dice() });
-    expect(s.players.every((p) => p.money >= 0)).toBe(true);
-  }
-  expect(s.status).toBe("finished");
-  expect(s.winner).toHaveLength(1);
-});
-
-it("el anfitrión quebrado conserva la moderación de jugadores desconectados", () => {
-  const s = game();
-  s.players.push(newPlayer("c", "Sol", "#0a0"));
-  s.players[0].bankrupt = true;
-  s.turn = 1;
-  const next = engine(s, { type: "skip" }, "a", { ...ctx, inactive: true });
-  expect(next.turn).toBe(2);
-  expect(() => engine(s, { type: "roll" }, "a", ctx)).toThrow(
-    /Jugador no disponible/,
-  );
+  it("pase diplomático cancela la fianza pendiente y regresa al mazo",()=>{
+    let s=game();s.players[0].position=5;s.decks.sms=[0,...s.decks.sms.filter((i)=>i!==0)];
+    s=go(s,{type:"roll"});expect(s.players[0].passes).toEqual(["sms"]);expect(s.decks.sms).not.toContain(0);
+    s.phase="roll";s.players[0].position=27;s=go(s,{type:"roll"});s=go(s,{type:"pass"});
+    expect(s.debt).toBeNull();expect(s.players[0].jailed).toBe(0);expect(s.decks.sms.at(-1)).toBe(0);expect(s.players[0].money).toBe(INITIAL_MONEY);
+  });
+  it("termina por tiempo con empate y patrimonio neto",()=>{
+    const s=game();s.endsAt=2000;expect(finishByTime(s,1999)).toBe(s);expect(finishByTime(s,2000).winner).toEqual(["a","b"]);
+    s.properties[1].owner="a";expect(finishByTime(s,2000).winner).toEqual(["a"]);
+  });
+  it("moderación exige host e inactividad comprobada",()=>{
+    const s=game();expect(()=>go(s,{type:"skip"})).toThrow(/90/);
+    expect(engine(s,{type:"skip"},"a",{...ctx,inactive:true}).turn).toBe(1);
+  });
 });

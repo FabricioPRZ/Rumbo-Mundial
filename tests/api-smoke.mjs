@@ -36,8 +36,8 @@ const replay = await action(
 );
 assert.equal(replay.data.game.version, start.data.game.version);
 const pair = await Promise.all([
-  action(a.playerToken, start.data.game.version, { type: "roll" }),
-  action(a.playerToken, start.data.game.version, { type: "roll" }),
+  action(a.playerToken, start.data.game.version, { type: "opening-roll" }),
+  action(a.playerToken, start.data.game.version, { type: "opening-roll" }),
 ]);
 assert.deepEqual(pair.map((x) => x.status).sort(), [200, 409]);
 const snapshot = await fetch(`${base}/api/rooms/${id}`, {

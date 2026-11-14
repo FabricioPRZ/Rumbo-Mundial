@@ -1,0 +1,10 @@
+# Solo referencias del usuario; la interfaz usa ilustraciones propias en código.
+public/tablero/**
+public/paises/**
+public/correos/**
+public/mensajes/**
+public/billetes/**
+public/casa y hotel/**
+reglas_turista_mundial.md
+ENTREGA.md
+*.zip
