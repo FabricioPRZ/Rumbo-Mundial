@@ -29,7 +29,7 @@ export default function Home() {
         <section className="hero">
           <p className="eyebrow">PASE DE ABORDAR / SIN SALIR DE CASA</p>
           <h1 className="home-title">
-            Turista mundial
+            Rumbo mundial
             <br />
             online<span>.</span>
           </h1>
