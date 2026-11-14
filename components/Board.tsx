@@ -3,7 +3,7 @@ import { useEffect, useRef, useState } from "react";
 import Image from "next/image";
 import { Building, CountryArt } from "./TravelArt";
 import { BOARD, cash } from "@/lib/game/board";
-import type { Game, GameEvent } from "@/lib/game/types";
+import type { Game } from "@/lib/game/types";
 export function coordinates(id: number): [number, number] {
   if (id <= 10) return [0, id];
   if (id <= 20) return [id - 10, 10];
@@ -13,8 +13,10 @@ export function coordinates(id: number): [number, number] {
 export default function Board({
   game,
   onSelect,
+  positions,
 }: {
   game: Game;
+  positions: Record<string, number>;
   onSelect: (id: number) => void;
 }) {
   const [zoom, setZoom] = useState(1);
@@ -34,62 +36,6 @@ export default function Board({
     fit();
     return () => observer.disconnect();
   }, []);
-  const [positions, setPositions] = useState<Record<string, number>>(() =>
-    Object.fromEntries(game.players.map((p) => [p.id, p.position])),
-  );
-  const seen = useRef(game.eventSerial ?? 0);
-  const queue = useRef<GameEvent[]>([]);
-  const timer = useRef<ReturnType<typeof setTimeout> | null>(null);
-  const latest = useRef(game.players);
-  latest.current = game.players;
-  useEffect(() => {
-    const events = game.events ?? [];
-    const moves = events.filter(
-      (e) =>
-        e.id > seen.current && e.type === "move" && e.player && e.path?.length,
-    );
-    const gap =
-      events.length > 0 && seen.current > 0 && events[0].id > seen.current + 1;
-    seen.current = game.eventSerial ?? 0;
-    const snapshot = () =>
-      Object.fromEntries(latest.current.map((p) => [p.id, p.position]));
-    if (gap || window.matchMedia("(prefers-reduced-motion: reduce)").matches) {
-      if (timer.current) clearTimeout(timer.current);
-      timer.current = null;
-      queue.current = [];
-      setPositions(snapshot());
-      return;
-    }
-    queue.current.push(...moves);
-    if (timer.current) return;
-    const play = () => {
-      const move = queue.current.shift();
-      if (!move?.player || !move.path) {
-        timer.current = null;
-        setPositions(snapshot());
-        return;
-      }
-      const player = move.player,
-        path = move.path;
-      let step = 0;
-      if (move.from !== undefined)
-        setPositions((p) => ({ ...p, [player]: move.from! }));
-      const advance = () => {
-        const destination=path[step];
-        setPositions((p) => ({ ...p, [player]: destination }));
-        step++;
-        timer.current = setTimeout(step < path.length ? advance : play, 110);
-      };
-      timer.current = setTimeout(advance, move.teleport ? 0 : 110);
-    };
-    play();
-  }, [game.events, game.eventSerial, game.players]);
-  useEffect(
-    () => () => {
-      if (timer.current) clearTimeout(timer.current);
-    },
-    [],
-  );
   const icons: Record<string, string> = {
     start: "⚑",
     oceania: "↩",
@@ -131,21 +77,21 @@ export default function Board({
               <button
                 key={b.id}
                 onClick={() => onSelect(b.id)}
-                className={`square ${b.kind} ${game.players[game.turn]?.position === b.id ? "current-square" : ""}`}
+                className={`square ${b.kind} ${(positions[game.players[game.turn]?.id] ?? game.players[game.turn]?.position) === b.id ? "current-square" : ""}`}
                 style={{
                   gridColumn: x + 1,
                   gridRow: y + 1,
                   borderColor: owner?.color,
                   boxShadow: owner ? `inset 0 -4px ${owner.color}` : undefined,
                 }}
-                aria-label={`${b.name}${a?.owner ? `, de ${owner?.name}` : ""}${a?.mortgaged ? ", hipotecada" : ""}`}
+                aria-label={`${b.name}${b.group ? `, grupo ${b.group}` : ""}${a?.owner ? `, de ${owner?.name}` : ""}${a?.mortgaged ? ", hipotecada" : ""}`}
               >
                 <span
                   className="stripe"
                   style={{ background: b.color ?? "transparent" }}
                 />
                 <span className="square-icon">{b.kind === "country" ? <CountryArt id={b.id} /> : icons[b.kind]}</span>
-                <strong>{b.name}</strong>
+                <strong>{b.color && <span className="group-marker" style={{ background: b.color }} aria-hidden="true" />}{b.name}</strong>
                 <small>
                   {b.price ? cash(b.price) : b.tax ? cash(b.tax) : ""}
                 </small>

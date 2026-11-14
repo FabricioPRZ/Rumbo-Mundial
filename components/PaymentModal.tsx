@@ -11,12 +11,14 @@ export default function PaymentModal({
   onClose,
   commit,
   error,
+  suspended = false,
 }: {
   player: Player;
   amount: number;
   label: string;
   action: Action;
   error?: string;
+  suspended?: boolean;
   onClose: () => void;
   commit: (a: Action) => Promise<boolean>;
 }) {
@@ -26,8 +28,9 @@ export default function PaymentModal({
   const held = wallet(player);
   const total = totalBills(selected);
   useEffect(() => {
-    dialog.current?.showModal();
-  }, []);
+    if (suspended) dialog.current?.close();
+    else if (!dialog.current?.open) dialog.current?.showModal();
+  }, [suspended]);
   return (
     <dialog
       ref={dialog}

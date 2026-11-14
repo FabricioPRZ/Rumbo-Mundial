@@ -1,7 +1,7 @@
 "use client";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { BOARD, cash } from "@/lib/game/board";
-import { bankStock, liquidationValue, netWorth } from "@/lib/game/rules";
+import { auctionMinimum, bankStock, liquidationValue, netWorth } from "@/lib/game/rules";
 import type { Action, Game, Player } from "@/lib/game/types";
 
 import { CountryArt } from "./TravelArt";
@@ -10,11 +10,15 @@ export default function PlayerPanel({ game, me, busy, send, onTrade, onSelect }:
   onTrade: () => void; onSelect: (id: number) => void;
 }) {
   const [panelTab, setPanelTab] = useState<"turn" | "assets">("turn");
+  const auctionSquare = game.auction?.square;
+  useEffect(() => {
+    if (me.jailed || auctionSquare !== undefined) setPanelTab("turn");
+  }, [me.jailed, auctionSquare]);
   const [offer, setOffer] = useState(500);
   const [buildSquare, setBuildSquare] = useState<number | null>(null);
   const options = game.auction?.buildingOptions?.[me.id];
   const destination = options?.includes(buildSquare ?? -1) ? buildSquare! : options?.[0];
-  const minimumBid = Math.max((game.auction?.amount ?? 0) + 500, destination === undefined ? 0 : BOARD[destination].buildCost);
+  const minimumBid = game.auction ? auctionMinimum(destination ?? game.auction.square, game.auction.amount, !!game.auction.buildingOptions) : 500;
   const active = game.players[game.turn], mine = active.id === me.id && !me.bankrupt;
   const debt = game.debt && (game.debt.payer ?? active.id) === me.id ? game.debt : null;
   const imprisoned = me.jailed > 0 && me.detention === "prison";
@@ -37,7 +41,7 @@ export default function PlayerPanel({ game, me, busy, send, onTrade, onSelect }:
     {me.jailed > 0 && <div className="detention"><strong>{imprisoned ? "Cárcel" : "Deportado"}</strong><p>Quedan {me.jailed} turnos completos. Los dobles no reducen la estancia.</p><div className="detention-steps" aria-label={`${me.jailed} turnos pendientes`}>{[1,2,3].map((i) => <span key={i} className={i <= me.jailed ? "pending" : ""}>{i <= me.jailed ? "▥" : "✓"}</span>)}</div></div>}
     {!!me.skipTurns && <p>Estancia por carta: {me.skipTurns} turnos pendientes.</p>}
     {me.jailed > 0 && me.passes.length > 0 && !game.auction && button("Usar pase diplomático", {type:"pass"})}
-    {mine && !!me.salary && !game.auction && button(`Cobrar sueldo · ${cash(me.salary)}`, {type:"salary"})}
+    {mine && !!me.salary && <small>El Banco cobrará tu sueldo de {cash(me.salary)} automáticamente al cerrar el turno.</small>}
     {me.bankrupt ? <p>Terminó tu viaje. Puedes seguir viendo la partida.</p> : <div className="actions">
       {game.opening ? <>
         <p>El número más alto inicia. En caso de empate vuelven a tirar los finalistas.</p>
@@ -45,12 +49,14 @@ export default function PlayerPanel({ game, me, busy, send, onTrade, onSelect }:
         {button("Tirar dado de salida", {type:"opening-roll"}, !game.opening.candidates.includes(me.id) ? "Espera el desempate." : game.opening.rolls[me.id] !== undefined ? "Esperando a los demás." : null)}
       </> : game.auction ? <div className="auction-box">
         <span className="eyebrow">SUBASTA EN VIVO</span><h3>{game.auction.buildingOptions ? "Último edificio disponible" : BOARD[game.auction.square].name}</h3>
-        <p>{game.auction.bidder ? `${game.players.find((p) => p.id === game.auction?.bidder)?.name} ofrece ${cash(game.auction.amount)}` : "Oferta inicial desde $500"}</p>
+        <p>{game.auction.bidder ? `${game.players.find((p) => p.id === game.auction?.bidder)?.name} ofrece ${cash(game.auction.amount)}` : `Oferta inicial desde ${cash(minimumBid)}`}</p>
         <small>Quedan {Math.max(0, Math.ceil((game.auction.endsAt - Date.now()) / 1000))} s. Cada oferta añade 20 s.</small>
+        {game.auction.passed.includes(me.id) ? <p className="notice">Ya rechazaste esta subasta. Tu ficha permanece en {BOARD[me.position].name}. Esperando a los demás viajeros.</p> : <>
         {game.auction.buildingOptions && options?.length ? <label>Construir en<select value={destination} onChange={(e)=>setBuildSquare(Number(e.target.value))}>{options.map((id)=><option key={id} value={id}>{BOARD[id].name}</option>)}</select></label> : null}
-        <label>Tu oferta<input type="number" step="500" min={game.auction.amount+500} max={me.money} value={Math.max(offer,minimumBid)} onChange={(e) => setOffer(Number(e.target.value))}/></label>
+        <label>Tu oferta<input type="number" step="500" min={minimumBid} max={me.money} value={Math.max(offer,minimumBid)} onChange={(e) => setOffer(Number(e.target.value))}/></label>
         {button("Ofertar", {type:"bid",amount:Math.max(offer,minimumBid),square:destination}, imprisoned ? "No puedes comprar desde la cárcel." : game.auction.buildingOptions && !options?.length ? "No tienes un país listo para construir." : game.auction.passed.includes(me.id) ? "Te retiraste de esta subasta." : Math.max(offer,minimumBid)>me.money ? "Saldo insuficiente." : null)}
         {button("Pasar esta subasta", {type:"fold"}, imprisoned || game.auction.passed.includes(me.id) || game.auction.bidder === me.id ? "No disponible." : null)}
+        </>}
         <small>La oferta ganadora se paga automáticamente al cerrar.</small>
       </div> : debt ? <>
         <p className="error">Pago pendiente: {cash(debt.amount)}. Puedes seleccionar billetes o reunir dinero administrando tus propiedades.</p>
@@ -64,10 +70,10 @@ export default function PlayerPanel({ game, me, busy, send, onTrade, onSelect }:
         {mine && me.jailed > 0 && !imprisoned && button("Pagar $5,000 y volver a Salida", {type:"bail"}, me.money < 5000 ? "Saldo insuficiente." : null)}
         {mine && game.phase === "buy" && <div className="buy-scene"><div className="scene-country"><CountryArt id={me.position} /><span>{BOARD[me.position].flag ?? "✈"}</span><h2>{BOARD[me.position].name}</h2><p>¿Agregamos este destino a tu viaje?</p></div>
           {button(`Comprar ${BOARD[me.position].name} · ${cash(BOARD[me.position].price)}`, {type:"buy"}, me.money < BOARD[me.position].price ? "Saldo insuficiente." : null)}
-          {button("Enviar a subasta", {type:"decline"})}
+          {button("Rechazar y subastar para los demás", {type:"decline"})}
         </div>}
-        {game.phase === "end" && button(game.extra ? "Continuar · tiro extra" : "Terminar turno →", {type:"end"}, mine ? null : "Espera tu turno.")}
-        {mine && !!me.salary && <small>Si terminas el turno sin cobrar el sueldo, lo pierdes.</small>}
+        {mine && game.detentionDecision === me.id && button("Quedarme · esperar 3 turnos", {type:"stay"})}
+        {mine && game.phase === "end" && !game.detentionDecision && <p role="status">{game.extra ? "Tu tiro extra se habilitará automáticamente." : "El turno terminará automáticamente."}</p>}
       </>}
     </div>}
     {!me.bankrupt && <button className="trade-trigger" onClick={onTrade} disabled={busy || !!game.debt || !!game.auction || !!game.opening || imprisoned} title={imprisoned ? "En la cárcel no puedes negociar." : "Ofrece dinero y propiedades, incluso fuera de tu turno."}>⇄ Proponer trato</button>}

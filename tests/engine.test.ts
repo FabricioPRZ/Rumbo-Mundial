@@ -29,7 +29,7 @@ describe("Tablero de referencia y reglas", () => {
     expect(go(s,{type:"roll"},[1,1]).players[0].salary).toBe(SALARY);
   });
   it("pierde el sueldo no reclamado al ceder el turno",()=>{
-    let s=game();s.players[0].salary=20000;s.phase="end";
+    let s=game();s.players[0].salary=20000;s.phase="end";s.autoEndAt=10000;
     s=go(s,{type:"end"});expect(s.players[0].salary).toBe(0);
     expect(()=>go(s,{type:"salary"})).toThrow();
   });
@@ -72,9 +72,27 @@ describe("Tablero de referencia y reglas", () => {
     expect(s.players[0].money).toBe(140500);expect(s.properties[1].owner).toBeNull();
     expect(()=>go(s,{type:"return",square:1})).toThrow();
   });
-  it("Australia y visita a Deportado no penalizan",()=>{
-    for(const [from,to] of [[17,20],[7,10]]){const s=game();s.players[0].position=from;
-      const next=go(s,{type:"roll"});expect(next.players[0].position).toBe(to);expect(next.players[0].jailed).toBe(0);}
+  it("Australia permite descansar sin penalización",()=>{
+    const s=game();s.players[0].position=17;
+    const next=go(s,{type:"roll"});expect(next.players[0].position).toBe(20);expect(next.players[0].jailed).toBe(0);
+  });
+  it("caer en Deportado permite pagar la multa inmediatamente sin cobrar sueldo",()=>{
+    let s=game();s.players[0].position=7;s=go(s,{type:"roll"});
+    expect(s.players[0]).toMatchObject({position:10,jailed:3,detention:"oceania",money:134500});
+    expect(s.phase).toBe("end");expect(()=>go(s,{type:"wait"})).toThrow();
+    s=go(s,{type:"bail"});expect(s.players[0]).toMatchObject({position:0,jailed:0,money:129500,salary:0});
+  });
+  it("elegir quedarse no descuenta el turno de llegada; luego cumple tres turnos completos",()=>{
+    let s=game();s.players[0].position=7;s=go(s,{type:"roll"});s=go(s,{type:"end"});
+    expect(s.players[0].jailed).toBe(3);
+    for (let remaining=2;remaining>=0;remaining--) {
+      s.turn=0;s.phase="roll";s=go(s,{type:"wait"});
+      expect(s.players[0].jailed).toBe(remaining);
+      expect(s.players[0].position).toBe(remaining ? 10 : 0);
+      expect(()=>go(s,{type:"wait"})).toThrow();
+      s=go(s,{type:"end"});
+    }
+    expect(s.players[0].money).toBe(134500);expect(s.players[0].salary).toBe(0);
   });
   it("Cárcel cobra fianza y pierde exactamente tres turnos; dobles no liberan",()=>{
     let s=game();s.players[0].position=27;s=go(s,{type:"roll"});
@@ -114,19 +132,21 @@ describe("Tablero de referencia y reglas", () => {
   it("quiebra al Banco subasta bienes cuando quedan otros dos jugadores",()=>{
     let s=game(3);s.players[0].money=0;s.properties[1].owner="a";s.debt={amount:100000,creditor:null,payer:"a"};
     s=go(s,{type:"bankrupt"});expect(s.properties[1].owner).toBeNull();expect(s.auction?.square).toBe(1);
-    s=go(s,{type:"bid",amount:500},[1,2],"b");s=go(s,{type:"fold"},[1,2],"c");expect(s.properties[1].owner).toBe("b");expect(s.auction).toBeNull();
+    s=go(s,{type:"bid",amount:10000},[1,2],"b");s=go(s,{type:"fold"},[1,2],"c");expect(s.properties[1].owner).toBe("b");expect(s.auction).toBeNull();
   });
   it("no permite quiebra mientras los bienes cubran la deuda",()=>{
     const s=game();s.debt={amount:100,creditor:null,payer:"a"};expect(()=>go(s,{type:"bankrupt"})).toThrow(/cubrir/);
   });
-  it("rechazar compra abre subasta; el mismo jugador puede ganarla",()=>{
+  it("rechazar compra abre subasta para los demás y retira al visitante",()=>{
     let s=game();s=go(s,{type:"roll"});s=go(s,{type:"decline"});expect(s.auction?.square).toBe(3);
-    s=go(s,{type:"bid",amount:500});s=go(s,{type:"fold"},[1,2],"b");
-    expect(s.properties[3].owner).toBe("a");expect(s.players[0].money).toBe(134000);expect(()=>go(s,{type:"buy"})).toThrow();
+    expect(s.auction?.passed).toContain("a");expect(()=>go(s,{type:"bid",amount:500})).toThrow(/Oferta inválida/);
+    s=go(s,{type:"bid",amount:16000},[1,2],"b");
+    expect(s.properties[3].owner).toBe("b");expect(s.players[1].money).toBe(118500);
+    expect(s.players.map((p)=>p.position)).toEqual([3,0]);expect(s.auction).toBeNull();
   });
   it("subasta vence durante polling sin temporizador residente",()=>{
-    let s=game();s=go(go(s,{type:"roll"}),{type:"decline"});s=go(s,{type:"bid",amount:1000});
-    expect(finishByTime(s,20999)).toBe(s);s=finishByTime(s,21000);expect(s.auction).toBeNull();expect(s.properties[3].owner).toBe("a");
+    let s=game(3);s=go(go(s,{type:"roll"}),{type:"decline"});s=go(s,{type:"bid",amount:16000},[1,2],"b");
+    expect(finishByTime(s,20999)).toBe(s);s=finishByTime(s,21000);expect(s.auction).toBeNull();expect(s.properties[3].owner).toBe("b");
   });
   it("tratos fuera de turno revalidan propiedad y saldo",()=>{
     let s=game();s.properties[1].owner="b";

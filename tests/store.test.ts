@@ -23,7 +23,7 @@ vi.mock("@upstash/redis", () => ({
     }
   },
 }));
-import { act, createRoom, getRoom, joinRoom } from "../lib/store";
+import { act, createRoom, getRoom, joinRoom, roomIdentity } from "../lib/store";
 import type { Action } from "../lib/game/types";
 async function setup() {
   const a = await createRoom({ name: "Ana" });
@@ -42,6 +42,13 @@ beforeEach(() => {
   vi.stubEnv("UPSTASH_REDIS_REST_TOKEN", "test");
 });
 describe("Persistencia autoritativa (adaptador Redis simulado)", () => {
+  it("la voz obtiene identidad solo desde un token válido de esa sala", async () => {
+    const { a, b } = await setup();
+    expect(await roomIdentity(a.id, a.playerToken)).toEqual({ playerId: a.playerId, players: [a.playerId, b.playerId] });
+    const other = await createRoom({ name: "Otra sala" });
+    await expect(roomIdentity(a.id, other.playerToken)).rejects.toMatchObject({ status: 401 });
+    await expect(roomIdentity(a.id, randomUUID())).rejects.toMatchObject({ status: 401 });
+  });
   it("emite tokens únicos, recupera identidad y no filtra secretos ni mazos", async () => {
     const { a, b } = await setup();
     expect(a.playerToken).not.toBe(b.playerToken);
@@ -133,6 +140,25 @@ describe("Persistencia autoritativa (adaptador Redis simulado)", () => {
     const view = await getRoom(a.id, a.playerToken, false);
     expect(view.game.status).toBe("finished");
     expect(view.game.winner).toHaveLength(2);
+  });
+  it("dos consultas simultáneas saltan una sola vez un turno cuyo plazo de 20 segundos venció", async () => {
+    const { a, b } = await setup();
+    await act(a.id, request(a.playerToken, b.game.version, { type: "start" }));
+    const k = `turista:room:${a.id}`;
+    const stored = JSON.parse(memory.get(k)!);
+    stored.game.opening = null;
+    stored.game.phase = "roll";
+    stored.game.turn = 0;
+    stored.game.rollDeadline = Date.now() - 1;
+    stored.game.presentationUntil = Date.now() - 1;
+    const version = stored.game.version;
+    memory.set(k, JSON.stringify(stored));
+    const views = await Promise.all([getRoom(a.id, a.playerToken, false), getRoom(a.id, b.playerToken, false)]);
+    for (const view of views) {
+      expect(view.game.turn).toBe(1);
+      expect(view.game.version).toBe(version + 1);
+      expect(view.game.players.map((p) => p.position)).toEqual([0, 0]);
+    }
   });
   it("valida cuerpos, montos, IDs y colores", async () => {
     await expect(createRoom({ name: " " })).rejects.toThrow();

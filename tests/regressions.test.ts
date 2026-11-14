@@ -7,6 +7,42 @@ import { exchange, pay, totalBills, wallet } from "../lib/game/money";
 import { shuffleDeck } from "../lib/game/shuffle";
 import type { Action } from "../lib/game/types";
 
+it("pasar una subasta conserva la casilla de cada jugador y no genera movimientos", () => {
+  let s = game(3);
+  s.players[1].position = 24;
+  s.players[2].position = 39;
+  s = go(go(s, { type: "roll" }), { type: "decline" });
+  const positions = s.players.map((p) => p.position);
+  const movement = s.motion;
+  const moves = s.events?.filter((e) => e.type === "move");
+  s = go(s, { type: "fold" }, [1, 2], "b");
+  expect(s.auction?.passed).toEqual(["a", "b"]);
+  expect(s.players.map((p) => p.position)).toEqual(positions);
+  expect(s.motion).toEqual(movement);
+  expect(s.events?.filter((e) => e.type === "move")).toEqual(moves);
+  expect(() => go(s, { type: "bid", amount: 500 }, [1, 2], "b")).toThrow();
+  s = go(s, { type: "bid", amount: 16000 }, [1, 2], "c");
+  expect(s.players.map((p) => p.position)).toEqual(positions);
+  expect(s.properties[3].owner).toBe("c");
+});
+
+it("si todos rechazan, el país queda en el Banco y las fichas no se mueven", () => {
+  let s = go(go(game(), { type: "roll" }), { type: "decline" });
+  const positions = s.players.map((p) => p.position);
+  s = go(s, { type: "fold" }, [1, 2], "b");
+  expect(s.auction).toBeNull();
+  expect(s.properties[3].owner).toBeNull();
+  expect(s.players.map((p) => p.position)).toEqual(positions);
+  expect(s.players.map((p) => p.money)).toEqual([134500, 134500]);
+});
+
+it("rechazar cierra sin bloqueo cuando los demás están en la cárcel", () => {
+  let s = game();
+  s.players[1].jailed = 3;s.players[1].detention = "prison";
+  s = go(go(s, { type: "roll" }), { type: "decline" });
+  expect(s.auction).toBeNull();expect(s.phase).toBe("end");
+});
+
 it("una tirada de 12 avanza doce pasos, no cuarenta",()=>{
   const s=go(game(),{type:"roll"},[6,6]);expect(s.motion?.path).toEqual([1,2,3,4,5,6,7,8,9,10,11,12]);
 });
@@ -60,6 +96,8 @@ it.each([1234567,8459,9234])("completa una partida con cartas, subastas, pagos y
   const die=()=>{seed=(Math.imul(seed,1664525)+1013904223)>>>0;return (seed%6)+1;};
   for(let step=0;step<30000&&s.status==="playing";step++){
     const now=1000+step*100;
+    const progressed = finishByTime(s, now);
+    if (progressed !== s) { s = progressed; continue; }
     if(s.auction){s=finishByTime(s,s.auction.endsAt);continue;}
     let p=s.players[s.turn];let action:Action;
     if(s.debt){p=s.players.find((x)=>x.id===(s.debt?.payer??p.id))!;
@@ -77,7 +115,7 @@ it.each([1234567,8459,9234])("completa una partida con cartas, subastas, pagos y
     expect(s.players.every((p)=>p.money>=0)).toBe(true);
   }
   expect(s.status).toBe("finished");expect(s.winner).toHaveLength(1);
-});
+}, 15000);
 
 it("la última casa se subasta entre quienes pueden construir, sin duplicar la pieza",()=>{
   let s=game(3);

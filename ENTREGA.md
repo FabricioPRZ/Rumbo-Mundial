@@ -19,7 +19,9 @@ rumbo-mundial/
 │   │       │   │   └── route.ts
 │   │       │   ├── join
 │   │       │   │   └── route.ts
-│   │       │   └── route.ts
+│   │       │   ├── route.ts
+│   │       │   └── voice
+│   │       │       └── route.ts
 │   │       └── route.ts
 │   ├── globals.css
 │   ├── layout.tsx
@@ -31,36 +33,54 @@ rumbo-mundial/
 │   └── sitemap.ts
 ├── components
 │   ├── Activity.tsx
+│   ├── AudioControls.tsx
 │   ├── Board.tsx
 │   ├── Dice.tsx
 │   ├── EntryForm.tsx
 │   ├── Log.tsx
+│   ├── MobileTurnBar.tsx
 │   ├── PaymentModal.tsx
 │   ├── PlayerPanel.tsx
 │   ├── PropertyCard.tsx
 │   ├── PropertyDialog.tsx
 │   ├── Room.tsx
 │   ├── TradeModal.tsx
-│   └── TravelArt.tsx
+│   ├── TravelArt.tsx
+│   ├── Victory.tsx
+│   └── VoiceChat.tsx
 ├── lib
+│   ├── audio.ts
 │   ├── game
 │   │   ├── art.ts
 │   │   ├── board.ts
 │   │   ├── cards.ts
 │   │   ├── engine.ts
 │   │   ├── money.ts
+│   │   ├── playback.ts
+│   │   ├── presentation.ts
 │   │   ├── rules.ts
 │   │   ├── shuffle.ts
 │   │   └── types.ts
 │   ├── http.ts
 │   ├── site.ts
-│   └── store.ts
+│   ├── store.ts
+│   ├── useGameAudio.ts
+│   ├── useGamePlayback.ts
+│   └── voice
+│       ├── client.ts
+│       ├── store.ts
+│       └── types.ts
 ├── tests
 │   ├── api-smoke.mjs
+│   ├── audio.test.ts
+│   ├── automatic-turns.test.ts
 │   ├── engine.test.ts
 │   ├── helpers.ts
+│   ├── playback.test.ts
 │   ├── regressions.test.ts
-│   └── store.test.ts
+│   ├── store.test.ts
+│   ├── voice-client.test.ts
+│   └── voice.test.ts
 ├── scripts
 │   └── entrega.mjs
 ├── public
@@ -107,6 +127,13 @@ UPSTASH_REDIS_REST_TOKEN=TU_TOKEN
 SITE_URL=https://rumbo-mundial-khaki.vercel.app
 # Opcional: solo el valor content de la etiqueta de verificación de Search Console.
 GOOGLE_SITE_VERIFICATION=
+
+# Voz: STUN público ya incluido, sin cuenta ni claves adicionales.
+# Opcional: respaldo TURN para redes que bloquean la conexión directa.
+# Usa credenciales de cliente TURN con alcance/cuota limitada, no una clave API maestra.
+VOICE_TURN_URLS=
+VOICE_TURN_USERNAME=
+VOICE_TURN_CREDENTIAL=
 ````
 
 ## .gitignore
@@ -8233,6 +8260,28 @@ export async function GET(
 }
 ````
 
+## app/api/rooms/[id]/voice/route.ts
+
+````typescript
+import { body, respond } from "@/lib/http";
+import { HttpError } from "@/lib/store";
+import { getVoice, updateVoice } from "@/lib/voice/store";
+
+export const dynamic = "force-dynamic";
+export const runtime = "nodejs";
+function token(request: Request) {
+  const value = request.headers.get("authorization");
+  if (!value?.startsWith("Bearer ")) throw new HttpError(401, "Entra a la sala para usar la voz.");
+  return value.slice(7);
+}
+export async function GET(request: Request, { params }: { params: Promise<{ id: string }> }) {
+  return respond(async () => getVoice((await params).id, token(request), new URL(request.url).searchParams.get("session") ?? ""));
+}
+export async function POST(request: Request, { params }: { params: Promise<{ id: string }> }) {
+  return respond(async () => updateVoice((await params).id, token(request), await body(request)));
+}
+````
+
 ## app/api/rooms/route.ts
 
 ````typescript
@@ -9537,16 +9586,117 @@ button:active:not(:disabled) { transform:translateY(1px) scale(.98); }
 .board-center > small {position:absolute;bottom:1%;left:50%;transform:translateX(-50%);white-space:nowrap;background:#fff8e5cc;padding:3px 10px;border-radius:10px;margin:0;}
 .board-center .deck-description {position:absolute;left:8%;right:8%;bottom:29%;margin:0;max-width:none;min-height:0;padding:8px 12px;border-radius:10px;background:#fff8e8ef;color:#203f59;box-shadow:0 3px 12px #16394b33;z-index:3;}
 .board-center .deck-description:empty {display:none;}
-.square.country {padding:7px 0 0;gap:0;}
-.square.country .square-icon {position:absolute;inset:7px 0 0;height:auto;width:100%;}
+.square.country {padding:12px 0 0;gap:0;}
+.square.country .stripe {height:12px;filter:saturate(1.35);box-shadow:inset 0 1px 0 #ffffff77,0 1px 2px #102d4744;}
+.square.country .square-icon {position:absolute;inset:12px 0 0;height:auto;width:100%;}
+.square .group-marker {display:inline-block;width:7px;height:7px;border-radius:2px;margin-right:3px;vertical-align:baseline;filter:saturate(1.35);box-shadow:0 0 0 1px #102d4733;}
 .square .country-art {width:100%;height:100%;object-fit:cover;border-radius:0;}
 .square.country strong {position:relative;margin-top:auto;width:100%;font-size:9px;line-height:1.1;background:#fffdf3ed;padding:2px 1px 0;color:#153c50;}
 .square.country small {position:relative;background:#fffdf3ed;width:100%;font-size:8px;padding-bottom:2px;color:#153c50;}
 .square .stripe,.square .buildings {z-index:2;}
-.square .buildings {bottom:auto;top:10px;background:#ffffffb8;border-radius:3px;}
+.square .buildings {bottom:auto;top:15px;background:#ffffffb8;border-radius:3px;}
 .property > .country-art {width:100%;height:auto;max-height:none;aspect-ratio:3/2;object-fit:cover;border-radius:12px;}
 .scene-country > .country-art {width:100%;max-height:240px;object-fit:cover;}
 .region-central {left:20%;top:40%;}.region-south {left:24%;top:62%;}.region-oceania {left:83%;top:65%;}
+
+/* Acciones visibles sobre el tablero cuando el panel lateral está cerrado. */
+.mobile-turn-bar {display:none;}
+.victory-celebration {position:fixed;inset:0;margin:auto;width:min(780px,96vw);max-height:96dvh;overflow:auto;border:1px solid #f6d58a66;border-radius:24px;padding:24px 32px;color:#fff6df;background:radial-gradient(ellipse at 50% 0,#46698a 0,#19384f 48%,#10273b 100%);box-shadow:0 24px 100px #00152988;isolation:isolate;}
+.victory-celebration::backdrop {background:#071d32c9;backdrop-filter:blur(10px);}
+.victory-heading {text-align:center;position:relative;z-index:1;}
+.victory-trophy {display:block;font-size:44px;line-height:1.2;}
+.victory-heading .eyebrow {color:#f6cf7c;font-size:10px;margin:6px 0;}
+.victory-heading h1 {font-size:clamp(24px,4vw,38px);color:#fff6d9;line-height:1.15;overflow-wrap:anywhere;}
+.victory-heading > p:last-child {font-size:13px;color:#c2d7e5;margin-top:6px;}
+.victory-podium {display:grid;grid-template-columns:repeat(3,minmax(0,1fr));align-items:end;gap:8px;max-width:500px;margin:20px auto 0;position:relative;z-index:1;}
+.podium-group {text-align:center;min-width:0;animation:podium-rise 700ms cubic-bezier(.16,1,.3,1) both;}
+.podium-rank-1 {animation-delay:150ms;}.podium-rank-3 {animation-delay:300ms;}
+.podium-travelers {display:flex;flex-wrap:wrap;justify-content:center;gap:5px;margin-bottom:8px;}
+.podium-travelers > div {min-width:0;max-width:100%;flex:1 1 45%;}
+.podium-travelers strong {display:block;font-size:12px;overflow-wrap:anywhere;line-height:1.25;margin-top:5px;}
+.podium-avatar {display:inline-grid;place-items:center;width:36px;height:36px;border-radius:50%;color:white;border:2px solid #fff8;box-shadow:0 3px 12px #0003;}
+.podium-step {height:82px;border-radius:12px 12px 3px 3px;display:flex;flex-direction:column;align-items:center;justify-content:center;background:linear-gradient(110deg,#b5c8d7,#7892a9);color:#17394e;box-shadow:inset 0 3px #ffffff66,0 7px 0 #0002;}
+.podium-step > span {font-size:28px;}.podium-step b {font:700 28px Georgia,serif;}
+.podium-rank-1 .podium-step {height:118px;background:linear-gradient(110deg,#ffe6a0,#d9a844);color:#66420e;}
+.podium-rank-3 .podium-step {height:62px;background:linear-gradient(110deg,#edc7a3,#af795a);color:#58331f;}
+.victory-results {display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:7px;list-style:none;padding:0;margin:22px 0 0;position:relative;z-index:1;}
+.victory-results li {display:flex;align-items:center;gap:7px;background:#ffffff0d;border:1px solid #ffffff1f;border-radius:10px;padding:9px;min-width:0;}
+.victory-results li.champion {background:#f6c85b16;border-color:#f6c85b66;}
+.result-place {color:#f6cf7c;font-size:15px;}.victory-results li > div {min-width:0;flex:1;}
+.victory-results strong {display:block;font-size:12px;color:#fff8e5;overflow-wrap:anywhere;}
+.victory-results small {display:block;font-size:10px;color:#bacddd;}
+.victory-results li > span {font-size:12px;color:#ffe6a1;font-variant-numeric:tabular-nums;}
+.victory-actions {display:flex;flex-wrap:wrap;align-items:center;justify-content:center;gap:8px;padding:14px 0 0;margin-top:14px;border-top:1px solid #ffffff26;position:relative;z-index:1;}
+.victory-actions button,.victory-actions a {display:inline-flex;align-items:center;justify-content:center;min-height:40px;padding:8px 12px;border:1px solid #ffffff40;background:#ffffff10;border-radius:9px;color:#fff4d5;font-size:12px;text-decoration:none;}
+.victory-actions a {background:#f6cf7c;color:#19384f;font-weight:700;}
+.victory-confetti {position:absolute;inset:0;overflow:hidden;pointer-events:none;z-index:2;border-radius:inherit;}
+.victory-confetti span {position:absolute;top:-20px;width:8px;height:14px;opacity:0;animation:confetti-fall 4s linear both;}
+@keyframes confetti-fall {0%{opacity:0;transform:translate3d(0,-20px,0) rotate(0deg)}10%{opacity:1}85%{opacity:1}100%{opacity:0;transform:translate3d(var(--confetti-drift),90dvh,0) rotate(760deg)}}
+@keyframes podium-rise {from{opacity:0;transform:translateY(50px) scale(.94)}to{opacity:1;transform:translateY(0) scale(1)}}
+@media(max-width:500px){.victory-celebration{padding:18px 12px;border-radius:18px}.victory-results{gap:5px}.victory-results li{gap:4px;padding:7px 5px;flex-wrap:wrap}.victory-results li > span{width:100%;text-align:right}.victory-podium{gap:5px;margin-top:15px}.podium-travelers strong{font-size:11px}.victory-trophy{font-size:34px}.victory-results .player-dot{display:none}}
+@media(max-height:500px) and (orientation:landscape){.victory-celebration[open]{display:grid;grid-template-columns:1fr 1fr;gap:12px;padding:14px 20px}.victory-heading{grid-column:1/-1}.victory-trophy{display:none}.victory-podium,.victory-results{margin:0}.victory-actions{grid-column:1/-1;margin:0;padding-top:8px}}
+@media(prefers-reduced-motion:reduce){.victory-confetti{display:none}.podium-group{animation:none}}
+.table-viewport .activity {z-index:80;}
+.table-viewport.presentation-playing .buy-scene,
+.table-viewport.presentation-playing .trade-scene,
+.table-viewport.presentation-playing .game-layout aside,
+.table-viewport.presentation-playing .players-strip {visibility:hidden;pointer-events:none;}
+.scene-auto-close {margin-top:24px;opacity:.8;font-size:12px;}
+.roll-countdown {font-variant-numeric:tabular-nums;font-weight:700;white-space:nowrap;}
+.roll-countdown.urgent {color:#ffd3aa;}
+.audio-settings {position:relative;margin-left:auto;flex-shrink:0;}
+.room-audio-controls {display:flex;align-items:center;gap:6px;margin-left:auto;}
+.voice-controls {position:relative;flex-shrink:0;}
+.voice-controls > summary {list-style:none;cursor:pointer;border:1px solid var(--line);border-radius:8px;background:#fffdf6;padding:7px 10px;min-height:36px;font-size:12px;}
+.voice-controls > summary::-webkit-details-marker {display:none;}
+.voice-controls > summary:focus-visible {outline:2px solid var(--accent);outline-offset:3px;}
+.voice-controls > summary.mic-live {background:#dff2e5;border-color:#4a9468;color:#174d30;}
+.voice-popover {position:absolute;right:0;top:calc(100% + 8px);z-index:101;width:min(340px,calc(100vw - 24px));max-height:70dvh;overflow:auto;padding:16px;border:1px solid var(--line);border-radius:14px;background:#fffdf7;box-shadow:0 12px 40px #17394a44;font-size:13px;}
+.voice-popover p {margin:12px 0;line-height:1.5;}
+.voice-popover > button {width:100%;min-height:44px;}
+.voice-popover label {display:flex;justify-content:space-between;gap:10px;margin-top:14px;}
+.voice-popover input[type="range"] {width:100%;min-height:40px;accent-color:var(--accent);padding:0;}
+.voice-popover > small {display:block;margin-top:12px;font-size:11px;line-height:1.4;color:var(--muted);}
+.voice-members {list-style:none;padding:0;margin:12px 0;}
+.voice-members li {display:flex;align-items:center;gap:6px;padding:7px 0;border-bottom:1px solid var(--line);}
+.voice-members li > span {flex:1;min-width:0;overflow-wrap:anywhere;}
+.voice-members small {font-size:10px;color:var(--muted);text-align:right;}
+.voice-buttons {display:flex;gap:8px;}.voice-buttons button {flex:1;min-height:44px;}
+.voice-error {padding:9px;border-radius:8px;background:#fff0dd;color:#7b431c;}
+.voice-mute {background:#e8f4ed;border-color:#77a98c;}
+@media(max-width:700px){.room-audio-controls{gap:4px}.voice-controls > summary,.audio-settings > summary{font-size:10px;padding:7px}.table-viewport .voice-popover button{min-height:40px}.voice-popover{position:fixed;top:80px;right:12px;max-height:calc(100dvh - 100px)}}
+.audio-settings > summary {list-style:none;cursor:pointer;border:1px solid var(--line);border-radius:8px;background:#fffdf6;padding:7px 10px;min-height:36px;font-size:12px;}
+.audio-settings > summary::-webkit-details-marker {display:none;}
+.audio-settings > summary:focus-visible {outline:2px solid var(--accent);outline-offset:3px;}
+.audio-popover {position:absolute;right:0;top:calc(100% + 8px);z-index:100;width:min(300px,calc(100vw - 24px));max-height:70dvh;overflow:auto;padding:16px;border:1px solid var(--line);border-radius:14px;background:#fffdf7;box-shadow:0 12px 40px #17394a44;}
+.audio-popover > button {width:100%;margin:12px 0;}
+.audio-popover label {display:flex;justify-content:space-between;gap:10px;font-size:13px;margin-top:10px;}
+.audio-popover input[type="range"] {width:100%;min-height:36px;accent-color:var(--accent);padding:0;}
+.audio-popover small {display:block;font-size:11px;color:var(--muted);line-height:1.4;}
+.table-toolbar {flex-shrink:0;}
+@media(max-width:1199px) {
+  .mobile-turn-bar {display:flex;align-items:center;justify-content:space-between;gap:10px;flex-shrink:0;padding:8px 10px;border:1px solid var(--line);border-radius:12px;background:#fffdf7;}
+  .mobile-turn-bar.is-my-turn {border-color:#de9e64;background:#fff5e2;}
+  .mobile-turn-info {min-width:0;flex:1;line-height:1.3;}
+  .mobile-turn-info strong {display:block;font-size:13px;overflow-wrap:anywhere;}
+  .mobile-turn-info > span {display:block;color:var(--muted);font-size:11px;}
+  .mobile-turn-info p {font-size:12px;margin:3px 0 0;overflow-wrap:anywhere;}
+  .mobile-turn-actions {display:flex;flex-direction:column;gap:4px;flex:0 0 43%;max-width:210px;}
+  .mobile-turn-actions button {min-height:44px;width:100%;padding:7px 9px;font-size:12px;line-height:1.2;white-space:normal;}
+  .table-toolbar {display:flex;align-items:center;justify-content:space-between;gap:5px;}
+  .table-toolbar .table-tools {position:static;flex-direction:row;max-width:none;gap:5px;}
+  .table-viewport .table-toolbar .activity {position:static;pointer-events:auto;flex-shrink:0;}
+  .table-toolbar .shared-dice > strong {display:none;}
+  .table-viewport .table-toolbar .shared-dice {padding:5px;max-width:none;}
+  .table-viewport .table-toolbar .dice {gap:5px;}
+  .table-viewport .status-strip > span:last-child {display:none;}
+}
+@media(max-height:500px) and (orientation:landscape) and (max-width:1199px) {
+  .mobile-turn-bar {padding:4px 8px;}
+  .mobile-turn-actions {flex-direction:row;max-width:350px;}
+  .mobile-turn-info > span {display:none;}
+  .table-viewport .game-layout {padding-bottom:55px;}
+}
 ````
 
 ## app/layout.tsx
@@ -9620,7 +9770,7 @@ export default function Home() {
         <section className="hero">
           <p className="eyebrow">PASE DE ABORDAR / SIN SALIR DE CASA</p>
           <h1 className="home-title">
-            Turista mundial
+            Rumbo mundial
             <br />
             online<span>.</span>
           </h1>
@@ -9737,39 +9887,70 @@ export default function sitemap(): MetadataRoute.Sitemap {
 
 ````tsx
 "use client";
-import { useEffect, useRef, useState } from "react";
+import { useEffect } from "react";
 import type { Game, GameEvent } from "@/lib/game/types";
 import Dice from "./Dice";
 import { Globe, Building } from "./TravelArt";
 import { BOARD } from "@/lib/game/board";
-export default function Activity({ game }: { game: Game }) {
-  const [queue,setQueue]=useState<GameEvent[]>([]);
-  const seen=useRef(game.eventSerial??0);
-  useEffect(()=>{
-    const fresh=(game.events??[]).filter((e)=>e.id>seen.current && e.type!=="move");
-    seen.current=game.eventSerial??0;
-    if(fresh.length)setQueue((q)=>[...q,...fresh]);
-  },[game.events,game.eventSerial]);
-  const event=queue[0];
-  useEffect(()=>{
-    if(!event)return;
-    const timer=setTimeout(()=>setQueue((q)=>q.slice(1)),event.type==="card"?6500:event.type==="roll"?2600:3400);
-    return()=>clearTimeout(timer);
-  },[event]);
-  const lastRoll=[...(game.events??[])].reverse().find((e)=>e.type==="roll");
+export default function Activity({ game, event, lastRoll, onEvent }: {
+  game: Game;
+  event: GameEvent | null;
+  lastRoll: GameEvent | null;
+  onEvent?: (event: GameEvent) => void;
+}) {
+  useEffect(() => {
+    if (event) onEvent?.(event);
+  }, [event, onEvent]);
+  const scene = event?.type === "move" ? null : event;
   const property=event?.square===undefined?null:BOARD[event.square];
   return <section className="activity" aria-label="Actividad compartida">
     <div className="shared-dice"><strong>{lastRoll?.text??"Preparando el despegue"}</strong><Dice values={lastRoll?.dice??game.dice}/></div>
-    {event&&<div className="table-scene" key={event.id} role="status" aria-live="polite">
-      <div className={`scene-content scene-${event.type}`}>
-        <span className="eyebrow">{event.type==="roll"?"LOS DADOS DECIDEN":event.type==="card"?event.deck==="email"?"CORREO RECIBIDO":"NUEVO MENSAJE":event.type==="purchase"?"NUEVA PROPIEDAD":"EN NUESTRA MESA"}</span>
-        {event.dice?<Dice values={event.dice} rollId={event.id}/>:event.type==="card"?<div className="scene-envelope" aria-hidden="true">{event.deck==="email"?"✉":"☏"}</div>:event.text.includes("construyó")?<div className="scene-building"><Building hotel={Object.values(game.properties).some((p)=>p.buildings===5)}/></div>:<Globe className="scene-globe"/>}
+    {scene&&<div className="table-scene" key={scene.id} role="status" aria-live="polite">
+      <div className={`scene-content scene-${scene.type}`}>
+        <span className="eyebrow">{scene.type==="roll"?"LOS DADOS DECIDEN":scene.type==="card"?scene.deck==="email"?"CORREO RECIBIDO":"NUEVO MENSAJE":scene.type==="purchase"?"NUEVA PROPIEDAD":"EN NUESTRA MESA"}</span>
+        {scene.dice?<Dice values={scene.dice} rollId={scene.id}/>:scene.type==="card"?<div className="scene-envelope" aria-hidden="true">{scene.deck==="email"?"✉":"☏"}</div>:scene.text.includes("construyó")?<div className="scene-building"><Building hotel={Object.values(game.properties).some((p)=>p.buildings===5)}/></div>:<Globe className="scene-globe"/>}
         {property&&<div className="scene-flag">{property.flag??"✈"}</div>}
-        <h2>{event.text}</h2>
-        <button onClick={()=>setQueue((q)=>q.slice(1))}>Continuar{queue.length>1?` · ${queue.length-1} acontecimientos`:""}</button>
+        <h2>{scene.text}</h2>
+        <small className="scene-auto-close">El viaje continúa automáticamente</small>
       </div>
     </div>}
   </section>;
+}
+````
+
+## components/AudioControls.tsx
+
+````tsx
+"use client";
+
+import { useRef } from "react";
+import type { useGameAudio } from "@/lib/useGameAudio";
+
+export default function AudioControls({ audio }: { audio: ReturnType<typeof useGameAudio> }) {
+  const details = useRef<HTMLDetailsElement>(null);
+  const { preferences, change, error } = audio;
+  return (
+    <details className="audio-settings" ref={details} onKeyDown={(event) => {
+      if (event.key === "Escape" && details.current) {
+        details.current.open = false;
+        details.current.querySelector("summary")?.focus();
+      }
+    }}>
+      <summary aria-label="Configurar música, efectos y silencio">{preferences.muted ? "♪ Audio apagado" : "♫ Audio"}</summary>
+      <div className="audio-popover">
+        <div className="row"><strong>Música y sonidos</strong><button aria-label="Cerrar ajustes de audio" onClick={() => { if (details.current) details.current.open = false; }}>×</button></div>
+        <button className="primary" aria-pressed={preferences.muted} onClick={() => change({ muted: !preferences.muted })}>
+          {preferences.muted ? "Activar audio" : "Silenciar todo"}
+        </button>
+        <label htmlFor="music-volume">Música de fondo <output>{preferences.music}%</output></label>
+        <input id="music-volume" type="range" min="0" max="100" step="1" value={preferences.music} onChange={(event) => change({ music: Number(event.target.value) })} />
+        <label htmlFor="effects-volume">Efectos del juego <output>{preferences.effects}%</output></label>
+        <input id="effects-volume" type="range" min="0" max="100" step="1" value={preferences.effects} onChange={(event) => change({ effects: Number(event.target.value) })} />
+        <small>{preferences.muted ? "Música, efectos y chat de voz silenciados, incluido tu micrófono. Conservamos tus volúmenes." : "Se pausa al cambiar de pestaña. Tus ajustes se guardan en este navegador."}</small>
+        {error && <p role="status">{error}<button onClick={audio.unlock}>Activar audio</button></p>}
+      </div>
+    </details>
+  );
 }
 ````
 
@@ -9781,7 +9962,7 @@ import { useEffect, useRef, useState } from "react";
 import Image from "next/image";
 import { Building, CountryArt } from "./TravelArt";
 import { BOARD, cash } from "@/lib/game/board";
-import type { Game, GameEvent } from "@/lib/game/types";
+import type { Game } from "@/lib/game/types";
 export function coordinates(id: number): [number, number] {
   if (id <= 10) return [0, id];
   if (id <= 20) return [id - 10, 10];
@@ -9791,8 +9972,10 @@ export function coordinates(id: number): [number, number] {
 export default function Board({
   game,
   onSelect,
+  positions,
 }: {
   game: Game;
+  positions: Record<string, number>;
   onSelect: (id: number) => void;
 }) {
   const [zoom, setZoom] = useState(1);
@@ -9812,62 +9995,6 @@ export default function Board({
     fit();
     return () => observer.disconnect();
   }, []);
-  const [positions, setPositions] = useState<Record<string, number>>(() =>
-    Object.fromEntries(game.players.map((p) => [p.id, p.position])),
-  );
-  const seen = useRef(game.eventSerial ?? 0);
-  const queue = useRef<GameEvent[]>([]);
-  const timer = useRef<ReturnType<typeof setTimeout> | null>(null);
-  const latest = useRef(game.players);
-  latest.current = game.players;
-  useEffect(() => {
-    const events = game.events ?? [];
-    const moves = events.filter(
-      (e) =>
-        e.id > seen.current && e.type === "move" && e.player && e.path?.length,
-    );
-    const gap =
-      events.length > 0 && seen.current > 0 && events[0].id > seen.current + 1;
-    seen.current = game.eventSerial ?? 0;
-    const snapshot = () =>
-      Object.fromEntries(latest.current.map((p) => [p.id, p.position]));
-    if (gap || window.matchMedia("(prefers-reduced-motion: reduce)").matches) {
-      if (timer.current) clearTimeout(timer.current);
-      timer.current = null;
-      queue.current = [];
-      setPositions(snapshot());
-      return;
-    }
-    queue.current.push(...moves);
-    if (timer.current) return;
-    const play = () => {
-      const move = queue.current.shift();
-      if (!move?.player || !move.path) {
-        timer.current = null;
-        setPositions(snapshot());
-        return;
-      }
-      const player = move.player,
-        path = move.path;
-      let step = 0;
-      if (move.from !== undefined)
-        setPositions((p) => ({ ...p, [player]: move.from! }));
-      const advance = () => {
-        const destination=path[step];
-        setPositions((p) => ({ ...p, [player]: destination }));
-        step++;
-        timer.current = setTimeout(step < path.length ? advance : play, 110);
-      };
-      timer.current = setTimeout(advance, move.teleport ? 0 : 110);
-    };
-    play();
-  }, [game.events, game.eventSerial, game.players]);
-  useEffect(
-    () => () => {
-      if (timer.current) clearTimeout(timer.current);
-    },
-    [],
-  );
   const icons: Record<string, string> = {
     start: "⚑",
     oceania: "↩",
@@ -9909,21 +10036,21 @@ export default function Board({
               <button
                 key={b.id}
                 onClick={() => onSelect(b.id)}
-                className={`square ${b.kind} ${game.players[game.turn]?.position === b.id ? "current-square" : ""}`}
+                className={`square ${b.kind} ${(positions[game.players[game.turn]?.id] ?? game.players[game.turn]?.position) === b.id ? "current-square" : ""}`}
                 style={{
                   gridColumn: x + 1,
                   gridRow: y + 1,
                   borderColor: owner?.color,
                   boxShadow: owner ? `inset 0 -4px ${owner.color}` : undefined,
                 }}
-                aria-label={`${b.name}${a?.owner ? `, de ${owner?.name}` : ""}${a?.mortgaged ? ", hipotecada" : ""}`}
+                aria-label={`${b.name}${b.group ? `, grupo ${b.group}` : ""}${a?.owner ? `, de ${owner?.name}` : ""}${a?.mortgaged ? ", hipotecada" : ""}`}
               >
                 <span
                   className="stripe"
                   style={{ background: b.color ?? "transparent" }}
                 />
                 <span className="square-icon">{b.kind === "country" ? <CountryArt id={b.id} /> : icons[b.kind]}</span>
-                <strong>{b.name}</strong>
+                <strong>{b.color && <span className="group-marker" style={{ background: b.color }} aria-hidden="true" />}{b.name}</strong>
                 <small>
                   {b.price ? cash(b.price) : b.tax ? cash(b.tax) : ""}
                 </small>
@@ -10171,6 +10298,120 @@ export default function Log({
 }
 ````
 
+## components/MobileTurnBar.tsx
+
+````tsx
+"use client";
+
+import { BOARD, cash, DEPORTATION_FINE } from "@/lib/game/board";
+import type { Action, Game, Player } from "@/lib/game/types";
+
+export default function MobileTurnBar({ game, me, busy, send, onOptions, animating = false, position }: {
+  game: Game;
+  me: Player;
+  busy: boolean;
+  send: (action: Action) => void;
+  onOptions: () => void;
+  animating?: boolean;
+  position?: number;
+}) {
+  const active = game.players[game.turn];
+  const mine = active.id === me.id;
+  let message = `Espera el turno de ${active.name}.`;
+  let label = "Tirar los dados";
+  let action: Action | null = null;
+  let showOptions = false;
+
+  if (me.bankrupt) {
+    message = "Terminó tu viaje. Puedes seguir viendo la partida.";
+  } else if (game.opening) {
+    label = "Tirar dado de salida";
+    if (!game.opening.candidates.includes(me.id)) {
+      message = "Espera el desempate de los finalistas.";
+    } else if (game.opening.rolls[me.id] !== undefined) {
+      message = `Sacaste ${game.opening.rolls[me.id]}. Esperando a los demás.`;
+    } else {
+      message = "Tira para decidir quién empieza.";
+      action = { type: "opening-roll" };
+    }
+  } else if (game.auction) {
+    const passed = game.auction.passed.includes(me.id);
+    message = passed ? "Ya rechazaste la subasta. Esperando a los demás." : "Subasta en curso. Puedes revisar las ofertas.";
+    label = passed ? "Subasta en curso" : "Ver subasta";
+    showOptions = !passed;
+  } else if (game.debt) {
+    const payer = game.debt.payer ?? active.id;
+    if (payer === me.id) {
+      message = `Pago pendiente: ${cash(game.debt.amount)}.`;
+      if (me.money >= game.debt.amount) {
+        label = "Seleccionar billetes";
+        action = { type: "settle" };
+      } else {
+        label = "Administrar bienes";
+        showOptions = true;
+      }
+    } else {
+      message = `Esperando el pago de ${game.players.find((p) => p.id === payer)?.name}.`;
+    }
+  } else if (game.choice) {
+    message = "Hay una elección pendiente antes de continuar.";
+    if (game.choice.player === me.id) {
+      label = "Elegir viajero";
+      showOptions = true;
+    }
+  } else if (mine && me.jailed > 0 && me.detention === "oceania") {
+    message = `Deportado: paga ${cash(DEPORTATION_FINE)} y vuelve a Salida sin sueldo, o espera. Quedan ${me.jailed} turnos.`;
+    label = game.detentionDecision === me.id ? "Quedarme · 3 turnos" : game.phase === "roll" ? "Cumplir un turno de espera" : "Cambio automático";
+    action = game.detentionDecision === me.id ? { type: "stay" } : game.phase === "roll" ? { type: "wait" } : null;
+  } else if (mine && game.phase === "roll") {
+    if (me.jailed || me.skipTurns) {
+      message = `${me.jailed ? me.detention === "prison" ? "Cárcel" : "Deportado" : "Estancia por carta"}: ${me.jailed || me.skipTurns} turnos pendientes.`;
+      label = "Cumplir turno de espera";
+      action = { type: "wait" };
+    } else {
+      message = "Es tu turno. ¡Tira los dados!";
+      action = { type: "roll" };
+    }
+  } else if (mine && game.phase === "buy") {
+    message = `Puedes comprar ${BOARD[me.position].name}.`;
+    label = "Decidir compra";
+    showOptions = true;
+  } else if (mine && game.phase === "end") {
+    message = game.extra ? "Sacaste dobles. Tu siguiente tiro se habilitará automáticamente." : "Tu turno termina automáticamente al completar la jugada.";
+    label = "Cambio automático";
+  }
+
+  const deported = mine && !me.bankrupt && me.jailed > 0 && me.detention === "oceania" &&
+    !game.opening && !game.auction && !game.debt && !game.choice;
+
+  return (
+    <section className={`mobile-turn-bar ${mine && !me.bankrupt ? "is-my-turn" : ""}`} aria-label="Tu turno y acciones">
+      <div className="mobile-turn-info">
+        <strong><i className="player-dot" style={{ background: me.color }} />{me.name} · {cash(me.money)}</strong>
+        <span>{BOARD[position ?? me.position].name}</span>
+        <p role="status">{animating ? "El viaje está en curso…" : message}</p>
+      </div>
+      <div className="mobile-turn-actions">
+        {deported && <>
+          <button disabled={busy || me.money < DEPORTATION_FINE} onClick={() => send({ type: "bail" })}>Pagar multa · {cash(DEPORTATION_FINE)}</button>
+          {me.money < DEPORTATION_FINE && <small>Saldo insuficiente para la multa.</small>}
+        </>}
+        {!me.bankrupt && (
+          <button
+            className="primary"
+            disabled={busy || (!action && !showOptions)}
+            title={!action && !showOptions ? message : undefined}
+            onClick={() => action ? send(action) : onOptions()}
+          >
+            {animating ? "Viajando…" : busy ? "Procesando…" : label}
+          </button>
+        )}
+      </div>
+    </section>
+  );
+}
+````
+
 ## components/PaymentModal.tsx
 
 ````tsx
@@ -10187,12 +10428,14 @@ export default function PaymentModal({
   onClose,
   commit,
   error,
+  suspended = false,
 }: {
   player: Player;
   amount: number;
   label: string;
   action: Action;
   error?: string;
+  suspended?: boolean;
   onClose: () => void;
   commit: (a: Action) => Promise<boolean>;
 }) {
@@ -10202,8 +10445,9 @@ export default function PaymentModal({
   const held = wallet(player);
   const total = totalBills(selected);
   useEffect(() => {
-    dialog.current?.showModal();
-  }, []);
+    if (suspended) dialog.current?.close();
+    else if (!dialog.current?.open) dialog.current?.showModal();
+  }, [suspended]);
   return (
     <dialog
       ref={dialog}
@@ -10309,9 +10553,9 @@ export default function PaymentModal({
 
 ````tsx
 "use client";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { BOARD, cash } from "@/lib/game/board";
-import { bankStock, liquidationValue, netWorth } from "@/lib/game/rules";
+import { auctionMinimum, bankStock, liquidationValue, netWorth } from "@/lib/game/rules";
 import type { Action, Game, Player } from "@/lib/game/types";
 
 import { CountryArt } from "./TravelArt";
@@ -10320,11 +10564,15 @@ export default function PlayerPanel({ game, me, busy, send, onTrade, onSelect }:
   onTrade: () => void; onSelect: (id: number) => void;
 }) {
   const [panelTab, setPanelTab] = useState<"turn" | "assets">("turn");
+  const auctionSquare = game.auction?.square;
+  useEffect(() => {
+    if (me.jailed || auctionSquare !== undefined) setPanelTab("turn");
+  }, [me.jailed, auctionSquare]);
   const [offer, setOffer] = useState(500);
   const [buildSquare, setBuildSquare] = useState<number | null>(null);
   const options = game.auction?.buildingOptions?.[me.id];
   const destination = options?.includes(buildSquare ?? -1) ? buildSquare! : options?.[0];
-  const minimumBid = Math.max((game.auction?.amount ?? 0) + 500, destination === undefined ? 0 : BOARD[destination].buildCost);
+  const minimumBid = game.auction ? auctionMinimum(destination ?? game.auction.square, game.auction.amount, !!game.auction.buildingOptions) : 500;
   const active = game.players[game.turn], mine = active.id === me.id && !me.bankrupt;
   const debt = game.debt && (game.debt.payer ?? active.id) === me.id ? game.debt : null;
   const imprisoned = me.jailed > 0 && me.detention === "prison";
@@ -10347,7 +10595,7 @@ export default function PlayerPanel({ game, me, busy, send, onTrade, onSelect }:
     {me.jailed > 0 && <div className="detention"><strong>{imprisoned ? "Cárcel" : "Deportado"}</strong><p>Quedan {me.jailed} turnos completos. Los dobles no reducen la estancia.</p><div className="detention-steps" aria-label={`${me.jailed} turnos pendientes`}>{[1,2,3].map((i) => <span key={i} className={i <= me.jailed ? "pending" : ""}>{i <= me.jailed ? "▥" : "✓"}</span>)}</div></div>}
     {!!me.skipTurns && <p>Estancia por carta: {me.skipTurns} turnos pendientes.</p>}
     {me.jailed > 0 && me.passes.length > 0 && !game.auction && button("Usar pase diplomático", {type:"pass"})}
-    {mine && !!me.salary && !game.auction && button(`Cobrar sueldo · ${cash(me.salary)}`, {type:"salary"})}
+    {mine && !!me.salary && <small>El Banco cobrará tu sueldo de {cash(me.salary)} automáticamente al cerrar el turno.</small>}
     {me.bankrupt ? <p>Terminó tu viaje. Puedes seguir viendo la partida.</p> : <div className="actions">
       {game.opening ? <>
         <p>El número más alto inicia. En caso de empate vuelven a tirar los finalistas.</p>
@@ -10355,12 +10603,14 @@ export default function PlayerPanel({ game, me, busy, send, onTrade, onSelect }:
         {button("Tirar dado de salida", {type:"opening-roll"}, !game.opening.candidates.includes(me.id) ? "Espera el desempate." : game.opening.rolls[me.id] !== undefined ? "Esperando a los demás." : null)}
       </> : game.auction ? <div className="auction-box">
         <span className="eyebrow">SUBASTA EN VIVO</span><h3>{game.auction.buildingOptions ? "Último edificio disponible" : BOARD[game.auction.square].name}</h3>
-        <p>{game.auction.bidder ? `${game.players.find((p) => p.id === game.auction?.bidder)?.name} ofrece ${cash(game.auction.amount)}` : "Oferta inicial desde $500"}</p>
+        <p>{game.auction.bidder ? `${game.players.find((p) => p.id === game.auction?.bidder)?.name} ofrece ${cash(game.auction.amount)}` : `Oferta inicial desde ${cash(minimumBid)}`}</p>
         <small>Quedan {Math.max(0, Math.ceil((game.auction.endsAt - Date.now()) / 1000))} s. Cada oferta añade 20 s.</small>
+        {game.auction.passed.includes(me.id) ? <p className="notice">Ya rechazaste esta subasta. Tu ficha permanece en {BOARD[me.position].name}. Esperando a los demás viajeros.</p> : <>
         {game.auction.buildingOptions && options?.length ? <label>Construir en<select value={destination} onChange={(e)=>setBuildSquare(Number(e.target.value))}>{options.map((id)=><option key={id} value={id}>{BOARD[id].name}</option>)}</select></label> : null}
-        <label>Tu oferta<input type="number" step="500" min={game.auction.amount+500} max={me.money} value={Math.max(offer,minimumBid)} onChange={(e) => setOffer(Number(e.target.value))}/></label>
+        <label>Tu oferta<input type="number" step="500" min={minimumBid} max={me.money} value={Math.max(offer,minimumBid)} onChange={(e) => setOffer(Number(e.target.value))}/></label>
         {button("Ofertar", {type:"bid",amount:Math.max(offer,minimumBid),square:destination}, imprisoned ? "No puedes comprar desde la cárcel." : game.auction.buildingOptions && !options?.length ? "No tienes un país listo para construir." : game.auction.passed.includes(me.id) ? "Te retiraste de esta subasta." : Math.max(offer,minimumBid)>me.money ? "Saldo insuficiente." : null)}
         {button("Pasar esta subasta", {type:"fold"}, imprisoned || game.auction.passed.includes(me.id) || game.auction.bidder === me.id ? "No disponible." : null)}
+        </>}
         <small>La oferta ganadora se paga automáticamente al cerrar.</small>
       </div> : debt ? <>
         <p className="error">Pago pendiente: {cash(debt.amount)}. Puedes seleccionar billetes o reunir dinero administrando tus propiedades.</p>
@@ -10374,10 +10624,10 @@ export default function PlayerPanel({ game, me, busy, send, onTrade, onSelect }:
         {mine && me.jailed > 0 && !imprisoned && button("Pagar $5,000 y volver a Salida", {type:"bail"}, me.money < 5000 ? "Saldo insuficiente." : null)}
         {mine && game.phase === "buy" && <div className="buy-scene"><div className="scene-country"><CountryArt id={me.position} /><span>{BOARD[me.position].flag ?? "✈"}</span><h2>{BOARD[me.position].name}</h2><p>¿Agregamos este destino a tu viaje?</p></div>
           {button(`Comprar ${BOARD[me.position].name} · ${cash(BOARD[me.position].price)}`, {type:"buy"}, me.money < BOARD[me.position].price ? "Saldo insuficiente." : null)}
-          {button("Enviar a subasta", {type:"decline"})}
+          {button("Rechazar y subastar para los demás", {type:"decline"})}
         </div>}
-        {game.phase === "end" && button(game.extra ? "Continuar · tiro extra" : "Terminar turno →", {type:"end"}, mine ? null : "Espera tu turno.")}
-        {mine && !!me.salary && <small>Si terminas el turno sin cobrar el sueldo, lo pierdes.</small>}
+        {mine && game.detentionDecision === me.id && button("Quedarme · esperar 3 turnos", {type:"stay"})}
+        {mine && game.phase === "end" && !game.detentionDecision && <p role="status">{game.extra ? "Tu tiro extra se habilitará automáticamente." : "El turno terminará automáticamente."}</p>}
       </>}
     </div>}
     {!me.bankrupt && <button className="trade-trigger" onClick={onTrade} disabled={busy || !!game.debt || !!game.auction || !!game.opening || imprisoned} title={imprisoned ? "En la cárcel no puedes negociar." : "Ofrece dinero y propiedades, incluso fuera de tu turno."}>⇄ Proponer trato</button>}
@@ -10532,12 +10782,16 @@ export default function PropertyCard({
 import { useEffect, useRef } from "react";
 import PropertyCard from "./PropertyCard";
 import type { Action, Game, Player } from "@/lib/game/types";
-export default function PropertyDialog({ id, game, me, busy, send, onClose }: {
+export default function PropertyDialog({ id, game, me, busy, send, onClose, suspended = false }: {
   id:number; game:Game; me:Player|undefined; busy:boolean;
   send:(a:Action)=>void; onClose:()=>void;
+  suspended?: boolean;
 }) {
   const dialog=useRef<HTMLDialogElement>(null);
-  useEffect(()=>{dialog.current?.showModal();},[]);
+  useEffect(()=>{
+    if (suspended) dialog.current?.close();
+    else if (!dialog.current?.open) dialog.current?.showModal();
+  },[suspended]);
   return <dialog className="property-dialog" ref={dialog} onCancel={onClose} aria-label={`Tarjeta de propiedad`}>
     <button aria-label="Cerrar tarjeta" onClick={onClose}>Cerrar ×</button>
     <PropertyCard id={id} game={game} me={me} busy={busy} send={(a)=>{onClose();send(a);}}/>
@@ -10554,13 +10808,19 @@ import Link from "next/link";
 import type { Action, Game } from "@/lib/game/types";
 import { COLORS } from "@/lib/game/types";
 import { BOARD } from "@/lib/game/board";
-import { ranking, redemptionCost, buildingBidders } from "@/lib/game/rules";
+import { redemptionCost, buildingBidders } from "@/lib/game/rules";
 import { Banknote } from "./TravelArt";
 import { DENOMINATIONS, wallet } from "@/lib/game/money";
 import Board from "./Board";
 import EntryForm from "./EntryForm";
 import PropertyDialog from "./PropertyDialog";
 import PlayerPanel from "./PlayerPanel";
+import MobileTurnBar from "./MobileTurnBar";
+import AudioControls from "./AudioControls";
+import VoiceChat from "./VoiceChat";
+import Victory from "./Victory";
+import { useGameAudio } from "@/lib/useGameAudio";
+import { useGamePlayback } from "@/lib/useGamePlayback";
 import TradeModal from "./TradeModal";
 
 import Activity from "./Activity";
@@ -10580,11 +10840,13 @@ export default function Room({ id }: { id: string }) {
     [rosterOpen, setRosterOpen] = useState(false),
     [rosterIndex, setRosterIndex] = useState(0),
     [rosterPage, setRosterPage] = useState(0),
+    [resultsDismissed, setResultsDismissed] = useState(false),
     [tradeOpen, setTradeOpen] = useState(false),
     [inactive, setInactive] = useState(0),
     [notice, setNotice] = useState(""),
-    [sound, setSound] = useState(false),
     [now, setNow] = useState(Date.now());
+  const audio = useGameAudio(game, playerId);
+  const playback = useGamePlayback(game);
   const [payment, setPayment] = useState<{
     action: Action;
     amount: number;
@@ -10602,7 +10864,6 @@ export default function Room({ id }: { id: string }) {
   }, []);
   useEffect(() => {
     setToken(localStorage.getItem(`turista:${id}`));
-    setSound(localStorage.getItem("turista:sound") === "1");
     setLoaded(true);
   }, [id]);
   const refresh = useCallback(async () => {
@@ -10678,18 +10939,7 @@ export default function Room({ id }: { id: string }) {
         throw new Error(data.error);
       }
       apply(data.game);
-      if (sound && action.type === "roll") {
-        const audio = new AudioContext();
-        const osc = audio.createOscillator();
-        const gain = audio.createGain();
-        gain.gain.value = 0.04;
-        osc.frequency.value = 600;
-        osc.connect(gain);
-        gain.connect(audio.destination);
-        osc.start();
-        osc.stop(audio.currentTime + 0.12);
-        osc.onended = () => void audio.close();
-      }
+      if (action.type === "decline" || action.type === "fold") setSideOpen(false);
       return true;
     } catch (e) {
       setError(
@@ -10702,6 +10952,7 @@ export default function Room({ id }: { id: string }) {
     }
   };
   const send = async (action: Action): Promise<boolean> => {
+    if (playback.busy) return false;
     const s = state.current;
     const p = s?.players.find((x) => x.id === playerId);
     if (!s || !p) return false;
@@ -10773,8 +11024,10 @@ export default function Room({ id }: { id: string }) {
   const seconds = game.endsAt
     ? Math.max(0, Math.ceil((game.endsAt - now) / 1000))
     : null;
+  const rollSeconds = game.status === "playing" && (game.opening || game.phase === "roll") && !game.debt && !game.auction && !game.choice && !game.detentionDecision
+    ? Math.min(20, Math.max(0, Math.ceil(((game.rollDeadline ?? game.turnAt + 20000) - now) / 1000))) : null;
   return (
-    <main className={`room ${game.status !== "lobby" ? "table-viewport" : ""} ${sideOpen ? "side-open" : ""} ${rosterOpen ? "roster-open" : ""}`}>
+    <main className={`room ${game.status !== "lobby" ? "table-viewport" : ""} ${sideOpen ? "side-open" : ""} ${rosterOpen ? "roster-open" : ""} ${playback.busy ? "presentation-playing" : ""}`}>
       <header className="room-header">
         <Link href="/" className="brand">
           ✈ RUMBO MUNDIAL
@@ -10790,15 +11043,10 @@ export default function Room({ id }: { id: string }) {
             Copiar link
           </button>
         </div>
-        <button
-          aria-pressed={sound}
-          onClick={() => {
-            setSound(!sound);
-            localStorage.setItem("turista:sound", sound ? "0" : "1");
-          }}
-        >
-          Sonido {sound ? "activado" : "apagado"}
-        </button>
+        <div className="room-audio-controls">
+          <AudioControls audio={audio} />
+          {me && token && <VoiceChat room={id} token={token} playerId={me.id} players={game.players} masterMuted={audio.preferences.muted} onEnableAudio={() => audio.change({ muted: false })} />}
+        </div>
       </header>
       {notice && (
         <p role="status" className="notice">
@@ -10810,31 +11058,8 @@ export default function Room({ id }: { id: string }) {
           {error || connectionError}
         </p>
       )}
-      {game.status === "finished" && (
-        <section className="victory panel">
-          <p className="eyebrow">VIAJE COMPLETADO</p>
-          <h1>
-            {!game.winner.length && "Todos los viajeros quedaron en quiebra"}
-            {game.winner
-              .map((w) => game.players.find((p) => p.id === w)?.name)
-              .join(" y ")}{" "}
-            {game.winner.length ? `${game.winner.length > 1 ? "ganan" : "gana"} la partida` : ""}
-          </h1>
-          <ol className="ranking">
-            {ranking(game).map(({ player: p, place, score }) => (
-              <li key={p.id}>
-                <strong>
-                  {place}. {p.name}
-                </strong>
-                <span>
-                  ${score.toLocaleString("es-MX")}
-                  {p.bankrupt ? " · En quiebra" : ""}
-                </span>
-              </li>
-            ))}
-          </ol>
-          <Link href="/">Organizar la revancha ↗</Link>
-        </section>
+      {game.status === "finished" && !playback.busy && !resultsDismissed && (
+        <Victory game={game} onClose={() => setResultsDismissed(true)} muted={audio.preferences.muted} onMute={() => audio.change({ muted: !audio.preferences.muted })} />
       )}
       {game.status === "lobby" ? (
         <div className="lobby-grid">
@@ -10912,13 +11137,13 @@ export default function Room({ id }: { id: string }) {
           ) : (
             <section className="panel guide">
               <h2>Antes de despegar</h2>
-              <p>Todos empiezan con $134,500. Reclama $20,000 al pasar por Salida, antes de terminar tu turno.</p>
+              <p>Todos empiezan con $134,500. El Banco abona $20,000 al cerrar un turno en el que pasaste por Salida.</p>
               <p>
                 Compra países y completa grupos para construir casas.
                 Cinco construcciones se convierten en un hotel.
               </p>
               <p>
-                Deportado: multa de $5,000 o tres turnos. Cárcel: fianza de $10,000 y tres turnos completos. Australia es descanso.
+                Caer en Deportado: multa de $5,000 o tres turnos. Cárcel: fianza de $10,000 y tres turnos completos. Australia es descanso.
               </p>
               <p>Selecciona cualquier casilla para consultar su tarjeta.</p>
             </section>
@@ -10937,17 +11162,32 @@ export default function Room({ id }: { id: string }) {
                 {String(seconds % 60).padStart(2, "0")}
               </span>
             )}
+            {rollSeconds !== null && <span className={`roll-countdown ${rollSeconds <= 5 ? "urgent" : ""}`} role="timer">{rollSeconds ? `${rollSeconds} s para tirar` : "Cambiando turno…"}</span>}
             <span>Viaje compartido · {game.players.filter((p) => !p.bankrupt).length} en juego</span>
           </div>
-          <Activity game={game} />
+          {me && game.status === "playing" && (
+            <MobileTurnBar
+              animating={playback.busy}
+              position={playback.positions[me.id]}
+              game={game}
+              me={me}
+              busy={busy || playback.busy}
+              send={(action) => void send(action)}
+              onOptions={() => { setSideOpen(true); setRosterOpen(false); }}
+            />
+          )}
           {game.status === "playing" && game.phase === "buy" && !game.auction && !game.debt && me?.id !== game.players[game.turn].id && <div className="buy-scene spectator-decision"><p className="eyebrow">DECISIÓN EN CURSO</p><h2>{game.players[game.turn].name} llegó a {BOARD[game.players[game.turn].position].name}</h2><p>Está decidiendo si compra la propiedad o la envía a subasta.</p></div>}
-          <nav className="table-tools" aria-label="Paneles de la mesa">
-            <button aria-expanded={sideOpen} onClick={()=>{setSideOpen(!sideOpen);setRosterOpen(false);}}>✈ Mi turno y propiedades</button>
-            <button aria-expanded={rosterOpen} onClick={()=>{setRosterOpen(!rosterOpen);setSideOpen(false);}}>♟ Viajeros y propiedades</button>
-          </nav>
+          <div className="table-toolbar">
+            <nav className="table-tools" aria-label="Paneles de la mesa">
+              {game.status === "finished" && <button onClick={() => setResultsDismissed(false)}>🏆 Resultados</button>}
+              <button aria-expanded={sideOpen} onClick={()=>{setSideOpen(!sideOpen);setRosterOpen(false);}}>✈ Mis opciones</button>
+              <button aria-expanded={rosterOpen} onClick={()=>{setRosterOpen(!rosterOpen);setSideOpen(false);}}>♟ Propiedades</button>
+            </nav>
+            <Activity game={game} event={playback.event} lastRoll={playback.lastRoll} onEvent={audio.playEvent} />
+          </div>
           <div className="game-layout">
             <section>
-              <Board game={game} onSelect={selectProperty} />
+              <Board game={game} positions={playback.positions} onSelect={selectProperty} />
               <div className="players-strip" aria-label="Propiedades de los viajeros"><button className="panel-close" onClick={()=>setRosterOpen(false)}>Cerrar ×</button><label>Viajero<select value={rosterIndex} onChange={(e)=>{setRosterIndex(Number(e.target.value));setRosterPage(0);}}>{game.players.map((p,i)=><option value={i} key={p.id}>{p.name}</option>)}</select></label>
                 {game.players.filter((_, i)=>i===rosterIndex).map((p) => (
                   <div
@@ -10994,7 +11234,7 @@ export default function Room({ id }: { id: string }) {
                 <PlayerPanel
                   game={game}
                   me={me}
-                  busy={busy}
+                  busy={busy || playback.busy}
                   send={(a) => void send(a)}
                   onTrade={() => setTradeOpen(true)}
                   onSelect={selectProperty}
@@ -11067,10 +11307,11 @@ export default function Room({ id }: { id: string }) {
         </>
       )}
       {me && game.status !== "lobby" && <div className="wallet" aria-label="Mi mano de billetes"><div className="wallet-summary">{DENOMINATIONS.filter((v)=>wallet(me)[v]).map((v)=><span key={v}><Banknote value={v} compact/><b>× {wallet(me)[v]}</b></span>)}</div></div>}
-      {propertyOpen && <PropertyDialog id={selected} game={game} me={me} busy={busy} send={(a)=>void send(a)} onClose={()=>setPropertyOpen(false)} />}
+      {propertyOpen && <PropertyDialog id={selected} game={game} me={me} busy={busy || playback.busy} suspended={playback.busy} send={(a)=>void send(a)} onClose={()=>setPropertyOpen(false)} />}
       {payment && me && game.status === "playing" && (
 
         <PaymentModal
+          suspended={playback.busy}
           player={me}
           {...payment}
           error={error}
@@ -11080,6 +11321,7 @@ export default function Room({ id }: { id: string }) {
       )}
       {tradeOpen && me && (
         <TradeModal
+          suspended={playback.busy}
           game={game}
           me={me}
           error={error}
@@ -11110,10 +11352,12 @@ export default function TradeModal({
   onClose,
   send,
   error,
+  suspended = false,
 }: {
   game: Game;
   me: Player;
   error?: string;
+  suspended?: boolean;
   onClose: () => void;
   send: (a: Action) => Promise<boolean>;
 }) {
@@ -11126,8 +11370,9 @@ export default function TradeModal({
   const [tm, setTm] = useState(0);
   const [busy, setBusy] = useState(false);
   useEffect(() => {
-    dialog.current?.showModal();
-  }, []);
+    if (suspended) dialog.current?.close();
+    else if (!dialog.current?.open) dialog.current?.showModal();
+  }, [suspended]);
   const properties = (owner: string) =>
     BOARD.filter(
       (b) =>
@@ -11286,6 +11531,342 @@ export function CountryArt({ id }: { id: number }) {
 }
 ````
 
+## components/Victory.tsx
+
+````tsx
+"use client";
+
+import { useEffect, useRef, type CSSProperties } from "react";
+import Link from "next/link";
+import { cash } from "@/lib/game/board";
+import { ranking } from "@/lib/game/rules";
+import type { Game } from "@/lib/game/types";
+
+const CONFETTI_COLORS = ["#f6c85b", "#eb8267", "#63cebd", "#83b8ff", "#d9a1ee"];
+
+export default function Victory({ game, onClose, muted, onMute }: {
+  game: Game;
+  onClose: () => void;
+  muted: boolean;
+  onMute: () => void;
+}) {
+  const dialog = useRef<HTMLDialogElement>(null);
+  const results = ranking(game);
+  const winners = game.players.filter((player) => game.winner.includes(player.id));
+  useEffect(() => { dialog.current?.showModal(); }, []);
+  return (
+    <dialog ref={dialog} className="victory-celebration" onCancel={onClose} aria-labelledby="victory-title">
+      <div className="victory-confetti" aria-hidden="true">
+        {Array.from({ length: 42 }, (_, i) => <span key={i} style={{
+          left: `${(i * 29) % 100}%`, background: CONFETTI_COLORS[i % CONFETTI_COLORS.length],
+          animationDelay: `${(i % 9) * 0.11}s`, animationDuration: `${3.5 + (i % 5) * 0.3}s`,
+          "--confetti-drift": `${((i * 37) % 150) - 75}px`,
+          borderRadius: i % 3 ? "2px" : "50%",
+        } as CSSProperties} />)}
+      </div>
+      <header className="victory-heading">
+        <span className="victory-trophy" aria-hidden="true">🏆</span>
+        <p className="eyebrow">{winners.length ? `EL MUNDO TIENE ${winners.length > 1 ? "CAMPEONES" : "CAMPEÓN"}` : "VIAJE COMPLETADO"}</p>
+        <h1 id="victory-title">{winners.length ? winners.map((player) => player.name).join(" y ") : "Un viaje inolvidable"}</h1>
+        <p>{winners.length > 1 ? "¡Victoria compartida!" : winners.length ? "¡La victoria es tuya!" : "La partida ha terminado."}</p>
+      </header>
+      <div className="victory-podium" aria-label="Podio de la partida">
+        {[2, 1, 3].map((place) => {
+          const occupants = results.filter((entry) => entry.place === place);
+          return <div key={place} className={`podium-group podium-rank-${place}`}>
+            {!!occupants.length && <>
+              <div className="podium-travelers">
+                {occupants.map(({ player }) => <div key={player.id}>
+                  <span className="podium-avatar" style={{ background: player.color }} aria-hidden="true">✈</span>
+                  <strong>{player.name}</strong>
+                </div>)}
+              </div>
+              <div className="podium-step"><span aria-hidden="true">{place === 1 ? "🥇" : place === 2 ? "🥈" : "🥉"}</span><b>{place}º</b></div>
+            </>}
+          </div>;
+        })}
+      </div>
+      <ol className="victory-results" aria-label="Clasificación final por patrimonio y eliminación">
+        {results.map(({ player, place, score }) => <li key={player.id} className={game.winner.includes(player.id) ? "champion" : ""}>
+          <b className="result-place">{place}º</b>
+          <i className="player-dot" style={{ background: player.color }} aria-hidden="true" />
+          <div><strong>{player.name}</strong><small>{player.bankrupt ? "Eliminado" : "Patrimonio neto"}</small></div>
+          <span>{cash(score)}</span>
+        </li>)}
+      </ol>
+      <footer className="victory-actions">
+        <button onClick={onClose} autoFocus>Ver tablero</button>
+        <Link href="/">Organizar revancha ↗</Link>
+        <button onClick={onMute}>{muted ? "Activar audio" : "Silenciar todo"}</button>
+      </footer>
+    </dialog>
+  );
+}
+````
+
+## components/VoiceChat.tsx
+
+````tsx
+"use client";
+
+import { useEffect, useId, useRef, useState } from "react";
+import { EMPTY_VOICE, VoiceClient, type VoiceClientView } from "@/lib/voice/client";
+import type { Player } from "@/lib/game/types";
+
+export default function VoiceChat({ room, token, playerId, players, masterMuted, onEnableAudio }: {
+  room: string; token: string; playerId: string; players: Player[];
+  masterMuted: boolean; onEnableAudio: () => void;
+}) {
+  const client = useRef<VoiceClient | null>(null);
+  const details = useRef<HTMLDetailsElement>(null);
+  const [view, setView] = useState<VoiceClientView>(EMPTY_VOICE);
+  const [micMuted, setMicMuted] = useState(false);
+  const [volume, setVolume] = useState(80);
+  const volumeId = useId();
+  useEffect(() => {
+    try {
+      const stored = localStorage.getItem("rumbo:voice-volume");
+      const saved = stored === null ? 80 : Number(stored);
+      if (Number.isFinite(saved)) setVolume(Math.max(0, Math.min(100, saved)));
+    } catch { /* El volumen sigue disponible sin almacenamiento local. */ }
+  }, []);
+  useEffect(() => {
+    const leave = () => {
+      if (!client.current) return;
+      client.current.dispose();client.current = null;
+      setView({ ...EMPTY_VOICE, error: "Voz desconectada al salir de esta pestaña. Puedes volver a activarla." });
+    };
+    const visibility = () => { if (document.hidden) leave(); };
+    document.addEventListener("visibilitychange", visibility);
+    window.addEventListener("pagehide", leave);
+    return () => {
+      document.removeEventListener("visibilitychange", visibility);
+      window.removeEventListener("pagehide", leave);
+      client.current?.dispose();client.current = null;
+    };
+  }, [room, token, playerId]);
+  useEffect(() => { client.current?.setMasterMuted(masterMuted); }, [masterMuted]);
+  useEffect(() => { client.current?.setVolume(volume / 100); }, [volume]);
+
+  const join = () => {
+    client.current?.dispose();
+    onEnableAudio();setMicMuted(false);
+    const connection = new VoiceClient(room, token, playerId, setView, volume / 100);
+    client.current = connection;
+    void connection.join();
+  };
+  const leave = () => {
+    client.current?.dispose();client.current = null;
+    setView(EMPTY_VOICE);setMicMuted(false);
+  };
+  const silent = micMuted || masterMuted;
+  const failed = Object.values(view.connections).some((status) => status === "failed");
+  return (
+    <details className="voice-controls" ref={details} onKeyDown={(event) => {
+      if (event.key === "Escape" && details.current) {
+        details.current.open = false;details.current.querySelector("summary")?.focus();
+      }
+    }}>
+      <summary className={view.phase === "joined" && !silent ? "mic-live" : ""}>
+        <span aria-hidden="true">🎙</span> {view.phase === "joining" ? "Conectando…" : view.phase === "joined" ? silent ? "Mic. silenciado" : "Mic. encendido" : "Chat de voz"}
+      </summary>
+      <section className="voice-popover" aria-label="Voz de la sala">
+        <div className="row"><strong>Habla con tus amigos</strong><button aria-label="Cerrar controles de voz" onClick={() => { if (details.current) details.current.open = false; }}>×</button></div>
+        {view.phase === "off" ? <>
+          <p>Activa el micrófono para entrar a la conversación. No se graba el audio.</p>
+          <button className="primary" onClick={join}>Activar micrófono y entrar</button>
+        </> : view.phase === "joining" ? <>
+          <p role="status">Esperando permiso del micrófono y conectando…</p>
+          <button onClick={leave}>Cancelar</button>
+        </> : <>
+          <button className={silent ? "primary" : "voice-mute"} onClick={() => {
+            const next = !silent;
+            if (silent && masterMuted) onEnableAudio();
+            setMicMuted(next);client.current?.setMuted(next);
+          }}>{silent ? "Encender mi micrófono" : "Silenciar mi micrófono"}</button>
+          <label htmlFor={volumeId}>Volumen de voces <output>{volume}%</output></label>
+          <input id={volumeId} type="range" min="0" max="100" step="1" value={volume} onChange={(event) => {
+            const next = Number(event.target.value);setVolume(next);
+            try { localStorage.setItem("rumbo:voice-volume", String(next)); } catch { /* Preferencia de esta sesión. */ }
+          }} />
+          {masterMuted && <p>«Silenciar todo» está activo: no envías ni escuchas voz. <button onClick={onEnableAudio}>Activar sonido</button></p>}
+          <ul className="voice-members" aria-label="Participantes en la conversación">
+            {view.members.map((member) => {
+              const player = players.find((p) => p.id === member.playerId);
+              const own = member.playerId === playerId;
+              const status = view.connections[member.playerId];
+              return <li key={member.playerId}>
+                <i className="player-dot" style={{ background: player?.color }} />
+                <span>{player?.name ?? "Viajero"}{own ? " (tú)" : ""}</span>
+                <small>{own ? silent ? "Silenciado" : "Micrófono activo" : status === "failed" ? "Sin conexión" : status === "connected" ? member.muted ? "Silenciado" : "En línea" : "Conectando…"}</small>
+              </li>;
+            })}
+          </ul>
+          {view.members.length < 2 && <p>Ya estás dentro. Esperando a que tus amigos activen el chat de voz.</p>}
+          {view.playbackBlocked && <button className="primary" onClick={() => void client.current?.resumePlayback()}>Tocar para escuchar voces</button>}
+          {failed && <p role="status">No se pudo conectar con algún viajero. Prueba otra red o reconecta. Algunas redes necesitan el respaldo TURN.</p>}
+          <div className="voice-buttons"><button onClick={join}>Reconectar</button><button onClick={leave}>Salir de la voz</button></div>
+        </>}
+        {view.error && <p role="status" className="voice-error">{view.error}</p>}
+        <small>Usa audífonos para evitar eco. La voz se desconecta al ocultar la pestaña y nunca activa el micrófono sola al refrescar.</small>
+      </section>
+    </details>
+  );
+}
+````
+
+## lib/audio.ts
+
+````typescript
+export interface AudioPreferences {
+  muted: boolean;
+  music: number;
+  effects: number;
+}
+
+export const DEFAULT_AUDIO: AudioPreferences = { muted: true, music: 30, effects: 65 };
+export type SoundCue = "roll" | "purchase" | "payment" | "card" | "turn" | "trade" | "victory" | "travel";
+
+export function audioPreferences(value: unknown): AudioPreferences {
+  const input = value && typeof value === "object" ? value as Record<string, unknown> : {};
+  const volume = (v: unknown, fallback: number) =>
+    typeof v === "number" && Number.isFinite(v) ? Math.max(0, Math.min(100, v)) : fallback;
+  return {
+    muted: typeof input.muted === "boolean" ? input.muted : DEFAULT_AUDIO.muted,
+    music: volume(input.music, DEFAULT_AUDIO.music),
+    effects: volume(input.effects, DEFAULT_AUDIO.effects),
+  };
+}
+
+// Partitura original: marimba suave, acordes y bajo. No descarga pistas externas.
+const CHORDS = [[48, 55, 60, 64], [45, 52, 57, 60], [41, 48, 53, 57], [43, 50, 55, 59]];
+const MELODY = [
+  [76, 0, 79, 76, 74, 0, 72, 0, 0, 76, 79, 0, 81, 79, 76, 0],
+  [72, 0, 76, 0, 81, 79, 76, 0, 74, 0, 72, 0, 71, 72, 0, 0],
+  [69, 0, 72, 76, 77, 0, 76, 72, 0, 69, 72, 0, 76, 74, 72, 0],
+  [71, 0, 74, 79, 0, 77, 74, 0, 71, 74, 0, 72, 0, 0, 0, 0],
+];
+const frequency = (note: number) => 440 * 2 ** ((note - 69) / 12);
+
+export class GameAudio {
+  private readonly music: GainNode;
+  private readonly effects: GainNode;
+  private preferences = DEFAULT_AUDIO;
+  private timer: ReturnType<typeof setInterval> | null = null;
+  private notes = new Set<OscillatorNode>();
+  private step = 0;
+  private nextBeat = 0;
+  private visible = true;
+  private disposed = false;
+
+  constructor(private readonly context: AudioContext) {
+    this.music = context.createGain();
+    this.effects = context.createGain();
+    this.music.connect(context.destination);
+    this.effects.connect(context.destination);
+    this.music.gain.value = 0;
+    this.effects.gain.value = 0;
+  }
+
+  configure(preferences: AudioPreferences) {
+    this.preferences = audioPreferences(preferences);
+    const { muted, music, effects } = this.preferences;
+    this.music.gain.setTargetAtTime(muted ? 0 : (music / 100) ** 2, this.context.currentTime, 0.025);
+    this.effects.gain.setTargetAtTime(muted ? 0 : (effects / 100) ** 2, this.context.currentTime, 0.025);
+    if (muted) this.pause();
+    else if (this.context.state === "running" && this.visible) this.startMusic();
+  }
+
+  async unlock() {
+    if (this.disposed || this.preferences.muted || !this.visible) return;
+    await this.context.resume();
+    if (!this.disposed && !this.preferences.muted && this.visible) this.startMusic();
+    else if (!this.disposed) this.pause();
+  }
+
+  setVisible(visible: boolean) {
+    this.visible = visible;
+    if (!visible) this.pause();
+  }
+
+  private tone(note: number, at: number, duration: number, level: number, bus: GainNode, type: OscillatorType = "sine") {
+    const oscillator = this.context.createOscillator();
+    const envelope = this.context.createGain();
+    oscillator.type = type;
+    oscillator.frequency.value = frequency(note);
+    envelope.gain.setValueAtTime(0, at);
+    envelope.gain.linearRampToValueAtTime(level, at + 0.012);
+    envelope.gain.exponentialRampToValueAtTime(0.001, at + duration);
+    oscillator.connect(envelope);
+    envelope.connect(bus);
+    this.notes.add(oscillator);
+    oscillator.onended = () => {
+      oscillator.disconnect();
+      envelope.disconnect();
+      this.notes.delete(oscillator);
+    };
+    oscillator.start(at);
+    oscillator.stop(at + duration + 0.02);
+  }
+
+  private startMusic() {
+    if (this.timer || this.disposed) return;
+    this.nextBeat = this.context.currentTime + 0.05;
+    const schedule = () => {
+      if (this.context.state !== "running") return;
+      if (this.nextBeat < this.context.currentTime) this.nextBeat = this.context.currentTime + 0.03;
+      while (this.nextBeat < this.context.currentTime + 0.2) {
+        const beat = this.step % 16;
+        const bar = Math.floor(this.step / 16) % 4;
+        if (this.preferences.music > 0) {
+          if (beat % 4 === 0) {
+            this.tone(CHORDS[bar][beat === 8 ? 1 : 0], this.nextBeat, 0.5, 0.18, this.music);
+            CHORDS[bar].slice(1).forEach((note, i) => this.tone(note + 12, this.nextBeat + i * 0.018, 0.65, 0.035, this.music, "triangle"));
+          }
+          const melody = MELODY[bar][beat];
+          if (melody) this.tone(melody, this.nextBeat, 0.32, 0.13, this.music);
+          if (beat % 2) this.tone(90, this.nextBeat, 0.025, 0.025, this.music, "triangle");
+        }
+        this.step = (this.step + 1) % 64;
+        this.nextBeat += 60 / 104 / 2;
+      }
+    };
+    schedule();
+    this.timer = setInterval(schedule, 100);
+  }
+
+  play(cue: SoundCue) {
+    if (this.disposed || this.preferences.muted || !this.visible || !this.preferences.effects || this.context.state !== "running") return;
+    const scores: Record<SoundCue, number[]> = {
+      roll: [64, 53, 71, 57, 76, 60, 67],
+      purchase: [72, 76, 79, 84], payment: [79, 76, 72],
+      card: [76, 83, 88], turn: [72, 79], trade: [67, 74, 79, 74],
+      victory: [72, 76, 79, 84, 79, 84, 88], travel: [64, 67, 72],
+    };
+    const start = this.context.currentTime + 0.01;
+    scores[cue].forEach((note, i) => this.tone(
+      note, start + i * (cue === "roll" ? 0.075 : 0.13),
+      cue === "roll" ? 0.055 : 0.25, 0.15, this.effects,
+      cue === "roll" ? "triangle" : "sine",
+    ));
+  }
+
+  private pause() {
+    if (this.timer) clearInterval(this.timer);
+    this.timer = null;
+    for (const note of this.notes) note.stop();
+    this.notes.clear();
+    if (this.context.state !== "closed") void this.context.suspend().catch(() => {});
+  }
+
+  dispose() {
+    this.disposed = true;
+    this.pause();
+    void this.context.close().catch(() => {});
+  }
+}
+````
+
 ## lib/game/art.ts
 
 ````typescript
@@ -11395,6 +11976,9 @@ export const SALARY = 20000;
 export const INITIAL_MONEY = 134500;
 export const DEPORTATION_FINE = 5000;
 export const PRISON_BAIL = 10000;
+// Regla de esta adaptación: subastas al 80% del valor, redondeadas a $500.
+export const AUCTION_PRICE_RATIO = 0.8;
+export const AUCTION_INCREMENT = 500;
 // VERIFICAR: la transcripción no especifica inventario; configuración de esta adaptación.
 export const HOUSE_SUPPLY = 36;
 export const HOTEL_SUPPLY = 12;
@@ -11458,10 +12042,11 @@ export const CARDS: Record<"email" | "sms", Card[]> = {
 
 ````typescript
 import { INITIAL_BILLS, pay, exchange, credit } from "./money";
+import { eventDuration, ROLL_LIMIT_MS } from "./presentation";
 import type { GameEvent } from "./types";
 import { BOARD, RULES_VERSION, INITIAL_MONEY, SALARY, DEPORTATION_FINE, PRISON_BAIL } from "./board";
 import { CARDS } from "./cards";
-import { assetError, group, liquidationValue, netWorth, rent, redemptionCost, buildingBidders } from "./rules";
+import { assetError, group, liquidationValue, netWorth, rent, redemptionCost, buildingBidders, auctionMinimum } from "./rules";
 import {
   COLORS,
   type Action,
@@ -11537,6 +12122,9 @@ export function newPlayer(id: string, name: string, color: string): Player {
   };
 }
 function nextTurn(s: Game, now: number) {
+  s.detentionDecision = null;
+  delete s.autoEndAt;
+  s.rollDeadline = now + ROLL_LIMIT_MS;
   s.players[s.turn].salary = 0;
   s.turnNumber = (s.turnNumber ?? 0) + 1;
   s.debt = null;
@@ -11562,9 +12150,89 @@ export function finishByTime(state: Game, now: number): Game {
     return s;
   }
   if (state.auction && now >= state.auction.endsAt) {
-    const s = structuredClone(state); closeAuction(s, now); return s;
+    const s = structuredClone(state); closeAuction(s, now); scheduleAutomatic(s, state, now); return s;
+  }
+  if (state.opening && now >= (state.rollDeadline ?? state.turnAt + ROLL_LIMIT_MS)) {
+    const s = structuredClone(state);
+    for (const id of s.opening!.candidates) {
+      if (s.opening!.rolls[id] === undefined) {
+        s.opening!.rolls[id] = 0;
+        addLog(s, `${s.players.find((p) => p.id === id)?.name} no tiró a tiempo y pierde la elección de salida.`);
+      }
+    }
+    resolveOpening(s, now);
+    scheduleAutomatic(s, state, now);
+    return s;
+  }
+  if (!state.opening && !state.auction && !state.debt && !state.choice && !state.detentionDecision) {
+    if (state.phase === "end" && state.autoEndAt === undefined) {
+      const s = structuredClone(state);
+      s.autoEndAt = Math.max(now, s.presentationUntil ?? 0) + 1000;
+      return s;
+    }
+    if (state.phase === "end" && state.autoEndAt !== undefined && now >= state.autoEndAt) {
+      const s = structuredClone(state), p = s.players[s.turn];
+      if (p.salary) {
+        credit(p, p.salary);
+        addLog(s, `${p.name} cobró automáticamente $${p.salary} de sueldo.`);
+        p.salary = 0;
+      }
+      if (s.extra) {
+        s.phase = "roll";s.extra = false;s.turnAt = now;s.rollDeadline = now + ROLL_LIMIT_MS;
+        delete s.autoEndAt;
+      } else nextTurn(s, now);
+      scheduleAutomatic(s, state, now);
+      return s;
+    }
+    if (state.phase === "roll" && now >= (state.rollDeadline ?? state.turnAt + ROLL_LIMIT_MS)) {
+      const s = structuredClone(state), p = s.players[s.turn];
+      addLog(s, `${p.name} agotó sus 20 segundos: se salta su turno.`);
+      if (p.jailed || p.skipTurns) waitTurn(s, p);
+      nextTurn(s, now);
+      // La siguiente cuenta empieza cuando acaba el aviso del turno vencido.
+      scheduleAutomatic(s, state, now);
+      return s;
+    }
   }
   return state;
+}
+
+function presentationTime(next: Game, previous: Game) {
+  return (next.events ?? []).filter((event) => event.id > (previous.eventSerial ?? 0))
+    .reduce((total, event) => total + eventDuration(event), 0);
+}
+
+function scheduleAutomatic(next: Game, previous: Game, now: number) {
+  if (next.status !== "playing") return;
+  const visualTime = presentationTime(next, previous);
+  const readyAt = Math.max(now, previous.presentationUntil ?? 0) + visualTime;
+  next.presentationUntil = readyAt;
+  if (next.opening && (!previous.opening || next.opening.round !== previous.opening.round)) {
+    next.rollDeadline = readyAt + ROLL_LIMIT_MS;
+  } else if (!next.opening && next.phase === "roll" &&
+    (previous.opening || previous.phase !== "roll" || next.turn !== previous.turn || !next.rollDeadline)) {
+    next.rollDeadline = readyAt + ROLL_LIMIT_MS;
+  } else if ((next.opening || next.phase === "roll") && visualTime) {
+    next.rollDeadline = Math.max(next.rollDeadline ?? 0, readyAt + ROLL_LIMIT_MS);
+  }
+  if (next.phase === "end" && !next.opening && !next.auction && !next.debt && !next.choice && !next.detentionDecision) {
+    next.autoEndAt = Math.max(next.autoEndAt ?? 0, readyAt);
+  } else delete next.autoEndAt;
+}
+
+function resolveOpening(s: Game, now: number) {
+  const opening = s.opening;
+  if (!opening || !opening.candidates.every((id) => opening.rolls[id] !== undefined)) return;
+  const max = Math.max(...Object.values(opening.rolls));
+  const tied = opening.candidates.filter((id) => opening.rolls[id] === max);
+  if (tied.length === 1 || max === 0) {
+    s.turn = s.players.findIndex((p) => p.id === tied[0]);
+    s.opening = null;s.turnAt = now;
+    addLog(s, `${s.players[s.turn].name} inicia el viaje.`);
+  } else {
+    s.opening = { candidates: tied, rolls: {}, round: opening.round + 1 };
+    addLog(s, "Empate: vuelven a tirar los finalistas.");
+  }
 }
 function winner(s: Game) {
   const alive = s.players.filter((p) => !p.bankrupt);
@@ -11596,6 +12264,7 @@ function jail(
   p.position = detention === "prison" ? 30 : 10;
   p.detention = detention;
   p.jailed = turns;
+  if (detention === "oceania") s.detentionDecision = p.id;
   p.salary = 0;
   if (detention === "prison") {
     charge(s, p, PRISON_BAIL, null);
@@ -11639,6 +12308,10 @@ function land(s: Game, p: Player, now: number) {
   const b = BOARD[p.position];
   addLog(s, `${p.name} llegó a ${b.name}.`, { type: "log", player: p.id, square: b.id });
   s.phase = "end";
+  if (b.kind === "oceania") {
+    jail(s, p, "oceania");
+    return;
+  }
   if (b.kind === "go-oceania") {
     jail(s, p);
     return;
@@ -11787,7 +12460,7 @@ function eliminate(s: Game, p: Player, creditor: string | null) {
   addLog(s, `${p.name} se declaró en quiebra.`);
   winner(s);
 }
-export function engine(
+function reduceAction(
   state: Game,
   action: Action,
   playerId: string,
@@ -11796,7 +12469,7 @@ export function engine(
   const timed = finishByTime(state, ctx.now);
   if (timed !== state) {
     if (timed.status === "finished" || action.type === "auction-expire") return timed;
-    throw new Error("La subasta acaba de terminar. Espera la actualización de la sala.");
+    throw new Error("El turno o la subasta cambió automáticamente. Espera la actualización de la sala.");
   }
   const s = structuredClone(state),
     p = s.players.find((x) => x.id === playerId);
@@ -11850,14 +12523,7 @@ export function engine(
       opening.rolls[roller.id] = value;
       addLog(s, `${roller.name} sacó ${value} para elegir la salida.`, { type: "roll", player: roller.id, dice: [value, 0] });
     }
-    if (opening.candidates.every((id) => opening.rolls[id] !== undefined)) {
-      const max = Math.max(...Object.values(opening.rolls));
-      const tied = opening.candidates.filter((id) => opening.rolls[id] === max);
-      if (tied.length === 1) {
-        s.turn = s.players.findIndex((x) => x.id === tied[0]); s.opening = null; s.turnAt = ctx.now;
-        addLog(s, `${s.players[s.turn].name} inicia el viaje.`);
-      } else { s.opening = { candidates: tied, rolls: {}, round: opening.round + 1 }; addLog(s, "Empate: vuelven a tirar los finalistas."); }
-    }
+    resolveOpening(s, ctx.now);
     return s;
   }
   if (s.auction) {
@@ -11871,7 +12537,8 @@ export function engine(
         requireRule(action.amount >= BOARD[square].buildCost, "La oferta debe cubrir el costo de construcción.");
         a.square = square;
       }
-      requireRule(!a.passed.includes(p.id) && Number.isSafeInteger(action.amount) && action.amount >= a.amount + 500 && action.amount <= p.money, "Oferta inválida: aumenta al menos $500 y usa solo tu saldo disponible.");
+      const minimum = auctionMinimum(a.square, a.amount, !!a.buildingOptions);
+      requireRule(!a.passed.includes(p.id) && Number.isSafeInteger(action.amount) && action.amount >= minimum && action.amount <= p.money, `Oferta inválida: el mínimo es $${minimum}; usa solo tu saldo disponible y no participes si ya rechazaste.`);
       a.amount = action.amount; a.bidder = p.id; a.endsAt = ctx.now + 20000;
       addLog(s, `${p.name} ofrece $${action.amount} por ${BOARD[a.square].name}.`);
     } else if (action.type === "fold") {
@@ -12073,6 +12740,12 @@ export function engine(
   requireRule(s.players[s.turn].id === p.id, "Espera tu turno.");
   requireRule(!s.choice, "Elige primero al viajero indicado en la carta.");
   requireRule(!s.debt, "Liquida tu deuda antes de continuar.");
+  if (action.type === "stay") {
+    requireRule(s.detentionDecision === p.id && p.detention === "oceania" && p.jailed > 0, "No tienes una decisión de deportación pendiente.");
+    s.detentionDecision = null;
+    addLog(s, `${p.name} decidió quedarse en Deportado durante tres turnos completos.`);
+    return s;
+  }
   if (action.type === "bail") {
     requireRule(p.jailed > 0 && p.detention === "oceania", "La multa solo permite salir de Deportado.");
     pay(p, DEPORTATION_FINE, action.bills); release(s, p);
@@ -12123,11 +12796,12 @@ export function engine(
     }
     s.phase = "end";
     if (action.type === "decline") {
-      s.auctionQueue = [...(s.auctionQueue ?? []), p.position]; openNextAuction(s, ctx.now);
+      s.auctionQueue = [...(s.auctionQueue ?? []), p.position]; openNextAuction(s, ctx.now, p);
     }
     return s;
   }
   if (action.type === "end") {
+    s.detentionDecision = null;
     requireRule(s.phase === "end", "Resuelve la tirada o la compra primero.");
     if (s.extra) {
       s.phase = "roll";
@@ -12137,6 +12811,12 @@ export function engine(
     return s;
   }
   throw new Error("Acción desconocida.");
+}
+
+export function engine(state: Game, action: Action, playerId: string, ctx: Context): Game {
+  const next = reduceAction(state, action, playerId, ctx);
+  scheduleAutomatic(next, state, ctx.now);
+  return next;
 }
 function validateTrade(
   s: Game,
@@ -12179,6 +12859,7 @@ function validateTrade(
 }
 
 function release(s: Game, p: Player) {
+  if (s.detentionDecision === p.id) s.detentionDecision = null;
   if (p.detention === "oceania") {
     const from = p.position; p.position = 0;
     addLog(s, `${p.name} regresa a Salida sin cobrar sueldo.`, { type: "move", player: p.id, from, path: [0], teleport: true });
@@ -12195,12 +12876,18 @@ function waitTurn(s: Game, p: Player) {
 function advanceAfterElimination(s: Game, now: number) {
   const debt = s.debt; nextTurn(s, now); s.debt = debt;
 }
-function openNextAuction(s: Game, now: number) {
+function openNextAuction(s: Game, now: number, rejectedBy?: Player) {
   if (s.auction || s.debt || s.status !== "playing") return;
   const square = (s.auctionQueue ?? []).shift();
   if (square === undefined) return;
   s.auction = { square, amount: 0, bidder: null, passed: [], endsAt: now + 30000 };
-  addLog(s, `Subasta de ${BOARD[square].name}: primera oferta desde $500. Todos pueden participar.`);
+  addLog(s, `Subasta de ${BOARD[square].name}: primera oferta desde $${auctionMinimum(square)}. Participan quienes no la hayan rechazado.`);
+  // Rechazar la compra también retira al visitante de esa subasta.
+  if (rejectedBy?.position === square) {
+    s.auction.passed.push(rejectedBy.id);
+    const participants = s.players.filter((p) => !p.bankrupt && !(p.jailed && p.detention === "prison"));
+    if (participants.every((p) => s.auction!.passed.includes(p.id))) closeAuction(s, now);
+  }
 }
 function closeAuction(s: Game, now: number) {
   const auction = s.auction; if (!auction) return;
@@ -12296,11 +12983,151 @@ export function credit(player: Player, amount: number) {
 }
 ````
 
+## lib/game/playback.ts
+
+````typescript
+import type { Game, GameEvent } from "./types";
+import { eventDuration, MOVE_SETTLE_MS, MOVE_STEP_MS } from "./presentation";
+
+export interface PlaybackView {
+  serial: number;
+  positions: Record<string, number>;
+  event: GameEvent | null;
+  lastRoll: GameEvent | null;
+  busy: boolean;
+}
+
+// Una sola cola dirige dados, recorridos y avisos; las reglas siguen en el servidor.
+export class GamePlayback {
+  private latest: Game;
+  private seen: number;
+  private queue: GameEvent[] = [];
+  private timer: ReturnType<typeof setTimeout> | null = null;
+  private visible = true;
+  private disposed = false;
+  private view: PlaybackView;
+
+  constructor(game: Game, private readonly publish: (view: PlaybackView) => void, private reduced = false) {
+    this.latest = game;
+    this.seen = game.eventSerial ?? 0;
+    this.view = { serial: this.seen, positions: this.snapshot(), event: null, lastRoll: this.findLastRoll(), busy: false };
+    this.emit();
+  }
+
+  private snapshot() {
+    return Object.fromEntries(this.latest.players.map((player) => [player.id, player.position]));
+  }
+
+  private findLastRoll() {
+    return [...(this.latest.events ?? [])].reverse().find((event) => event.type === "roll") ?? null;
+  }
+
+  private emit() {
+    if (!this.disposed) this.publish({ ...this.view, positions: { ...this.view.positions } });
+  }
+
+  private clearTimer() {
+    if (this.timer !== null) clearTimeout(this.timer);
+    this.timer = null;
+  }
+
+  private sync() {
+    this.clearTimer();
+    this.queue = [];
+    this.view = { serial: this.seen, positions: this.snapshot(), event: null, lastRoll: this.findLastRoll(), busy: false };
+    this.emit();
+  }
+
+  update(game: Game) {
+    if (this.disposed) return;
+    if (game.id === this.latest.id && game.version < this.latest.version) return;
+    const newRoom = game.id !== this.latest.id;
+    this.latest = game;
+    const events = game.events ?? [];
+    const gap = events.length > 0 && events[0].id > this.seen + 1;
+    const fresh = events.filter((event) => event.id > this.seen);
+    this.seen = game.eventSerial ?? this.seen;
+    this.view.serial = this.seen;
+    if (newRoom || gap || !this.visible || game.status === "lobby") {
+      this.sync();
+      return;
+    }
+    this.queue.push(...fresh);
+    if (!this.view.busy) this.next();
+  }
+
+  private next = () => {
+    this.clearTimer();
+    if (this.disposed) return;
+    const event = this.queue.shift();
+    if (!event) {
+      this.view = { ...this.view, positions: this.snapshot(), event: null, busy: false };
+      this.emit();
+      return;
+    }
+    this.view = { ...this.view, event, busy: true };
+    if (event.type === "roll") this.view.lastRoll = event;
+    if (event.type === "move" && event.player && event.path?.length) {
+      const player = event.player;
+      const path = event.path;
+      if (event.from !== undefined) this.view.positions[player] = event.from;
+      this.emit();
+      let step = 0;
+      const advance = () => {
+        this.view.positions[player] = path[step++];
+        this.emit();
+        this.timer = setTimeout(step < path.length ? advance : this.next, step < path.length ? MOVE_STEP_MS : MOVE_SETTLE_MS);
+      };
+      if (this.reduced || event.teleport) {
+        this.view.positions[player] = path[path.length - 1];
+        this.emit();
+        this.timer = setTimeout(this.next, this.reduced ? 0 : MOVE_SETTLE_MS);
+      } else this.timer = setTimeout(advance, MOVE_STEP_MS);
+      return;
+    }
+    this.emit();
+    const duration = this.reduced && event.type === "roll" ? 900 : eventDuration(event);
+    this.timer = setTimeout(this.next, duration);
+  };
+
+  setVisible(visible: boolean) {
+    this.visible = visible;
+    if (!visible) this.sync();
+  }
+
+  setReducedMotion(reduced: boolean) { this.reduced = reduced; }
+
+  dispose() {
+    this.disposed = true;
+    this.clearTimer();
+    this.queue = [];
+  }
+}
+````
+
+## lib/game/presentation.ts
+
+````typescript
+import type { GameEvent } from "./types";
+
+export const ROLL_LIMIT_MS = 20_000;
+export const MOVE_STEP_MS = 160;
+export const MOVE_SETTLE_MS = 220;
+export function eventDuration(event: GameEvent): number {
+  if (event.type === "move") return (event.teleport ? 0 : (event.path?.length ?? 0) * MOVE_STEP_MS) + MOVE_SETTLE_MS;
+  return event.type === "roll" ? 2600 : event.type === "card" ? 6500 : 2400;
+}
+````
+
 ## lib/game/rules.ts
 
 ````typescript
-import { BOARD, HOUSE_SUPPLY, HOTEL_SUPPLY } from "./board";
+import { BOARD, HOUSE_SUPPLY, HOTEL_SUPPLY, AUCTION_INCREMENT, AUCTION_PRICE_RATIO } from "./board";
 import type { Game, Player } from "./types";
+export function auctionMinimum(square: number, previousBid = 0, building = false): number {
+  const initial = building ? BOARD[square].buildCost : Math.ceil(BOARD[square].price * AUCTION_PRICE_RATIO / AUCTION_INCREMENT) * AUCTION_INCREMENT;
+  return Math.max(initial, previousBid + AUCTION_INCREMENT);
+}
 export const group = (id: number) =>
   BOARD.filter((b) => b.group && b.group === BOARD[id].group);
 export const complete = (s: Game, id: number, owner: string) =>
@@ -12563,6 +13390,10 @@ export interface Game {
   duration: number;
   endsAt: number | null;
   turnAt: number;
+  rollDeadline?: number;
+  autoEndAt?: number;
+  presentationUntil?: number;
+  detentionDecision?: string | null;
   winner: string[];
   motion: { serial: number; player: string; path: number[] } | null;
   lastCard: string | null;
@@ -12582,6 +13413,7 @@ export type Action = (
         | "bankrupt"
         | "pass"
         | "wait"
+        | "stay"
         | "bail"
         | "salary"
         | "opening-roll"
@@ -12698,7 +13530,7 @@ export const indexable =
   process.env.VERCEL_ENV !== "preview" &&
   process.env.VERCEL_ENV !== "development" &&
   process.env.NODE_ENV !== "development";
-export const siteTitle = "Turista mundial online con amigos | Rumbo Mundial";
+export const siteTitle = "Rumbo mundial online con amigos | Rumbo Mundial";
 export const siteDescription =
   "Juega turista mundial online con amigos en Rumbo Mundial: de 2 a 6 jugadores, países, casas, hoteles y tratos. Crea una sala y comparte el enlace, sin descargar nada.";
 ````
@@ -12734,7 +13566,7 @@ export class HttpError extends Error {
     super(message);
   }
 }
-function redis() {
+export function redis() {
   const url = process.env.UPSTASH_REDIS_REST_URL || process.env.KV_REST_API_URL;
   const token =
     process.env.UPSTASH_REDIS_REST_TOKEN || process.env.KV_REST_API_TOKEN;
@@ -12768,6 +13600,7 @@ const baseActionSchema = z.discriminatedUnion("type", [
       "bankrupt",
       "pass",
       "wait",
+      "stay",
       "bail",
       "skip",
       "expel",
@@ -12833,6 +13666,11 @@ function authorize(stored: Stored, token: string) {
   const id = stored.tokens[digest(token)];
   if (!id) throw new HttpError(401, "El token no pertenece a esta sala.");
   return id;
+}
+export async function roomIdentity(id: string, token: string) {
+  z.string().uuid().parse(token);
+  const stored = await read(id);
+  return { playerId: authorize(stored, token), players: stored.game.players.map((player) => player.id) };
 }
 export function publicGame(s: Game): Game {
   return { ...s, decks: { email: [], sms: [] } };
@@ -12999,6 +13837,531 @@ export async function act(id: string, input: unknown) {
 }
 ````
 
+## lib/useGameAudio.ts
+
+````typescript
+"use client";
+
+import { useCallback, useEffect, useRef, useState } from "react";
+import { audioPreferences, DEFAULT_AUDIO, GameAudio, type AudioPreferences, type SoundCue } from "./audio";
+import type { Game, GameEvent } from "./game/types";
+
+const STORAGE_KEY = "rumbo:audio";
+
+export function useGameAudio(game: Game | null, playerId: string | null) {
+  const [preferences, setPreferences] = useState(DEFAULT_AUDIO);
+  const [error, setError] = useState("");
+  const current = useRef(DEFAULT_AUDIO);
+  const engine = useRef<GameAudio | null>(null);
+
+  const unlock = useCallback(() => {
+    if (current.current.muted || document.hidden) return;
+    try {
+      if (!engine.current) {
+        engine.current = new GameAudio(new AudioContext());
+        engine.current.configure(current.current);
+      }
+      void engine.current.unlock().then(() => setError("")).catch(() => {
+        setError("Toca Activar audio para volver a intentarlo.");
+      });
+    } catch {
+      setError("Este navegador no pudo iniciar el audio. La partida puede continuar.");
+    }
+  }, []);
+
+  useEffect(() => {
+    try {
+      const stored = localStorage.getItem(STORAGE_KEY);
+      const saved = stored ? audioPreferences(JSON.parse(stored)) : DEFAULT_AUDIO;
+      current.current = saved;
+      setPreferences(saved);
+    } catch { /* El juego funciona aunque el navegador bloquee localStorage. */ }
+    const visibility = () => {
+      engine.current?.setVisible(!document.hidden);
+      if (!document.hidden) unlock();
+    };
+    document.addEventListener("pointerdown", unlock);
+    document.addEventListener("keydown", unlock);
+    document.addEventListener("visibilitychange", visibility);
+    return () => {
+      document.removeEventListener("pointerdown", unlock);
+      document.removeEventListener("keydown", unlock);
+      document.removeEventListener("visibilitychange", visibility);
+      engine.current?.dispose();
+      engine.current = null;
+    };
+  }, [unlock]);
+
+  const change = useCallback((patch: Partial<AudioPreferences>) => {
+    const next = audioPreferences({ ...current.current, ...patch });
+    current.current = next;
+    setPreferences(next);
+    try { localStorage.setItem(STORAGE_KEY, JSON.stringify(next)); } catch { /* Preferencias de esta sesión. */ }
+    engine.current?.configure(next);
+    if (!next.muted) unlock();
+  }, [unlock]);
+
+  const play = useCallback((cue: SoundCue) => { engine.current?.play(cue); }, []);
+  const playEvent = useCallback((event: GameEvent) => {
+    if (["roll", "purchase", "payment", "card"].includes(event.type)) play(event.type as SoundCue);
+    else if (event.teleport || /cárcel|deportado|construyó/i.test(event.text)) play("travel");
+  }, [play]);
+
+  const previous = useRef<{ room: string; turn: string; trades: string[]; finished: boolean } | null>(null);
+  useEffect(() => {
+    if (!game) return;
+    const turn = `${game.turnNumber}:${game.players[game.turn]?.id}`;
+    const trades = game.trades.filter((trade) => trade.to === playerId).map((trade) => trade.id);
+    const finished = game.status === "finished";
+    const before = previous.current;
+    if (before?.room === game.id) {
+      if (finished && !before.finished) play("victory");
+      else if (trades.some((id) => !before.trades.includes(id))) play("trade");
+      else if (turn !== before.turn && game.players[game.turn]?.id === playerId && !game.opening) play("turn");
+    }
+    previous.current = { room: game.id, turn, trades, finished };
+  }, [game, playerId, play]);
+
+  return { preferences, change, playEvent, error, unlock };
+}
+````
+
+## lib/useGamePlayback.ts
+
+````typescript
+"use client";
+
+import { useEffect, useRef, useState } from "react";
+import { GamePlayback, type PlaybackView } from "./game/playback";
+import type { Game } from "./game/types";
+
+export function useGamePlayback(game: Game | null) {
+  const controller = useRef<GamePlayback | null>(null);
+  const [view, setView] = useState<PlaybackView>({ serial: 0, positions: {}, event: null, lastRoll: null, busy: false });
+
+  useEffect(() => {
+    if (!game) return;
+    if (!controller.current) {
+      controller.current = new GamePlayback(game, setView, window.matchMedia("(prefers-reduced-motion: reduce)").matches);
+      controller.current.setVisible(!document.hidden);
+    } else controller.current.update(game);
+  }, [game]);
+
+  useEffect(() => {
+    const motion = window.matchMedia("(prefers-reduced-motion: reduce)");
+    const reduced = () => controller.current?.setReducedMotion(motion.matches);
+    const visible = () => controller.current?.setVisible(!document.hidden);
+    motion.addEventListener("change", reduced);
+    document.addEventListener("visibilitychange", visible);
+    return () => {
+      controller.current?.dispose();
+      controller.current = null;
+      motion.removeEventListener("change", reduced);
+      document.removeEventListener("visibilitychange", visible);
+    };
+  }, []);
+
+  // Oculta decisiones desde el primer render de una actualización, antes del efecto.
+  return { ...view, busy: view.busy || (game?.eventSerial ?? 0) > view.serial };
+}
+````
+
+## lib/voice/client.ts
+
+````typescript
+import type { VoiceCommand, VoiceMember, VoiceSignal, VoiceView } from "./types";
+
+export interface VoiceClientView {
+  phase: "off" | "joining" | "joined";
+  members: VoiceMember[];
+  connections: Record<string, "connecting" | "connected" | "failed">;
+  error: string;
+  playbackBlocked: boolean;
+}
+export const EMPTY_VOICE: VoiceClientView = { phase: "off", members: [], connections: {}, error: "", playbackBlocked: false };
+interface Peer {
+  pc: RTCPeerConnection;
+  audio: HTMLAudioElement;
+  session: string;
+  connection: string;
+  pending: boolean;
+  answered: boolean;
+  started: number;
+}
+
+class VoiceRequestError extends Error {
+  constructor(message: string, readonly status: number) { super(message); }
+}
+
+export function microphoneError(error: unknown): string {
+  if (error instanceof Error) {
+    if (error.name === "NotAllowedError" || error.name === "SecurityError") return "Permite el micrófono en los ajustes de este sitio y vuelve a intentarlo.";
+    if (error.name === "NotFoundError") return "No se encontró un micrófono conectado.";
+    if (error.name === "NotReadableError") return "Otra aplicación está usando el micrófono o no se puede abrir.";
+    return error.message;
+  }
+  return "No se pudo iniciar el micrófono.";
+}
+
+// SDP con los candidatos ICE completos: el audio nunca pasa por estas peticiones.
+export function gatherIce(pc: RTCPeerConnection, signal: AbortSignal): Promise<void> {
+  return new Promise((resolve, reject) => {
+    if (signal.aborted || pc.signalingState === "closed") { reject(new Error("Conexión cancelada.")); return; }
+    if (pc.iceGatheringState === "complete") { resolve(); return; }
+    const finish = () => { cleanup(); resolve(); };
+    const cancel = () => { cleanup(); reject(new Error("Conexión cancelada.")); };
+    const check = () => { if (pc.iceGatheringState === "complete") finish(); };
+    const closed = () => { if (pc.signalingState === "closed") cancel(); };
+    const timer = setTimeout(finish, 8000);
+    const cleanup = () => {
+      clearTimeout(timer);
+      pc.removeEventListener("icegatheringstatechange", check);
+      pc.removeEventListener("signalingstatechange", closed);
+      signal.removeEventListener("abort", cancel);
+    };
+    pc.addEventListener("icegatheringstatechange", check);
+    pc.addEventListener("signalingstatechange", closed);
+    signal.addEventListener("abort", cancel, { once: true });
+    check();
+  });
+}
+
+export class VoiceClient {
+  readonly session = crypto.randomUUID();
+  private stream: MediaStream | null = null;
+  private peers = new Map<string, Peer>();
+  private state: VoiceClientView = { ...EMPTY_VOICE, connections: {} };
+  private controller = new AbortController();
+  private timer: ReturnType<typeof setTimeout> | null = null;
+  private heartbeat = 0;
+  private disposed = false;
+  private micMuted = false;
+  private masterMuted = false;
+  private iceServers: RTCIceServer[] = [];
+
+  constructor(private readonly room: string, private readonly token: string, private readonly playerId: string,
+    private readonly publish: (view: VoiceClientView) => void, private volume = 0.8) {}
+
+  private emit() {
+    if (!this.disposed) this.publish({ ...this.state, connections: { ...this.state.connections } });
+  }
+
+  private async request(command?: VoiceCommand): Promise<VoiceView> {
+    const controller = new AbortController();
+    const abort = () => controller.abort();
+    this.controller.signal.addEventListener("abort", abort, { once: true });
+    if (this.controller.signal.aborted) controller.abort();
+    const timeout = setTimeout(abort, 12000);
+    try {
+      const response = await fetch(`/api/rooms/${this.room}/voice${command ? "" : `?session=${this.session}`}`, {
+        method: command ? "POST" : "GET", cache: "no-store", signal: controller.signal,
+        headers: { Authorization: `Bearer ${this.token}`, ...(command ? { "Content-Type": "application/json" } : {}) },
+        body: command ? JSON.stringify(command) : undefined,
+      });
+      const data = await response.json();
+      if (!response.ok) throw new VoiceRequestError(data.error ?? "No se pudo sincronizar la voz.", response.status);
+      return data;
+    } finally {
+      clearTimeout(timeout);
+      this.controller.signal.removeEventListener("abort", abort);
+    }
+  }
+
+  async join() {
+    this.state.phase = "joining";this.emit();
+    try {
+      if (!navigator.mediaDevices?.getUserMedia || typeof RTCPeerConnection === "undefined") throw new Error("La voz necesita un navegador compatible y una conexión HTTPS.");
+      const stream = await navigator.mediaDevices.getUserMedia({ video: false, audio: { echoCancellation: true, noiseSuppression: true, autoGainControl: true } });
+      if (this.disposed) { stream.getTracks().forEach((track) => track.stop()); return; }
+      this.stream = stream;
+      stream.getAudioTracks().forEach((track) => {
+        track.enabled = !this.micMuted && !this.masterMuted;
+        track.onended = () => this.fail("El micrófono se desconectó. Vuelve a activar la voz.");
+      });
+      const view = await this.request({ type: "join", session: this.session, muted: this.micMuted || this.masterMuted });
+      if (this.disposed) return;
+      this.state.phase = "joined";this.heartbeat = Date.now();
+      this.apply(view);this.poll();
+    } catch (error) {
+      if (!this.disposed) this.fail(microphoneError(error));
+    }
+  }
+
+  private poll = () => {
+    if (this.disposed) return;
+    this.timer = setTimeout(async () => {
+      try {
+        const pulse = Date.now() - this.heartbeat >= 10000;
+        const view = await this.request(pulse ? { type: "heartbeat", session: this.session, muted: this.micMuted || this.masterMuted } : undefined);
+        if (this.disposed) return;
+        if (pulse) this.heartbeat = Date.now();
+        this.state.error = "";this.apply(view);
+      } catch (error) {
+        if (this.disposed) return;
+        if (error instanceof VoiceRequestError && [401, 403, 404, 409, 410].includes(error.status)) { this.fail(error.message); return; }
+        this.state.error = "Reconectando la señal de voz…";this.emit();
+      }
+      this.poll();
+    }, 1000);
+  };
+
+  private apply(view: VoiceView) {
+    if (view.replaced) { this.fail("Tu sesión de voz venció o se abrió en otra pestaña. Vuelve a conectarte."); return; }
+    this.iceServers = view.iceServers;
+    this.state.members = view.members;
+    for (const [id, peer] of this.peers) {
+      if (!view.members.some((member) => member.playerId === id && member.session === peer.session)) this.removePeer(id);
+    }
+    for (const member of view.members) {
+      if (member.playerId === this.playerId) continue;
+      if (this.playerId < member.playerId && !this.peers.has(member.playerId)) {
+        const peer = this.createPeer(member, crypto.randomUUID());
+        this.negotiate(member.playerId, peer);
+      }
+      const peer = this.peers.get(member.playerId);
+      if (peer && peer.pc.connectionState !== "connected" && Date.now() - peer.started > 30000) this.state.connections[member.playerId] = "failed";
+    }
+    for (const signal of view.signals) {
+      const member = view.members.find((m) => m.playerId === signal.from && m.session === signal.fromSession);
+      if (!member) continue;
+      let peer = this.peers.get(signal.from);
+      if (signal.description.type === "offer") {
+        if (peer?.connection === signal.connection) continue;
+        if (peer) this.removePeer(signal.from);
+        peer = this.createPeer(member, signal.connection);
+        this.negotiate(signal.from, peer, signal);
+      } else if (peer?.connection === signal.connection && !peer.pending && !peer.answered) {
+        const receivingPeer = peer;
+        receivingPeer.pending = true;
+        void receivingPeer.pc.setRemoteDescription(signal.description).then(() => { receivingPeer.answered = true; }).catch(() => this.peerFailed(signal.from, receivingPeer))
+          .finally(() => { receivingPeer.pending = false; });
+      }
+    }
+    this.emit();
+  }
+
+  private createPeer(member: VoiceMember, connection: string): Peer {
+    const pc = new RTCPeerConnection({ iceServers: this.iceServers });
+    const audio = new Audio();audio.autoplay = true;audio.setAttribute("playsinline", "");
+    audio.volume = this.volume;audio.muted = this.masterMuted;
+    const peer: Peer = { pc, audio, session: member.session, connection, pending: false, answered: false, started: Date.now() };
+    this.peers.set(member.playerId, peer);
+    this.state.connections[member.playerId] = "connecting";
+    this.stream?.getAudioTracks().forEach((track) => pc.addTrack(track, this.stream!));
+    pc.ontrack = (event) => {
+      if (this.disposed || event.track.kind !== "audio") return;
+      audio.srcObject = event.streams[0] ?? new MediaStream([event.track]);
+      void audio.play().catch(() => { if (!this.disposed) { this.state.playbackBlocked = true;this.emit(); } });
+    };
+    pc.onconnectionstatechange = () => {
+      if (this.disposed || this.peers.get(member.playerId) !== peer) return;
+      this.state.connections[member.playerId] = pc.connectionState === "connected" ? "connected" : pc.connectionState === "failed" ? "failed" : "connecting";
+      this.emit();
+    };
+    return peer;
+  }
+
+  private negotiate(id: string, peer: Peer, offer?: VoiceSignal) {
+    peer.pending = true;
+    void (async () => {
+      if (offer) await peer.pc.setRemoteDescription(offer.description);
+      await peer.pc.setLocalDescription(offer ? await peer.pc.createAnswer() : await peer.pc.createOffer());
+      await gatherIce(peer.pc, this.controller.signal);
+      if (this.disposed || this.peers.get(id) !== peer) return;
+      const sdp = peer.pc.localDescription?.sdp;
+      if (!sdp) throw new Error("No se pudo preparar el audio.");
+      await this.request({ type: "signal", session: this.session, to: id, toSession: peer.session, connection: peer.connection,
+        description: { type: offer ? "answer" : "offer", sdp } });
+    })().catch(() => this.peerFailed(id, peer)).finally(() => { peer.pending = false; });
+  }
+
+  private peerFailed(id: string, peer: Peer) {
+    if (!this.disposed && this.peers.get(id) === peer) { this.state.connections[id] = "failed";this.emit(); }
+  }
+
+  setMuted(muted: boolean) { this.micMuted = muted;this.applyLevels(); }
+  setMasterMuted(muted: boolean) { this.masterMuted = muted;this.applyLevels(); }
+  setVolume(volume: number) { this.volume = Math.min(1, Math.max(0, volume));this.applyLevels(); }
+  private applyLevels() {
+    this.stream?.getAudioTracks().forEach((track) => { track.enabled = !this.micMuted && !this.masterMuted; });
+    this.peers.forEach(({ audio }) => { audio.volume = this.volume;audio.muted = this.masterMuted; });
+    // El siguiente polling publica el nuevo estado del micrófono.
+    this.heartbeat = 0;
+  }
+
+  async resumePlayback() {
+    const results = await Promise.allSettled([...this.peers.values()].filter((peer) => peer.audio.srcObject).map((peer) => peer.audio.play()));
+    if (this.disposed) return;
+    this.state.playbackBlocked = results.some((result) => result.status === "rejected");this.emit();
+  }
+
+  private removePeer(id: string) {
+    const peer = this.peers.get(id);
+    if (peer) {
+      peer.pc.ontrack = null;peer.pc.onconnectionstatechange = null;
+      peer.pc.close();peer.audio.pause();peer.audio.srcObject = null;
+      this.peers.delete(id);delete this.state.connections[id];
+    }
+  }
+
+  private fail(message: string) {
+    this.state = { ...EMPTY_VOICE, error: message };this.emit();this.dispose();
+  }
+
+  dispose() {
+    if (this.disposed) return;
+    this.disposed = true;this.controller.abort();
+    if (this.timer) clearTimeout(this.timer);
+    this.stream?.getTracks().forEach((track) => { track.onended = null;track.stop(); });
+    this.stream = null;
+    for (const id of this.peers.keys()) this.removePeer(id);
+    void fetch(`/api/rooms/${this.room}/voice`, { method: "POST", keepalive: true,
+      headers: { Authorization: `Bearer ${this.token}`, "Content-Type": "application/json" },
+      body: JSON.stringify({ type: "leave", session: this.session }),
+    }).catch(() => {});
+  }
+}
+````
+
+## lib/voice/store.ts
+
+````typescript
+import { z } from "zod";
+import { HttpError, redis, roomIdentity } from "../store";
+import { VOICE_PRESENCE_MS, type VoiceCommand, type VoiceState, type VoiceView } from "./types";
+
+const session = z.string().uuid();
+export const voiceCommand = z.discriminatedUnion("type", [
+  z.object({ type: z.literal("join"), session, muted: z.boolean() }),
+  z.object({ type: z.literal("heartbeat"), session, muted: z.boolean() }),
+  z.object({ type: z.literal("leave"), session }),
+  z.object({ type: z.literal("signal"), session, to: session, toSession: session, connection: session,
+    description: z.object({ type: z.enum(["offer", "answer"]), sdp: z.string().min(10).max(12000)
+      .refine((value) => value.startsWith("v=0") && /(?:^|\r?\n)m=audio /.test(value) && !/(?:^|\r?\n)m=(?:video|application) /.test(value), "Solo audio.") }),
+  }),
+]);
+
+const key = (room: string) => `turista:voice:${room}`;
+// CAS independiente del juego: las señales nunca cambian dinero, turnos o version.
+const CAS = `local old=redis.call('GET',KEYS[1]); local revision=0; if old then revision=cjson.decode(old).revision end; if revision~=tonumber(ARGV[1]) then return 0 end; redis.call('SET',KEYS[1],ARGV[2],'EX',120); return 1`;
+
+export function cleanVoice(state: VoiceState, players: string[], now: number): VoiceState {
+  const next = structuredClone(state);
+  next.members = Object.fromEntries(Object.entries(next.members).filter(([id, member]) => players.includes(id) && member.seen > now - VOICE_PRESENCE_MS));
+  next.signals = next.signals.filter((signal) => signal.at > now - VOICE_PRESENCE_MS &&
+    next.members[signal.from]?.session === signal.fromSession && next.members[signal.to]?.session === signal.toSession);
+  return next;
+}
+
+export function applyVoice(state: VoiceState, command: VoiceCommand, playerId: string, players: string[], now: number): VoiceState {
+  const next = cleanVoice(state, players, now);
+  if (!players.includes(playerId)) throw new HttpError(403, "No perteneces a esta sala.");
+  if (command.type === "join") {
+    next.members[playerId] = { playerId, session: command.session, muted: command.muted, seen: now };
+  } else if (command.type === "leave") {
+    // Un cierre tardío de otra pestaña no puede expulsar la sesión nueva.
+    if (next.members[playerId]?.session === command.session) delete next.members[playerId];
+  } else {
+    if (next.members[playerId]?.session !== command.session) throw new HttpError(409, "La conexión de voz venció o se abrió en otra pestaña. Vuelve a conectarte.");
+    if (command.type === "heartbeat") {
+      next.members[playerId].seen = now;
+      next.members[playerId].muted = command.muted;
+    } else {
+      if (command.to === playerId || !players.includes(command.to) || next.members[command.to]?.session !== command.toSession) {
+        throw new HttpError(409, "Ese viajero ya no está conectado a la voz.");
+      }
+      const offer = command.description.type === "offer";
+      if ((offer && playerId > command.to) || (!offer && playerId < command.to)) throw new HttpError(400, "Orden de negociación inválido.");
+      const existingOffer = next.signals.find((signal) => signal.description.type === "offer" && signal.from === command.to && signal.to === playerId && signal.connection === command.connection);
+      if (!offer && !existingOffer) throw new HttpError(409, "La llamada cambió. Reconecta la voz.");
+      const duplicate = next.signals.some((signal) => signal.from === playerId && signal.to === command.to && signal.connection === command.connection && signal.description.type === command.description.type);
+      if (!duplicate) {
+        next.signals = next.signals.filter((signal) => offer
+          ? !((signal.from === playerId && signal.to === command.to) || (signal.to === playerId && signal.from === command.to))
+          : !(signal.from === playerId && signal.to === command.to));
+        next.signals.push({ from: playerId, fromSession: command.session, to: command.to, toSession: command.toSession, connection: command.connection, description: command.description, at: now });
+      }
+    }
+  }
+  const cleaned = cleanVoice(next, players, now);
+  cleaned.revision = state.revision + 1;
+  return cleaned;
+}
+
+function iceServers(): RTCIceServer[] {
+  const servers: RTCIceServer[] = [{ urls: "stun:stun.cloudflare.com:3478" }];
+  const urls = (process.env.VOICE_TURN_URLS ?? "").split(",").map((url) => url.trim()).filter((url) => /^turns?:[^\s]+$/.test(url));
+  if (urls.length && process.env.VOICE_TURN_USERNAME && process.env.VOICE_TURN_CREDENTIAL) {
+    servers.push({ urls, username: process.env.VOICE_TURN_USERNAME, credential: process.env.VOICE_TURN_CREDENTIAL });
+  }
+  return servers;
+}
+
+function view(state: VoiceState, playerId: string, ownSession: string): VoiceView {
+  return { members: Object.values(state.members), replaced: state.members[playerId]?.session !== ownSession,
+    signals: state.signals.filter((signal) => signal.to === playerId && signal.toSession === ownSession), iceServers: iceServers() };
+}
+
+export async function getVoice(room: string, token: string, ownSession: string) {
+  session.parse(ownSession);
+  const identity = await roomIdentity(room, token);
+  const state = await redis().get<VoiceState>(key(room)) ?? { revision: 0, members: {}, signals: [] };
+  return view(cleanVoice(state, identity.players, Date.now()), identity.playerId, ownSession);
+}
+
+export async function updateVoice(room: string, token: string, input: unknown) {
+  const command = voiceCommand.parse(input);
+  const identity = await roomIdentity(room, token);
+  for (let attempt = 0; attempt < 12; attempt++) {
+    const old = await redis().get<VoiceState>(key(room)) ?? { revision: 0, members: {}, signals: [] };
+    const next = applyVoice(old, command, identity.playerId, identity.players, Date.now());
+    const saved = await redis().eval(CAS, [key(room)], [old.revision, JSON.stringify(next)]);
+    if (saved === 1) return view(next, identity.playerId, command.session);
+    // Evita que los quince enlaces de una sala de seis entren en la misma carrera.
+    await new Promise((resolve) => setTimeout(resolve, 15 + Math.floor(Math.random() * 45)));
+  }
+  throw new HttpError(409, "La voz está conectando a otros viajeros. Intenta de nuevo.");
+}
+````
+
+## lib/voice/types.ts
+
+````typescript
+export interface VoiceMember {
+  playerId: string;
+  session: string;
+  muted: boolean;
+  seen: number;
+}
+export interface VoiceSignal {
+  from: string;
+  fromSession: string;
+  to: string;
+  toSession: string;
+  connection: string;
+  description: { type: "offer" | "answer"; sdp: string };
+  at: number;
+}
+export interface VoiceState {
+  revision: number;
+  members: Record<string, VoiceMember>;
+  signals: VoiceSignal[];
+}
+export interface VoiceView {
+  members: VoiceMember[];
+  signals: VoiceSignal[];
+  replaced: boolean;
+  iceServers: RTCIceServer[];
+}
+export type VoiceCommand =
+  | { type: "join"; session: string; muted: boolean }
+  | { type: "heartbeat"; session: string; muted: boolean }
+  | { type: "leave"; session: string }
+  | { type: "signal"; session: string; to: string; toSession: string; connection: string; description: VoiceSignal["description"] };
+
+export const VOICE_PRESENCE_MS = 45_000;
+````
+
 ## tests/api-smoke.mjs
 
 ````javascript
@@ -13060,6 +14423,179 @@ console.log(
 );
 ````
 
+## tests/audio.test.ts
+
+````typescript
+import { afterEach, expect, it, vi } from "vitest";
+import { audioPreferences, DEFAULT_AUDIO, GameAudio } from "../lib/audio";
+
+function audioContext() {
+  const parameter = () => ({ value: 0, setTargetAtTime: vi.fn(), setValueAtTime: vi.fn(), linearRampToValueAtTime: vi.fn(), exponentialRampToValueAtTime: vi.fn() });
+  const oscillators: { stop: ReturnType<typeof vi.fn> }[] = [];
+  const context = {
+    state: "suspended",
+    currentTime: 0,
+    destination: {},
+    createGain: vi.fn(() => ({ gain: parameter(), connect: vi.fn(), disconnect: vi.fn() })),
+    createOscillator: vi.fn(() => {
+      const oscillator = { frequency: parameter(), type: "sine", connect: vi.fn(), disconnect: vi.fn(), start: vi.fn(), stop: vi.fn(), onended: null };
+      oscillators.push(oscillator);
+      return oscillator;
+    }),
+    resume: vi.fn(async () => { context.state = "running"; }),
+    suspend: vi.fn(async () => { context.state = "suspended"; }),
+    close: vi.fn(async () => { context.state = "closed"; }),
+  };
+  return { context, oscillators, engine: new GameAudio(context as unknown as AudioContext) };
+}
+
+afterEach(() => { vi.useRealTimers(); });
+
+it("valida preferencias dañadas y limita el volumen sin activar audio por defecto", () => {
+  expect(audioPreferences(null)).toEqual(DEFAULT_AUDIO);
+  expect(audioPreferences({ muted: "false", music: -9, effects: 120 })).toEqual({ muted: true, music: 0, effects: 100 });
+  expect(audioPreferences({ muted: false, music: NaN, effects: Infinity })).toEqual({ muted: false, music: 30, effects: 65 });
+});
+
+it("no reproduce antes de activar audio y no duplica el secuenciador al tocar varias veces", async () => {
+  vi.useFakeTimers();
+  const { engine, context } = audioContext();
+  await engine.unlock();engine.play("roll");
+  expect(context.resume).not.toHaveBeenCalled();expect(context.createOscillator).not.toHaveBeenCalled();
+  engine.configure({ muted: false, music: 30, effects: 65 });
+  await engine.unlock();await engine.unlock();
+  expect(vi.getTimerCount()).toBe(1);expect(context.createOscillator).toHaveBeenCalled();
+  engine.dispose();expect(vi.getTimerCount()).toBe(0);expect(context.close).toHaveBeenCalledOnce();
+});
+
+it("silenciar todo detiene música y efectos sin perder los volúmenes", async () => {
+  vi.useFakeTimers();
+  const { engine, context, oscillators } = audioContext();
+  engine.configure({ muted: false, music: 30, effects: 65 });await engine.unlock();
+  engine.play("purchase");
+  const count = oscillators.length;
+  engine.configure({ muted: true, music: 30, effects: 65 });engine.play("victory");
+  expect(oscillators.length).toBe(count);expect(vi.getTimerCount()).toBe(0);
+  expect(oscillators.every((note) => note.stop.mock.calls.length >= 2)).toBe(true);
+  expect(context.suspend).toHaveBeenCalled();
+  engine.configure({ muted: false, music: 30, effects: 65 });await engine.unlock();
+  expect(vi.getTimerCount()).toBe(1);engine.dispose();
+});
+
+it("volúmenes independientes permiten efectos con música a cero y viceversa", async () => {
+  vi.useFakeTimers();
+  const { engine, context } = audioContext();
+  engine.configure({ muted: false, music: 0, effects: 65 });await engine.unlock();
+  expect(context.createOscillator).not.toHaveBeenCalled();
+  engine.play("card");expect(context.createOscillator).toHaveBeenCalledTimes(3);
+  engine.configure({ muted: false, music: 30, effects: 0 });
+  engine.play("roll");expect(context.createOscillator).toHaveBeenCalledTimes(3);
+  engine.dispose();
+});
+
+it("ocultar la pestaña suspende audio y limpiar el componente cancela los recursos", async () => {
+  vi.useFakeTimers();
+  const { engine, context } = audioContext();
+  engine.configure({ muted: false, music: 30, effects: 65 });await engine.unlock();
+  engine.setVisible(false);
+  expect(vi.getTimerCount()).toBe(0);expect(context.state).toBe("suspended");
+  const count = context.createOscillator.mock.calls.length;
+  await engine.unlock();engine.play("roll");
+  expect(context.createOscillator).toHaveBeenCalledTimes(count);
+  engine.setVisible(true);await engine.unlock();expect(vi.getTimerCount()).toBe(1);
+  engine.dispose();await engine.unlock();expect(vi.getTimerCount()).toBe(0);expect(context.state).toBe("closed");
+});
+````
+
+## tests/automatic-turns.test.ts
+
+````typescript
+import { expect, it } from "vitest";
+import { engine, finishByTime, newGame, newPlayer } from "../lib/game/engine";
+import { auctionMinimum } from "../lib/game/rules";
+import { game, go, ctx } from "./helpers";
+
+it("el servidor salta la tirada vencida a los 20 segundos, sin mover la ficha", () => {
+  const s = game();
+  expect(finishByTime(s, s.rollDeadline! - 1)).toBe(s);
+  const next = finishByTime(s, s.rollDeadline!);
+  expect(next.turn).toBe(1);expect(next.players.map((p) => p.position)).toEqual([0, 0]);
+  expect(next.log.at(-1)).toContain("20 segundos");
+  expect(next.rollDeadline! - next.presentationUntil!).toBe(20000);
+  expect(finishByTime(next, s.rollDeadline!)).toBe(next);
+  expect(() => engine(s, { type: "roll" }, "a", { ...ctx, now: s.rollDeadline! })).toThrow(/automáticamente/);
+});
+
+it("la compra cierra el turno automáticamente después de sus animaciones", () => {
+  let s = go(game(), { type: "roll" });
+  expect(s.phase).toBe("buy");expect(s.autoEndAt).toBeUndefined();
+  expect(finishByTime(s, 1_000_000)).toBe(s);
+  s = go(s, { type: "buy" });
+  expect(finishByTime(s, s.autoEndAt! - 1)).toBe(s);
+  const next = finishByTime(s, s.autoEndAt!);
+  expect(next.turn).toBe(1);expect(next.phase).toBe("roll");
+  expect(next.properties[3].owner).toBe("a");
+});
+
+it("los dobles habilitan automáticamente otra tirada con 20 segundos nuevos", () => {
+  let s = go(game(), { type: "roll" }, [1, 1]);s = go(s, { type: "buy" });
+  const next = finishByTime(s, s.autoEndAt!);
+  expect(next.turn).toBe(0);expect(next.phase).toBe("roll");expect(next.doubles).toBe(1);
+  expect(next.rollDeadline).toBe(s.autoEndAt! + 20000);
+});
+
+it("el cambio automático cobra el sueldo exactamente una vez", () => {
+  let s = game();s.players[0].position = 39;
+  s = go(s, { type: "roll" });s = go(s, { type: "buy" });
+  const before = s.players[0].money;
+  const next = finishByTime(s, s.autoEndAt!);
+  expect(next.players[0].money).toBe(before + 20000);expect(next.players[0].salary).toBe(0);
+  expect(finishByTime(next, s.autoEndAt!)).toBe(next);
+});
+
+it("deportación espera una decisión y quedarse no consume el turno de llegada", () => {
+  let s = game();s.players[0].position = 7;s = go(s, { type: "roll" });
+  expect(s.detentionDecision).toBe("a");expect(finishByTime(s, 1_000_000)).toBe(s);
+  s = go(s, { type: "stay" });
+  expect(s.players[0].jailed).toBe(3);
+  const next = finishByTime(s, s.autoEndAt!);
+  expect(next.turn).toBe(1);expect(next.players[0].jailed).toBe(3);
+});
+
+it("un turno vencido en deportación descuenta solo una espera", () => {
+  const s = game();s.players[0].position = 10;s.players[0].detention = "oceania";s.players[0].jailed = 3;
+  const next = finishByTime(s, s.rollDeadline!);
+  expect(next.players[0].jailed).toBe(2);expect(next.players[0].position).toBe(10);expect(next.turn).toBe(1);
+});
+
+it("la selección inicial también vence sin bloquear la partida si nadie tira", () => {
+  let s = newGame("ABC234", newPlayer("a", "Ana", "red"), 0);s.players.push(newPlayer("b", "Luis", "blue"));
+  s = go(s, { type: "start" });s = finishByTime(s, s.rollDeadline!);
+  expect(s.opening).toBeNull();expect(s.phase).toBe("roll");expect(s.rollDeadline).toBeGreaterThan(s.turnAt);
+});
+
+it("deudas y subastas pendientes no son saltadas por el contador de dados", () => {
+  let s = game();s.properties[3].owner = "b";s = go(s, { type: "roll" });
+  expect(finishByTime(s, 100000)).toBe(s);
+  let auction = go(go(game(), { type: "roll" }), { type: "decline" });
+  expect(auction.autoEndAt).toBeUndefined();
+  auction = finishByTime(auction, auction.auction!.endsAt);
+  expect(auction.autoEndAt).toBeDefined();expect(auction.turn).toBe(0);
+});
+
+it("subastas empiezan cerca del valor impreso y el servidor rechaza ofertas bajas", () => {
+  expect(auctionMinimum(1)).toBe(10000);
+  expect(auctionMinimum(3)).toBe(16000);
+  expect(auctionMinimum(3, 16000)).toBe(16500);
+  expect(auctionMinimum(1, 0, true)).toBe(5000);
+  const s = go(go(game(3), { type: "roll" }), { type: "decline" });
+  expect(() => go(s, { type: "bid", amount: 500 }, [1, 2], "b")).toThrow(/16000/);
+  const next = go(s, { type: "bid", amount: 16000 }, [1, 2], "b");
+  expect(next.auction?.amount).toBe(16000);
+  expect(() => go(next, { type: "bid", amount: 16001 }, [1, 2], "c")).toThrow(/16500/);
+});
+````
+
 ## tests/engine.test.ts
 
 ````typescript
@@ -13094,7 +14630,7 @@ describe("Tablero de referencia y reglas", () => {
     expect(go(s,{type:"roll"},[1,1]).players[0].salary).toBe(SALARY);
   });
   it("pierde el sueldo no reclamado al ceder el turno",()=>{
-    let s=game();s.players[0].salary=20000;s.phase="end";
+    let s=game();s.players[0].salary=20000;s.phase="end";s.autoEndAt=10000;
     s=go(s,{type:"end"});expect(s.players[0].salary).toBe(0);
     expect(()=>go(s,{type:"salary"})).toThrow();
   });
@@ -13137,9 +14673,27 @@ describe("Tablero de referencia y reglas", () => {
     expect(s.players[0].money).toBe(140500);expect(s.properties[1].owner).toBeNull();
     expect(()=>go(s,{type:"return",square:1})).toThrow();
   });
-  it("Australia y visita a Deportado no penalizan",()=>{
-    for(const [from,to] of [[17,20],[7,10]]){const s=game();s.players[0].position=from;
-      const next=go(s,{type:"roll"});expect(next.players[0].position).toBe(to);expect(next.players[0].jailed).toBe(0);}
+  it("Australia permite descansar sin penalización",()=>{
+    const s=game();s.players[0].position=17;
+    const next=go(s,{type:"roll"});expect(next.players[0].position).toBe(20);expect(next.players[0].jailed).toBe(0);
+  });
+  it("caer en Deportado permite pagar la multa inmediatamente sin cobrar sueldo",()=>{
+    let s=game();s.players[0].position=7;s=go(s,{type:"roll"});
+    expect(s.players[0]).toMatchObject({position:10,jailed:3,detention:"oceania",money:134500});
+    expect(s.phase).toBe("end");expect(()=>go(s,{type:"wait"})).toThrow();
+    s=go(s,{type:"bail"});expect(s.players[0]).toMatchObject({position:0,jailed:0,money:129500,salary:0});
+  });
+  it("elegir quedarse no descuenta el turno de llegada; luego cumple tres turnos completos",()=>{
+    let s=game();s.players[0].position=7;s=go(s,{type:"roll"});s=go(s,{type:"end"});
+    expect(s.players[0].jailed).toBe(3);
+    for (let remaining=2;remaining>=0;remaining--) {
+      s.turn=0;s.phase="roll";s=go(s,{type:"wait"});
+      expect(s.players[0].jailed).toBe(remaining);
+      expect(s.players[0].position).toBe(remaining ? 10 : 0);
+      expect(()=>go(s,{type:"wait"})).toThrow();
+      s=go(s,{type:"end"});
+    }
+    expect(s.players[0].money).toBe(134500);expect(s.players[0].salary).toBe(0);
   });
   it("Cárcel cobra fianza y pierde exactamente tres turnos; dobles no liberan",()=>{
     let s=game();s.players[0].position=27;s=go(s,{type:"roll"});
@@ -13179,19 +14733,21 @@ describe("Tablero de referencia y reglas", () => {
   it("quiebra al Banco subasta bienes cuando quedan otros dos jugadores",()=>{
     let s=game(3);s.players[0].money=0;s.properties[1].owner="a";s.debt={amount:100000,creditor:null,payer:"a"};
     s=go(s,{type:"bankrupt"});expect(s.properties[1].owner).toBeNull();expect(s.auction?.square).toBe(1);
-    s=go(s,{type:"bid",amount:500},[1,2],"b");s=go(s,{type:"fold"},[1,2],"c");expect(s.properties[1].owner).toBe("b");expect(s.auction).toBeNull();
+    s=go(s,{type:"bid",amount:10000},[1,2],"b");s=go(s,{type:"fold"},[1,2],"c");expect(s.properties[1].owner).toBe("b");expect(s.auction).toBeNull();
   });
   it("no permite quiebra mientras los bienes cubran la deuda",()=>{
     const s=game();s.debt={amount:100,creditor:null,payer:"a"};expect(()=>go(s,{type:"bankrupt"})).toThrow(/cubrir/);
   });
-  it("rechazar compra abre subasta; el mismo jugador puede ganarla",()=>{
+  it("rechazar compra abre subasta para los demás y retira al visitante",()=>{
     let s=game();s=go(s,{type:"roll"});s=go(s,{type:"decline"});expect(s.auction?.square).toBe(3);
-    s=go(s,{type:"bid",amount:500});s=go(s,{type:"fold"},[1,2],"b");
-    expect(s.properties[3].owner).toBe("a");expect(s.players[0].money).toBe(134000);expect(()=>go(s,{type:"buy"})).toThrow();
+    expect(s.auction?.passed).toContain("a");expect(()=>go(s,{type:"bid",amount:500})).toThrow(/Oferta inválida/);
+    s=go(s,{type:"bid",amount:16000},[1,2],"b");
+    expect(s.properties[3].owner).toBe("b");expect(s.players[1].money).toBe(118500);
+    expect(s.players.map((p)=>p.position)).toEqual([3,0]);expect(s.auction).toBeNull();
   });
   it("subasta vence durante polling sin temporizador residente",()=>{
-    let s=game();s=go(go(s,{type:"roll"}),{type:"decline"});s=go(s,{type:"bid",amount:1000});
-    expect(finishByTime(s,20999)).toBe(s);s=finishByTime(s,21000);expect(s.auction).toBeNull();expect(s.properties[3].owner).toBe("a");
+    let s=game(3);s=go(go(s,{type:"roll"}),{type:"decline"});s=go(s,{type:"bid",amount:16000},[1,2],"b");
+    expect(finishByTime(s,20999)).toBe(s);s=finishByTime(s,21000);expect(s.auction).toBeNull();expect(s.properties[3].owner).toBe("b");
   });
   it("tratos fuera de turno revalidan propiedad y saldo",()=>{
     let s=game();s.properties[1].owner="b";
@@ -13238,6 +14794,99 @@ export function game(count=2) {
 }
 ````
 
+## tests/playback.test.ts
+
+````typescript
+import { afterEach, expect, it, vi } from "vitest";
+import { GamePlayback, type PlaybackView } from "../lib/game/playback";
+import { eventDuration } from "../lib/game/presentation";
+import { game, go } from "./helpers";
+
+afterEach(() => vi.useRealTimers());
+
+it("muestra los dados, después cada casilla y solo entonces el aviso de llegada", () => {
+  vi.useFakeTimers();
+  const initial = game();
+  const frames: PlaybackView[] = [];
+  const playback = new GamePlayback(initial, (view) => frames.push(view));
+  const rolled = go(initial, { type: "roll" });
+  playback.update(rolled);
+  expect(frames.at(-1)?.event?.type).toBe("roll");
+  expect(frames.at(-1)?.positions.a).toBe(0);
+  vi.advanceTimersByTime(2599);
+  expect(frames.at(-1)?.positions.a).toBe(0);
+  vi.advanceTimersByTime(1);
+  expect(frames.at(-1)?.event?.type).toBe("move");
+  for (const position of [1, 2, 3]) {
+    vi.advanceTimersByTime(160);
+    expect(frames.at(-1)?.positions.a).toBe(position);
+    expect(frames.at(-1)?.event?.type).toBe("move");
+  }
+  vi.advanceTimersByTime(220);
+  expect(frames.at(-1)?.event?.text).toContain("llegó a");
+  vi.advanceTimersByTime(2400);
+  expect(frames.at(-1)?.busy).toBe(false);
+  expect(frames.at(-1)?.event).toBeNull();
+  expect(vi.getTimerCount()).toBe(0);
+  playback.dispose();
+});
+
+it("polling repetido no reinicia una animación ni duplica el recorrido", () => {
+  vi.useFakeTimers();
+  const initial = game();const frames: PlaybackView[] = [];
+  const playback = new GamePlayback(initial, (view) => frames.push(view));
+  const rolled = go(initial, { type: "roll" });
+  playback.update(rolled);vi.advanceTimersByTime(1000);
+  playback.update(structuredClone(rolled));
+  vi.advanceTimersByTime(1600);
+  expect(frames.at(-1)?.event?.type).toBe("move");
+  vi.runAllTimers();
+  expect(frames.filter((frame) => frame.event?.type === "roll")).toHaveLength(1);
+  expect(frames.at(-1)?.positions).toEqual({ a: 3, b: 0 });
+  playback.dispose();
+});
+
+it("refrescar y recuperar una brecha de eventos toma la posición real sin reproducir historia", () => {
+  vi.useFakeTimers();
+  const initial = go(game(), { type: "roll" });const frames: PlaybackView[] = [];
+  const playback = new GamePlayback(initial, (view) => frames.push(view));
+  expect(frames.at(-1)?.positions.a).toBe(3);expect(frames.at(-1)?.busy).toBe(false);
+  const reconnected = structuredClone(initial);
+  reconnected.players[0].position = 25;
+  reconnected.eventSerial = (initial.eventSerial ?? 0) + 200;
+  reconnected.events = [{ id: reconnected.eventSerial, text: "Reconexión", type: "log" }];
+  playback.update(reconnected);
+  expect(frames.at(-1)?.positions.a).toBe(25);expect(frames.at(-1)?.busy).toBe(false);
+  expect(vi.getTimerCount()).toBe(0);playback.dispose();
+});
+
+it("cerrar una subasta nunca traslada al comprador ni al jugador que pasó", () => {
+  vi.useFakeTimers();
+  let s = game(3);s.players[1].position = 24;s.players[2].position = 39;
+  s = go(go(s, { type: "roll" }), { type: "decline" });
+  const frames: PlaybackView[] = [];
+  const playback = new GamePlayback(s, (view) => frames.push(view));
+  s = go(s, { type: "fold" }, [1, 2], "b");playback.update(s);
+  s = go(s, { type: "bid", amount: 16000 }, [1, 2], "c");playback.update(s);
+  vi.runAllTimers();
+  expect(frames.every((frame) => frame.positions.a === 3 && frame.positions.b === 24 && frame.positions.c === 39)).toBe(true);
+  playback.dispose();
+});
+
+it("movimiento reducido omite pasos pero conserva el orden y limpia temporizadores al salir", () => {
+  vi.useFakeTimers();
+  const initial = game();const frames: PlaybackView[] = [];
+  const playback = new GamePlayback(initial, (view) => frames.push(view), true);
+  const rolled = go(initial, { type: "roll" });playback.update(rolled);
+  vi.advanceTimersByTime(900);
+  expect(frames.at(-1)?.positions.a).toBe(3);
+  playback.setVisible(false);
+  expect(frames.at(-1)?.busy).toBe(false);expect(vi.getTimerCount()).toBe(0);
+  playback.dispose();
+  expect(eventDuration({ id: 1, text: "", type: "move", path: [1, 2, 3] })).toBe(700);
+});
+````
+
 ## tests/regressions.test.ts
 
 ````typescript
@@ -13249,6 +14898,42 @@ import { assetError, ranking } from "../lib/game/rules";
 import { exchange, pay, totalBills, wallet } from "../lib/game/money";
 import { shuffleDeck } from "../lib/game/shuffle";
 import type { Action } from "../lib/game/types";
+
+it("pasar una subasta conserva la casilla de cada jugador y no genera movimientos", () => {
+  let s = game(3);
+  s.players[1].position = 24;
+  s.players[2].position = 39;
+  s = go(go(s, { type: "roll" }), { type: "decline" });
+  const positions = s.players.map((p) => p.position);
+  const movement = s.motion;
+  const moves = s.events?.filter((e) => e.type === "move");
+  s = go(s, { type: "fold" }, [1, 2], "b");
+  expect(s.auction?.passed).toEqual(["a", "b"]);
+  expect(s.players.map((p) => p.position)).toEqual(positions);
+  expect(s.motion).toEqual(movement);
+  expect(s.events?.filter((e) => e.type === "move")).toEqual(moves);
+  expect(() => go(s, { type: "bid", amount: 500 }, [1, 2], "b")).toThrow();
+  s = go(s, { type: "bid", amount: 16000 }, [1, 2], "c");
+  expect(s.players.map((p) => p.position)).toEqual(positions);
+  expect(s.properties[3].owner).toBe("c");
+});
+
+it("si todos rechazan, el país queda en el Banco y las fichas no se mueven", () => {
+  let s = go(go(game(), { type: "roll" }), { type: "decline" });
+  const positions = s.players.map((p) => p.position);
+  s = go(s, { type: "fold" }, [1, 2], "b");
+  expect(s.auction).toBeNull();
+  expect(s.properties[3].owner).toBeNull();
+  expect(s.players.map((p) => p.position)).toEqual(positions);
+  expect(s.players.map((p) => p.money)).toEqual([134500, 134500]);
+});
+
+it("rechazar cierra sin bloqueo cuando los demás están en la cárcel", () => {
+  let s = game();
+  s.players[1].jailed = 3;s.players[1].detention = "prison";
+  s = go(go(s, { type: "roll" }), { type: "decline" });
+  expect(s.auction).toBeNull();expect(s.phase).toBe("end");
+});
 
 it("una tirada de 12 avanza doce pasos, no cuarenta",()=>{
   const s=go(game(),{type:"roll"},[6,6]);expect(s.motion?.path).toEqual([1,2,3,4,5,6,7,8,9,10,11,12]);
@@ -13303,6 +14988,8 @@ it.each([1234567,8459,9234])("completa una partida con cartas, subastas, pagos y
   const die=()=>{seed=(Math.imul(seed,1664525)+1013904223)>>>0;return (seed%6)+1;};
   for(let step=0;step<30000&&s.status==="playing";step++){
     const now=1000+step*100;
+    const progressed = finishByTime(s, now);
+    if (progressed !== s) { s = progressed; continue; }
     if(s.auction){s=finishByTime(s,s.auction.endsAt);continue;}
     let p=s.players[s.turn];let action:Action;
     if(s.debt){p=s.players.find((x)=>x.id===(s.debt?.payer??p.id))!;
@@ -13320,7 +15007,7 @@ it.each([1234567,8459,9234])("completa una partida con cartas, subastas, pagos y
     expect(s.players.every((p)=>p.money>=0)).toBe(true);
   }
   expect(s.status).toBe("finished");expect(s.winner).toHaveLength(1);
-});
+}, 15000);
 
 it("la última casa se subasta entre quienes pueden construir, sin duplicar la pieza",()=>{
   let s=game(3);
@@ -13380,7 +15067,7 @@ vi.mock("@upstash/redis", () => ({
     }
   },
 }));
-import { act, createRoom, getRoom, joinRoom } from "../lib/store";
+import { act, createRoom, getRoom, joinRoom, roomIdentity } from "../lib/store";
 import type { Action } from "../lib/game/types";
 async function setup() {
   const a = await createRoom({ name: "Ana" });
@@ -13399,6 +15086,13 @@ beforeEach(() => {
   vi.stubEnv("UPSTASH_REDIS_REST_TOKEN", "test");
 });
 describe("Persistencia autoritativa (adaptador Redis simulado)", () => {
+  it("la voz obtiene identidad solo desde un token válido de esa sala", async () => {
+    const { a, b } = await setup();
+    expect(await roomIdentity(a.id, a.playerToken)).toEqual({ playerId: a.playerId, players: [a.playerId, b.playerId] });
+    const other = await createRoom({ name: "Otra sala" });
+    await expect(roomIdentity(a.id, other.playerToken)).rejects.toMatchObject({ status: 401 });
+    await expect(roomIdentity(a.id, randomUUID())).rejects.toMatchObject({ status: 401 });
+  });
   it("emite tokens únicos, recupera identidad y no filtra secretos ni mazos", async () => {
     const { a, b } = await setup();
     expect(a.playerToken).not.toBe(b.playerToken);
@@ -13491,6 +15185,25 @@ describe("Persistencia autoritativa (adaptador Redis simulado)", () => {
     expect(view.game.status).toBe("finished");
     expect(view.game.winner).toHaveLength(2);
   });
+  it("dos consultas simultáneas saltan una sola vez un turno cuyo plazo de 20 segundos venció", async () => {
+    const { a, b } = await setup();
+    await act(a.id, request(a.playerToken, b.game.version, { type: "start" }));
+    const k = `turista:room:${a.id}`;
+    const stored = JSON.parse(memory.get(k)!);
+    stored.game.opening = null;
+    stored.game.phase = "roll";
+    stored.game.turn = 0;
+    stored.game.rollDeadline = Date.now() - 1;
+    stored.game.presentationUntil = Date.now() - 1;
+    const version = stored.game.version;
+    memory.set(k, JSON.stringify(stored));
+    const views = await Promise.all([getRoom(a.id, a.playerToken, false), getRoom(a.id, b.playerToken, false)]);
+    for (const view of views) {
+      expect(view.game.turn).toBe(1);
+      expect(view.game.version).toBe(version + 1);
+      expect(view.game.players.map((p) => p.position)).toEqual([0, 0]);
+    }
+  });
   it("valida cuerpos, montos, IDs y colores", async () => {
     await expect(createRoom({ name: " " })).rejects.toThrow();
     await expect(createRoom({ name: "Ana", duration: 12 })).rejects.toThrow();
@@ -13537,6 +15250,226 @@ it("una sala antigua no puede reinterpretarse con precios e índices nuevos",asy
   const {a}=await setup();const k=`turista:room:${a.id}`;const stored=JSON.parse(memory.get(k)!);
   delete stored.game.rulesVersion;memory.set(k,JSON.stringify(stored));
   await expect(getRoom(a.id,a.playerToken,false)).rejects.toMatchObject({status:410});
+});
+````
+
+## tests/voice-client.test.ts
+
+````typescript
+import { afterEach, expect, it, vi } from "vitest";
+import { gatherIce, microphoneError, VoiceClient, type VoiceClientView } from "../lib/voice/client";
+import type { VoiceCommand, VoiceMember, VoiceSignal } from "../lib/voice/types";
+
+afterEach(() => { vi.unstubAllGlobals();vi.useRealTimers(); });
+
+it("espera los candidatos ICE y libera escuchas y temporizadores al cancelar", async () => {
+  vi.useFakeTimers();
+  const target = new EventTarget();
+  const pc = Object.assign(target, { iceGatheringState: "gathering", signalingState: "stable" });
+  const cancel = new AbortController();
+  const pending = gatherIce(pc as unknown as RTCPeerConnection, cancel.signal);
+  const expected = expect(pending).rejects.toThrow(/cancelada/);
+  cancel.abort();await expected;expect(vi.getTimerCount()).toBe(0);
+  pc.iceGatheringState = "complete";
+  await gatherIce(pc as unknown as RTCPeerConnection, new AbortController().signal);
+  expect(vi.getTimerCount()).toBe(0);
+});
+
+it("cancelar mientras se pide permiso detiene el micrófono cuando finalmente llega", async () => {
+  let allow!: (stream: MediaStream) => void;
+  const getUserMedia = vi.fn(() => new Promise<MediaStream>((resolve) => { allow = resolve; }));
+  const track = { stop: vi.fn(), enabled: true };
+  vi.stubGlobal("navigator", { mediaDevices: { getUserMedia } });
+  vi.stubGlobal("RTCPeerConnection", class {});
+  const request = vi.fn<typeof fetch>(async () => new Response("{}"));vi.stubGlobal("fetch", request);
+  const client = new VoiceClient("ABC234", "token", "a", () => {});
+  const pending = client.join();client.dispose();
+  allow({ getTracks: () => [track] } as unknown as MediaStream);await pending;
+  expect(track.stop).toHaveBeenCalledOnce();
+  expect(request).toHaveBeenCalledOnce();
+  expect(JSON.parse(request.mock.calls[0][1]?.body as string).type).toBe("leave");
+});
+
+it("silenciar corta el envío, salir detiene pistas y no queda polling activo", async () => {
+  vi.useFakeTimers();
+  const track = { stop: vi.fn(), enabled: true, onended: null };
+  const stream = { getAudioTracks: () => [track], getTracks: () => [track] };
+  vi.stubGlobal("navigator", { mediaDevices: { getUserMedia: vi.fn(async () => stream) } });
+  vi.stubGlobal("RTCPeerConnection", class {});
+  vi.stubGlobal("fetch", vi.fn(async () => ({ ok: true, json: async () => ({ members: [], signals: [], replaced: false, iceServers: [] }) })));
+  const frames: VoiceClientView[] = [];
+  const client = new VoiceClient("ABC234", "token", "a", (view) => frames.push(view));
+  await client.join();expect(frames.at(-1)?.phase).toBe("joined");
+  client.setMuted(true);expect(track.enabled).toBe(false);
+  client.setMuted(false);expect(track.enabled).toBe(true);
+  client.setMasterMuted(true);expect(track.enabled).toBe(false);
+  client.dispose();expect(track.stop).toHaveBeenCalledOnce();expect(vi.getTimerCount()).toBe(0);
+});
+
+it("denegar permiso deja un error comprensible y no mantiene la captura", async () => {
+  const denied = new Error("denied");denied.name = "NotAllowedError";
+  expect(microphoneError(denied)).toMatch(/Permite el micrófono/);
+  vi.stubGlobal("navigator", { mediaDevices: { getUserMedia: vi.fn(async () => { throw denied; }) } });
+  vi.stubGlobal("RTCPeerConnection", class {});
+  vi.stubGlobal("fetch", vi.fn(async () => ({ ok: true })));
+  const frames: VoiceClientView[] = [];
+  const client = new VoiceClient("ABC234", "token", "a", (view) => frames.push(view));
+  await client.join();expect(frames.at(-1)).toMatchObject({ phase: "off", error: expect.stringContaining("Permite el micrófono") });
+});
+
+it("dos clientes negocian una sola oferta/respuesta y no renegocian por cada polling", async () => {
+  vi.useFakeTimers();
+  const peers: FakePeer[] = [];
+  const sdp = "v=0\r\nm=audio 9 UDP/TLS/RTP/SAVPF 111\r\n";
+  class FakePeer extends EventTarget {
+    iceGatheringState = "complete";
+    signalingState = "stable";
+    connectionState = "new";
+    localDescription: RTCSessionDescriptionInit | null = null;
+    remoteDescription: RTCSessionDescriptionInit | null = null;
+    onconnectionstatechange: (() => void) | null = null;
+    ontrack = null;
+    addTrack = vi.fn();
+    close = vi.fn(() => { this.signalingState = "closed"; });
+    constructor() { super();peers.push(this); }
+    async createOffer() { return { type: "offer" as const, sdp }; }
+    async createAnswer() { return { type: "answer" as const, sdp }; }
+    async setLocalDescription(description: RTCSessionDescriptionInit) { this.localDescription = description; }
+    async setRemoteDescription(description: RTCSessionDescriptionInit) { this.remoteDescription = description; }
+  }
+  class FakeAudio {
+    autoplay = false;volume = 1;muted = false;srcObject = null;
+    setAttribute() {}
+    async play() {}
+    pause() {}
+  }
+  vi.stubGlobal("RTCPeerConnection", FakePeer);vi.stubGlobal("Audio", FakeAudio);
+  vi.stubGlobal("navigator", { mediaDevices: { getUserMedia: async () => {
+    const track = { enabled: true, stop: vi.fn(), onended: null };
+    return { getTracks: () => [track], getAudioTracks: () => [track] };
+  } } });
+  const members: Record<string, VoiceMember> = {};
+  const signals: VoiceSignal[] = [];
+  vi.stubGlobal("fetch", vi.fn(async (url: string, init: RequestInit) => {
+    const id = (init.headers as Record<string, string>).Authorization.slice(7);
+    const command = init.body ? JSON.parse(init.body as string) as VoiceCommand : null;
+    const ownSession = command?.session ?? new URL(url, "https://test.example").searchParams.get("session");
+    if (command?.type === "join" || command?.type === "heartbeat") members[id] = { playerId: id, session: command.session, muted: command.muted, seen: Date.now() };
+    if (command?.type === "leave") delete members[id];
+    if (command?.type === "signal") signals.push({ from: id, fromSession: command.session, to: command.to, toSession: command.toSession, connection: command.connection, description: command.description, at: Date.now() });
+    return { ok: true, json: async () => ({ members: Object.values(members), signals: signals.filter((signal) => signal.to === id), replaced: members[id]?.session !== ownSession, iceServers: [] }) };
+  }));
+  const a = new VoiceClient("ABC234", "a", "a", () => {});
+  const b = new VoiceClient("ABC234", "b", "b", () => {});
+  await a.join();await b.join();
+  await vi.advanceTimersByTimeAsync(5000);
+  expect(peers).toHaveLength(2);
+  expect(signals.map((signal) => signal.description.type)).toEqual(["offer", "answer"]);
+  expect(peers.map((peer) => peer.remoteDescription?.type).sort()).toEqual(["answer", "offer"]);
+  expect(peers.every((peer) => peer.addTrack.mock.calls.length === 1)).toBe(true);
+  a.dispose();b.dispose();expect(vi.getTimerCount()).toBe(0);
+  expect(peers.every((peer) => peer.close.mock.calls.length === 1)).toBe(true);
+});
+````
+
+## tests/voice.test.ts
+
+````typescript
+import { beforeEach, expect, it, vi } from "vitest";
+import { applyVoice, cleanVoice, getVoice, updateVoice, voiceCommand } from "../lib/voice/store";
+import type { VoiceState } from "../lib/voice/types";
+
+const mock = vi.hoisted(() => ({ values: new Map<string, string>(), identity: vi.fn() }));
+vi.mock("../lib/store", () => ({
+  HttpError: class extends Error { constructor(readonly status: number, message: string) { super(message); } },
+  roomIdentity: mock.identity,
+  redis: () => ({
+    get: async (key: string) => mock.values.has(key) ? JSON.parse(mock.values.get(key)!) : null,
+    eval: async (_script: string, keys: string[], args: (number | string)[]) => {
+      const old = mock.values.has(keys[0]) ? JSON.parse(mock.values.get(keys[0])!) : { revision: 0 };
+      if (old.revision !== args[0]) return 0;
+      mock.values.set(keys[0], String(args[1]));return 1;
+    },
+  }),
+}));
+
+const a = "00000000-0000-4000-8000-000000000001";
+const b = "00000000-0000-4000-8000-000000000002";
+const c = "00000000-0000-4000-8000-000000000003";
+const sa = "10000000-0000-4000-8000-000000000001";
+const sb = "10000000-0000-4000-8000-000000000002";
+const connection = "20000000-0000-4000-8000-000000000001";
+const sdp = "v=0\r\nm=audio 9 UDP/TLS/RTP/SAVPF 111\r\n";
+const blank = (): VoiceState => ({ revision: 0, members: {}, signals: [] });
+function joined() {
+  return applyVoice(applyVoice(blank(), { type: "join", session: sa, muted: false }, a, [a, b, c], 1000), { type: "join", session: sb, muted: false }, b, [a, b, c], 1000);
+}
+const offer = { type: "signal" as const, session: sa, to: b, toSession: sb, connection, description: { type: "offer" as const, sdp } };
+beforeEach(() => {
+  mock.values.clear();mock.identity.mockReset();
+  mock.identity.mockImplementation(async (_room: string, token: string) => {
+    if (![a, b, c].includes(token)) throw new Error("Token inválido");
+    return { playerId: token, players: [a, b, c] };
+  });
+});
+
+it("admite solo audio y rechaza video, datos y SDP excesivo", () => {
+  expect(voiceCommand.safeParse(offer).success).toBe(true);
+  expect(voiceCommand.safeParse({ ...offer, description: { type: "offer", sdp: sdp + "m=video 9 UDP/TLS/RTP/SAVPF 96\r\n" } }).success).toBe(false);
+  expect(voiceCommand.safeParse({ ...offer, description: { type: "offer", sdp: sdp + "x".repeat(12000) } }).success).toBe(false);
+});
+
+it("señales exigen participación, sesión vigente y destinatario de la misma sala", () => {
+  const s = joined();
+  expect(() => applyVoice(s, { ...offer, session: sb }, a, [a, b], 1000)).toThrow(/venció/);
+  expect(() => applyVoice(s, { ...offer, to: c }, a, [a, b], 1000)).toThrow(/viajero/);
+  expect(() => applyVoice(s, { ...offer, toSession: sa }, a, [a, b], 1000)).toThrow(/viajero/);
+  expect(() => applyVoice(s, { ...offer, to: a }, a, [a, b], 1000)).toThrow(/viajero/);
+});
+
+it("una respuesta necesita una oferta vigente y el orden evita ofertas simultáneas", () => {
+  const answer = { ...offer, session: sb, to: a, toSession: sa, description: { type: "answer" as const, sdp } };
+  expect(() => applyVoice(joined(), answer, b, [a, b], 1000)).toThrow(/cambió/);
+  expect(() => applyVoice(joined(), { ...answer, description: { type: "offer", sdp } }, b, [a, b], 1000)).toThrow(/Orden/);
+  const proposed = applyVoice(joined(), offer, a, [a, b], 1000);
+  const answered = applyVoice(proposed, answer, b, [a, b], 1000);
+  expect(answered.signals).toHaveLength(2);
+  expect(applyVoice(answered, offer, a, [a, b], 1001).signals).toHaveLength(2);
+});
+
+it("salir desde una pestaña vieja no expulsa la sesión nueva ni conserva señales viejas", () => {
+  let s = applyVoice(joined(), offer, a, [a, b], 1000);
+  s = applyVoice(s, { type: "join", session: connection, muted: false }, a, [a, b], 1001);
+  expect(s.signals).toHaveLength(0);
+  s = applyVoice(s, { type: "leave", session: sa }, a, [a, b], 1002);
+  expect(s.members[a].session).toBe(connection);
+});
+
+it("presencia y señales expiran sin almacenar grabaciones", () => {
+  const s = applyVoice(joined(), offer, a, [a, b], 1000);
+  const expired = cleanVoice(s, [a, b], 46000);
+  expect(expired.members).toEqual({});expect(expired.signals).toEqual([]);
+  expect(s.members[a]).toBeDefined();
+});
+
+it("altas concurrentes no pierden participantes y solo el destinatario recibe SDP", async () => {
+  await Promise.all([
+    updateVoice("ABC234", a, { type: "join", session: sa, muted: false }),
+    updateVoice("ABC234", b, { type: "join", session: sb, muted: false }),
+  ]);
+  await updateVoice("ABC234", a, offer);
+  const receiver = await getVoice("ABC234", b, sb);
+  expect(receiver.members).toHaveLength(2);expect(receiver.signals).toHaveLength(1);
+  expect((await getVoice("ABC234", a, sa)).signals).toHaveLength(0);
+  expect((await getVoice("ABC234", c, connection)).signals).toHaveLength(0);
+  expect(receiver.iceServers[0].urls).toBe("stun:stun.cloudflare.com:3478");
+  expect([...mock.values.keys()]).toEqual(["turista:voice:ABC234"]);
+});
+
+it("tokens inválidos no pueden leer ni modificar voz", async () => {
+  await expect(getVoice("ABC234", "inventado", sa)).rejects.toThrow(/Token/);
+  await expect(updateVoice("ABC234", "inventado", { type: "join", session: sa, muted: false })).rejects.toThrow(/Token/);
+  expect(mock.values.size).toBe(0);
 });
 ````
 
@@ -13945,26 +15878,60 @@ El código prepara el sitio, pero no registra automáticamente la propiedad en S
 2. Crea una sala; comparte el ID o el enlace. Cada participante elige nombre y color.
 3. El anfitrión inicia. Cada jugador tira **un dado de salida**; el mayor comienza. Los empatados repiten.
 4. Tira los dados y selecciona una casilla para abrir su título. Todos ven las tiradas, cartas y compras.
-5. Compra seleccionando los billetes con un toque, o envía la propiedad a subasta. Las ofertas válidas se guardan en Redis; al terminar el plazo o retirarse los demás se adjudica automáticamente.
+5. Compra seleccionando los billetes con un toque, o rechaza la propiedad para subastarla entre los demás. Rechazar te retira automáticamente: ya no aparecen controles de oferta para ti. Pasar una subasta tampoco mueve tu ficha. Las ofertas válidas se guardan en Redis; al terminar el plazo o retirarse los demás se adjudica automáticamente.
 6. Refresca la página: debes seguir en tu mismo asiento. El token se conserva en localStorage. No compartas ese token ni borres los datos del navegador si quieres reconectarte.
 7. Abre **Proponer trato**; el destinatario verá la propuesta y podrá aceptarla o rechazarla. Se puede negociar fuera del turno propio, excepto desde la cárcel o mientras haya un pago/subasta pendiente.
 8. Completa un bloque y construye casas de forma pareja. Revisa la lista y cantidad de propiedades de los demás.
-9. Al pasar por Salida, pulsa **Cobrar sueldo** antes de ceder el turno.
-10. Cierra la pestaña de quien debe responder. Tras 90 segundos, el anfitrión puede saltarlo cuando sea posible o declararlo en quiebra. Las subastas vencen por su propio plazo.
+9. El turno termina automáticamente cuando se resuelven compras, pagos, subastas y elecciones. Si pasaste por Salida, el Banco abona el sueldo automáticamente al cerrar el turno. Los dobles habilitan otra tirada sin pulsar Continuar.
+10. Cada tirada tiene **20 segundos**, contados después de las animaciones pendientes. Al vencer, el servidor salta el turno en la siguiente consulta; varios clientes no duplican el salto. La elección de salida también tiene límite. Las decisiones de compra, pago y deportación no se saltan por ese contador. Tras 90 segundos de inactividad, el anfitrión conserva sus opciones de moderación. Las subastas vencen por su propio plazo.
 
-El zoom permite ver el tablero completo en un teléfono o ampliar para leer casillas. Las animaciones respetan la preferencia de movimiento reducido. El sonido es opcional.
+En móvil y tableta, la franja superior muestra tu saldo, casilla y acción pendiente: dado inicial, tirar dados, pagar una multa o cumplir espera. El cierre de turno es automático. No hace falta abrir «Mis opciones» para tirar. El tablero ajusta su escala al espacio restante; las propiedades siguen en paneles flotantes. La secuencia compartida es **dados → avión casilla por casilla → llegada → decisión**. Los avisos se cierran solos y no tienen botón Continuar; los paneles de compra, pago y tratos esperan su momento para no tapar el movimiento. Las animaciones respetan la preferencia de movimiento reducido.
+
+En **Audio apagado → Activar audio** puedes encender la música original de fondo y los efectos compartidos de dados, compras, pagos, cartas, viajes y construcción, además de avisos de turno, tratos recibidos y final de partida. Hay volúmenes independientes de música y efectos (0–100%) y un botón **Silenciar todo** que conserva tus niveles. Las preferencias se guardan en este navegador, no afectan a tus amigos. El audio comienza tras una interacción, se pausa al ocultar la pestaña y libera sus recursos al salir de la sala. Se sintetiza con Web Audio: no descarga música, no necesita servicios externos y no usa canciones comerciales.
+
+Para probar: abre la sala en dos navegadores, activa el audio en ambos, tira y compra; cada navegador debe oír los efectos al mostrar su escena. Cambia cada volumen, silencia todo, cambia de pestaña y vuelve, y refresca para comprobar las preferencias. La salida real de audio y los permisos del navegador deben comprobarse en el dispositivo.
+
+## Chat de voz con micrófono
+
+Cada participante puede abrir **Chat de voz → Activar micrófono y entrar** en la cabecera de la sala, desde el lobby o durante la partida. El navegador pide permiso de micrófono; no se solicita cámara. Hay un botón para silenciar/encender el micrófono, volumen independiente de voces, lista de participantes y botones para reconectar o salir. **Silenciar todo** corta tanto las voces recibidas como el envío de tu micrófono, además de música y efectos. Entrar a la conversación habilita el audio general; puedes bajar la música a cero si solo quieres hablar.
+
+La voz usa WebRTC entre navegadores, con hasta seis participantes y STUN público de Cloudflare (`stun:stun.cloudflare.com:3478`), sin cuentas ni claves adicionales. Vercel y Redis coordinan las conexiones mediante `/api/rooms/[id]/voice`; **no transportan ni graban el audio**. Las señales SDP, que contienen datos de conexión, se almacenan temporalmente en una clave Redis separada con TTL de 120 s. Cada jugador solo recibe las señales dirigidas a su sesión. La presencia caduca tras 45 s sin respuesta. Los tokens existentes autorizan todas las solicitudes; nunca basta con conocer el ID de sala o enviar un playerId.
+
+La negociación usa polling de aproximadamente un segundo únicamente mientras participas en la voz. Su contador de revisión y sus escrituras atómicas son independientes del juego. Esto añade solicitudes Redis cuando el chat está activo. Al salir, cerrar la sala, ocultar la pestaña o cambiar de página se detienen las pistas y conexiones. El micrófono no se activa automáticamente al refrescar ni al volver a la pestaña. Si el navegador impide escuchar, aparece **Tocar para escuchar voces**.
+
+Para probar con amigos:
+
+1. Despliega en Vercel y abre la misma sala en dos dispositivos, preferentemente con audífonos.
+2. En ambos, pulsa **Activar micrófono y entrar**, permite el micrófono y espera a que el otro aparezca **En línea**.
+3. Habla en ambas direcciones. Comprueba el botón de silencio, el volumen de voces y **Silenciar todo**.
+4. Sal del chat y verifica que se apaga el indicador de uso del micrófono del navegador. Comprueba también cerrar la pestaña, cancelar mientras aparece el permiso y refrescar.
+5. Prueba otra red (por ejemplo Wi-Fi y datos móviles). Si falla, usa **Reconectar**. Revisa los permisos del sitio si denegaste el micrófono.
+
+El micrófono requiere HTTPS, que Vercel proporciona, o localhost en desarrollo. Algunas redes corporativas, cortafuegos o NAT restrictivos necesitan un **relay TURN**: STUN por sí solo no garantiza conexión en todas las redes. WebRTC explica esta limitación en su [documentación de conexiones](https://webrtc.org/getting-started/peer-connections); Cloudflare documenta su [STUN público](https://developers.cloudflare.com/realtime/turn/faq/).
+
+El soporte TURN es opcional y ya está preparado. Si contratas o dispones de uno, configura en Vercel y vuelve a desplegar:
+
+```dotenv
+VOICE_TURN_URLS=turn:TU_HOST:3478,turns:TU_HOST:5349
+VOICE_TURN_USERNAME=TU_USUARIO_TURN
+VOICE_TURN_CREDENTIAL=TU_CREDENCIAL_TURN
+```
+
+Usa credenciales de cliente TURN con cuota/alcance limitados y mantenlas vigentes; no pongas una clave maestra del proveedor. Los participantes autenticados reciben estas credenciales porque el navegador las necesita para usar el relay. No se incluyen en el bundle público. Sin estas variables se usa únicamente STUN y conexión directa. No hace falta modificar las variables de Redis.
+
+Las pruebas automatizadas validan permisos por token, aislamiento entre salas y destinatarios, concurrencia, caducidad, limpieza al cancelar permisos y silenciamiento de pistas. Una llamada real entre distintos dispositivos/redes todavía debe verificarse en el despliegue: este entorno no dispone de micrófonos ni de una sesión de navegador para comprobar audio real.
 
 ## Reglas implementadas
 
 - 40 casillas, 24 países en ocho bloques, cuatro aerolíneas, Embajada y Consulado. Recorrido antihorario: Salida → Marruecos → Egipto. México es una propiedad, no la salida.
 - Capital inicial de **$134,500**: dos billetes de $50,000, dos de $10,000, dos de $5,000, uno de $2,000, dos de $1,000 y uno de $500. El Banco da cambio y emite dinero sin límite. Hay denominaciones menores para intereses.
-- Sueldo de **$20,000**, reclamable en el turno correspondiente. No se obtiene por el traslado de deportación/cárcel.
-- Dobles dan un tiro extra. El tercer doble envía a Deportado.
-- Caer con dados en Deportado es una visita. Ser enviado allí permite pagar **$5,000** o perder tres turnos completos; después se vuelve a Salida sin sueldo. Se pueden administrar propiedades durante la deportación.
+- Sueldo de **$20,000**, abonado automáticamente al cerrar el turno correspondiente. No se obtiene por el traslado de deportación/cárcel.
+- Dobles dan un tiro extra que se habilita automáticamente. El tercer doble envía a Deportado. Las tiradas tienen 20 s; al vencer se pierde el turno. No hay botón Terminar turno: el servidor lo cierra cuando no hay decisiones pendientes y se han mostrado los acontecimientos.
+- Caer con dados en Deportado o ser enviado allí permite pagar **$5,000** o perder tres turnos completos; después se vuelve a Salida sin sueldo. Se pueden administrar propiedades durante la deportación.
 - Cárcel cobra **$10,000** de fianza y exige tres turnos completos, salvo una carta que indique otra duración. Los dobles no liberan. No permite rentas ni administración voluntaria. El pase diplomático cancela la detención y la fianza que siga pendiente.
 - Australia es descanso al caer con dados. Una carta puede imponer una estancia adicional.
 - Renta según el título; base doble con bloque completo, cero en una propiedad hipotecada. Aerolíneas: $2,500 / $5,000 / $10,000 / $20,000. Embajada y Consulado: dados × $500 o × $1,000 al tener ambas.
-- Compra al Banco o subasta, incluso para quien rechazó la compra. Oferta mínima $500; incrementos mínimos de $500. Primera ronda de 30 s; una nueva oferta concede 20 s. Los jugadores en cárcel no participan. La oferta ganadora se paga automáticamente.
+- Compra al Banco o subasta para los demás. Quien rechaza la compra queda retirado automáticamente y no puede ofertar en esa subasta; quien pulsa Pasar también se retira sin cambiar de casilla. Oferta inicial del **80% del precio impreso, redondeada hacia arriba a $500**, con incrementos mínimos de $500. Las subastas de edificios parten del costo de construcción correspondiente. Primera ronda de 30 s; una nueva oferta concede 20 s. Los jugadores en cárcel no participan. La oferta ganadora se paga automáticamente.
 - Construcción uniforme en bloques completos sin hipotecas, hasta cuatro casas y un hotel. El hotel sustituye cuatro casas y cuesta una construcción más. Venta al Banco a mitad del costo. Se permite administrar fuera del turno.
 - Inventario finito de 36 casas y 12 hoteles. Si queda una pieza y varios jugadores tienen países preparados, se subasta entre ellos. Si no hay piezas, se espera. **Vender edificios del bloque** permite liquidar todos a mitad de costo cuando no hay cuatro casas para deshacer un hotel.
 - Hipoteca por la mitad del precio; liberación con 10% de interés. No se puede hipotecar/intercambiar una propiedad de un bloque con edificios. Devolver una propiedad hipotecada no genera un segundo pago.
@@ -13978,7 +15945,9 @@ El zoom permite ver el tablero completo en un teléfono o ampliar para leer casi
 
 Los datos numéricos y nombres están centralizados en `lib/game/board.ts`. El documento de referencia original del usuario permanece en `reglas_turista_mundial.md` sin modificaciones. Para obtener un reglamento consistente:
 
-- La sección general del instructivo dice que caer con dados en Deportado es visita; la sección dedicada dice “por algún motivo”. Se aplica visita para dados y castigo al ser enviado por carta o tercer doble.
+- La sección general del instructivo dice que caer con dados en Deportado es visita; la sección dedicada dice “por algún motivo”. Por decisión del usuario, se aplica deportación también al caer con dados: multa de $5,000 o tres turnos completos, con regreso a Salida sin sueldo. La elección aparece en la franja superior móvil y en el panel del jugador; quedarse no descuenta el turno de llegada.
+- La automatización de turnos, el plazo de 20 s para tirar y el abono automático del sueldo son reglas de esta adaptación solicitadas por el usuario. El servidor reserva el tiempo de las animaciones antes de iniciar el contador.
+- Por decisión del usuario, rechazar una compra también excluye de la subasta a quien la rechazó. Esta adaptación difiere de la referencia que permitía que ese jugador volviera a ofertar.
 - El ejemplo del instructivo agrupa Chile/Argentina/Perú, pero los títulos fotografiados agrupan **Brasil/Chile/Argentina** y **Colombia/Venezuela/Perú**. Se siguen los títulos.
 - México vale $26,000 en el tablero; se aplica hipoteca de $13,000, coherente con la regla del 50%, aunque uno de sus reversos fotografiados indique $12,000.
 - Se conservan valores inusuales impresos en títulos: Japón con tres casas $144,000; Brasil con cuatro casas $112,000. No se sustituyen por una progresión inventada.
@@ -13997,7 +15966,7 @@ npm run lint
 npm run build
 ```
 
-La suite cubre tablero, precios, sueldo, construcción uniforme, inventario, hipotecas, detenciones, cartas, subastas, tratos, pagos, quiebra, ranking, tres partidas simuladas completas, tokens, reconexión, idempotencia y compras simultáneas. Los tests del almacén usan un doble de Redis **solo en pruebas**; la aplicación sigue usando exclusivamente Redis real.
+La suite cubre secuencia dados/movimiento/llegada, cierre automático de avisos, temporizadores, salto único con polling concurrente, audio y sus recursos, tablero, precios, sueldo, construcción uniforme, inventario, hipotecas, detenciones, cartas, subastas, tratos, pagos, quiebra, ranking, tres partidas simuladas completas, tokens, reconexión, idempotencia y compras simultáneas. Los tests del almacén usan un doble de Redis **solo en pruebas**; la aplicación sigue usando exclusivamente Redis real.
 
 Para verificar los Route Handlers contra Redis real con el servidor abierto:
 
@@ -14023,12 +15992,17 @@ En el entorno de esta entrega se ejecutaron las pruebas, lint y compilación. La
 - `app/api/rooms/**`: Route Handlers dinámicos, runtime Node.js, respuestas sin caché.
 - `components/Room.tsx`: polling secuencial cada segundo, pausa al ocultar pestaña, heartbeat cada 20 s y reconexión por token.
 - `components/TravelArt.tsx`: ilustraciones originales de globo, billetes y edificios en SVG/CSS. No descarga imágenes ni fuentes externas.
-- `components/Board.tsx`: recorrido de fichas por eventos, casilla por casilla, sin repetir movimientos al refrescar.
+- `components/Board.tsx`: posiciones visuales de fichas y colores de grupo reforzados, separados del indicador de dueño.
+- `lib/game/playback.ts`, `lib/useGamePlayback.ts`, `lib/game/presentation.ts`: cola compartida para dados, movimiento y avisos; reconexión sin repetir historia, preferencias de movimiento y duraciones coordinadas con los plazos del servidor.
+- `components/Victory.tsx`: podio con escalones, fichas, clasificación completa y confeti finito; empates y orden de eliminación conservan los puestos del motor. El confeti se omite con movimiento reducido.
+- `components/MobileTurnBar.tsx`: información y acciones inmediatas sobre el tablero en móvil y tableta.
+- `components/VoiceChat.tsx`, `lib/voice/client.ts`, `lib/voice/store.ts`: controles y conexiones WebRTC, SDP temporal autorizado por token y persistencia independiente del tablero.
+- `components/AudioControls.tsx`, `lib/useGameAudio.ts`, `lib/audio.ts`: preferencias locales, música original sintetizada, efectos de las escenas, pausa por visibilidad y limpieza de recursos.
 - `components/Activity.tsx`: escenas centrales compartidas, dados animados y fondo desenfocado. La bitácora no se muestra; el servidor conserva eventos para sincronizar las escenas. La cartera se presenta como una mano de billetes en la parte inferior.
 
 Las escrituras usan un único script Lua que compara la versión y guarda el nuevo estado atómicamente. Una carrera pierde con HTTP 409. La caducidad de sala se renueva a 24 horas en cada acción guardada. Cada acción lleva un `requestId`; se conservan los últimos 100 recibos para no duplicar efectos al repetir solicitudes. Los mazos y los tokens no se incluyen en el estado público. No se confía en un playerId enviado por el cliente.
 
-El vencimiento de partidas y subastas se resuelve durante la siguiente consulta o acción usando la hora del servidor, sin cron ni temporizadores persistentes. Los espectadores pueden leer, pero necesitan un token válido para actuar. El código conserva el prefijo interno `turista:` en las claves y en localStorage por compatibilidad; la presentación usa Rumbo Mundial.
+El vencimiento de partidas, subastas y tiradas, así como el cierre automático del turno, se resuelve durante la siguiente consulta o acción usando la hora del servidor, sin cron ni temporizadores persistentes. Los espectadores pueden leer, pero necesitan un token válido para actuar. El código conserva el prefijo interno `turista:` en las claves y en localStorage por compatibilidad; la presentación usa Rumbo Mundial.
 
 ## Entrega completa
 

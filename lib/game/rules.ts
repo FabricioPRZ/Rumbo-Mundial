@@ -1,5 +1,9 @@
-import { BOARD, HOUSE_SUPPLY, HOTEL_SUPPLY } from "./board";
+import { BOARD, HOUSE_SUPPLY, HOTEL_SUPPLY, AUCTION_INCREMENT, AUCTION_PRICE_RATIO } from "./board";
 import type { Game, Player } from "./types";
+export function auctionMinimum(square: number, previousBid = 0, building = false): number {
+  const initial = building ? BOARD[square].buildCost : Math.ceil(BOARD[square].price * AUCTION_PRICE_RATIO / AUCTION_INCREMENT) * AUCTION_INCREMENT;
+  return Math.max(initial, previousBid + AUCTION_INCREMENT);
+}
 export const group = (id: number) =>
   BOARD.filter((b) => b.group && b.group === BOARD[id].group);
 export const complete = (s: Game, id: number, owner: string) =>

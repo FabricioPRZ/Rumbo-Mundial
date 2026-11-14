@@ -94,6 +94,10 @@ export interface Game {
   duration: number;
   endsAt: number | null;
   turnAt: number;
+  rollDeadline?: number;
+  autoEndAt?: number;
+  presentationUntil?: number;
+  detentionDecision?: string | null;
   winner: string[];
   motion: { serial: number; player: string; path: number[] } | null;
   lastCard: string | null;
@@ -113,6 +117,7 @@ export type Action = (
         | "bankrupt"
         | "pass"
         | "wait"
+        | "stay"
         | "bail"
         | "salary"
         | "opening-roll"

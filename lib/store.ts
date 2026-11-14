@@ -26,7 +26,7 @@ export class HttpError extends Error {
     super(message);
   }
 }
-function redis() {
+export function redis() {
   const url = process.env.UPSTASH_REDIS_REST_URL || process.env.KV_REST_API_URL;
   const token =
     process.env.UPSTASH_REDIS_REST_TOKEN || process.env.KV_REST_API_TOKEN;
@@ -60,6 +60,7 @@ const baseActionSchema = z.discriminatedUnion("type", [
       "bankrupt",
       "pass",
       "wait",
+      "stay",
       "bail",
       "skip",
       "expel",
@@ -125,6 +126,11 @@ function authorize(stored: Stored, token: string) {
   const id = stored.tokens[digest(token)];
   if (!id) throw new HttpError(401, "El token no pertenece a esta sala.");
   return id;
+}
+export async function roomIdentity(id: string, token: string) {
+  z.string().uuid().parse(token);
+  const stored = await read(id);
+  return { playerId: authorize(stored, token), players: stored.game.players.map((player) => player.id) };
 }
 export function publicGame(s: Game): Game {
   return { ...s, decks: { email: [], sms: [] } };

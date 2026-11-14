@@ -4,13 +4,19 @@ import Link from "next/link";
 import type { Action, Game } from "@/lib/game/types";
 import { COLORS } from "@/lib/game/types";
 import { BOARD } from "@/lib/game/board";
-import { ranking, redemptionCost, buildingBidders } from "@/lib/game/rules";
+import { redemptionCost, buildingBidders } from "@/lib/game/rules";
 import { Banknote } from "./TravelArt";
 import { DENOMINATIONS, wallet } from "@/lib/game/money";
 import Board from "./Board";
 import EntryForm from "./EntryForm";
 import PropertyDialog from "./PropertyDialog";
 import PlayerPanel from "./PlayerPanel";
+import MobileTurnBar from "./MobileTurnBar";
+import AudioControls from "./AudioControls";
+import VoiceChat from "./VoiceChat";
+import Victory from "./Victory";
+import { useGameAudio } from "@/lib/useGameAudio";
+import { useGamePlayback } from "@/lib/useGamePlayback";
 import TradeModal from "./TradeModal";
 
 import Activity from "./Activity";
@@ -30,11 +36,13 @@ export default function Room({ id }: { id: string }) {
     [rosterOpen, setRosterOpen] = useState(false),
     [rosterIndex, setRosterIndex] = useState(0),
     [rosterPage, setRosterPage] = useState(0),
+    [resultsDismissed, setResultsDismissed] = useState(false),
     [tradeOpen, setTradeOpen] = useState(false),
     [inactive, setInactive] = useState(0),
     [notice, setNotice] = useState(""),
-    [sound, setSound] = useState(false),
     [now, setNow] = useState(Date.now());
+  const audio = useGameAudio(game, playerId);
+  const playback = useGamePlayback(game);
   const [payment, setPayment] = useState<{
     action: Action;
     amount: number;
@@ -52,7 +60,6 @@ export default function Room({ id }: { id: string }) {
   }, []);
   useEffect(() => {
     setToken(localStorage.getItem(`turista:${id}`));
-    setSound(localStorage.getItem("turista:sound") === "1");
     setLoaded(true);
   }, [id]);
   const refresh = useCallback(async () => {
@@ -128,18 +135,7 @@ export default function Room({ id }: { id: string }) {
         throw new Error(data.error);
       }
       apply(data.game);
-      if (sound && action.type === "roll") {
-        const audio = new AudioContext();
-        const osc = audio.createOscillator();
-        const gain = audio.createGain();
-        gain.gain.value = 0.04;
-        osc.frequency.value = 600;
-        osc.connect(gain);
-        gain.connect(audio.destination);
-        osc.start();
-        osc.stop(audio.currentTime + 0.12);
-        osc.onended = () => void audio.close();
-      }
+      if (action.type === "decline" || action.type === "fold") setSideOpen(false);
       return true;
     } catch (e) {
       setError(
@@ -152,6 +148,7 @@ export default function Room({ id }: { id: string }) {
     }
   };
   const send = async (action: Action): Promise<boolean> => {
+    if (playback.busy) return false;
     const s = state.current;
     const p = s?.players.find((x) => x.id === playerId);
     if (!s || !p) return false;
@@ -223,8 +220,10 @@ export default function Room({ id }: { id: string }) {
   const seconds = game.endsAt
     ? Math.max(0, Math.ceil((game.endsAt - now) / 1000))
     : null;
+  const rollSeconds = game.status === "playing" && (game.opening || game.phase === "roll") && !game.debt && !game.auction && !game.choice && !game.detentionDecision
+    ? Math.min(20, Math.max(0, Math.ceil(((game.rollDeadline ?? game.turnAt + 20000) - now) / 1000))) : null;
   return (
-    <main className={`room ${game.status !== "lobby" ? "table-viewport" : ""} ${sideOpen ? "side-open" : ""} ${rosterOpen ? "roster-open" : ""}`}>
+    <main className={`room ${game.status !== "lobby" ? "table-viewport" : ""} ${sideOpen ? "side-open" : ""} ${rosterOpen ? "roster-open" : ""} ${playback.busy ? "presentation-playing" : ""}`}>
       <header className="room-header">
         <Link href="/" className="brand">
           ✈ RUMBO MUNDIAL
@@ -240,15 +239,10 @@ export default function Room({ id }: { id: string }) {
             Copiar link
           </button>
         </div>
-        <button
-          aria-pressed={sound}
-          onClick={() => {
-            setSound(!sound);
-            localStorage.setItem("turista:sound", sound ? "0" : "1");
-          }}
-        >
-          Sonido {sound ? "activado" : "apagado"}
-        </button>
+        <div className="room-audio-controls">
+          <AudioControls audio={audio} />
+          {me && token && <VoiceChat room={id} token={token} playerId={me.id} players={game.players} masterMuted={audio.preferences.muted} onEnableAudio={() => audio.change({ muted: false })} />}
+        </div>
       </header>
       {notice && (
         <p role="status" className="notice">
@@ -260,31 +254,8 @@ export default function Room({ id }: { id: string }) {
           {error || connectionError}
         </p>
       )}
-      {game.status === "finished" && (
-        <section className="victory panel">
-          <p className="eyebrow">VIAJE COMPLETADO</p>
-          <h1>
-            {!game.winner.length && "Todos los viajeros quedaron en quiebra"}
-            {game.winner
-              .map((w) => game.players.find((p) => p.id === w)?.name)
-              .join(" y ")}{" "}
-            {game.winner.length ? `${game.winner.length > 1 ? "ganan" : "gana"} la partida` : ""}
-          </h1>
-          <ol className="ranking">
-            {ranking(game).map(({ player: p, place, score }) => (
-              <li key={p.id}>
-                <strong>
-                  {place}. {p.name}
-                </strong>
-                <span>
-                  ${score.toLocaleString("es-MX")}
-                  {p.bankrupt ? " · En quiebra" : ""}
-                </span>
-              </li>
-            ))}
-          </ol>
-          <Link href="/">Organizar la revancha ↗</Link>
-        </section>
+      {game.status === "finished" && !playback.busy && !resultsDismissed && (
+        <Victory game={game} onClose={() => setResultsDismissed(true)} muted={audio.preferences.muted} onMute={() => audio.change({ muted: !audio.preferences.muted })} />
       )}
       {game.status === "lobby" ? (
         <div className="lobby-grid">
@@ -362,13 +333,13 @@ export default function Room({ id }: { id: string }) {
           ) : (
             <section className="panel guide">
               <h2>Antes de despegar</h2>
-              <p>Todos empiezan con $134,500. Reclama $20,000 al pasar por Salida, antes de terminar tu turno.</p>
+              <p>Todos empiezan con $134,500. El Banco abona $20,000 al cerrar un turno en el que pasaste por Salida.</p>
               <p>
                 Compra países y completa grupos para construir casas.
                 Cinco construcciones se convierten en un hotel.
               </p>
               <p>
-                Deportado: multa de $5,000 o tres turnos. Cárcel: fianza de $10,000 y tres turnos completos. Australia es descanso.
+                Caer en Deportado: multa de $5,000 o tres turnos. Cárcel: fianza de $10,000 y tres turnos completos. Australia es descanso.
               </p>
               <p>Selecciona cualquier casilla para consultar su tarjeta.</p>
             </section>
@@ -387,17 +358,32 @@ export default function Room({ id }: { id: string }) {
                 {String(seconds % 60).padStart(2, "0")}
               </span>
             )}
+            {rollSeconds !== null && <span className={`roll-countdown ${rollSeconds <= 5 ? "urgent" : ""}`} role="timer">{rollSeconds ? `${rollSeconds} s para tirar` : "Cambiando turno…"}</span>}
             <span>Viaje compartido · {game.players.filter((p) => !p.bankrupt).length} en juego</span>
           </div>
-          <Activity game={game} />
+          {me && game.status === "playing" && (
+            <MobileTurnBar
+              animating={playback.busy}
+              position={playback.positions[me.id]}
+              game={game}
+              me={me}
+              busy={busy || playback.busy}
+              send={(action) => void send(action)}
+              onOptions={() => { setSideOpen(true); setRosterOpen(false); }}
+            />
+          )}
           {game.status === "playing" && game.phase === "buy" && !game.auction && !game.debt && me?.id !== game.players[game.turn].id && <div className="buy-scene spectator-decision"><p className="eyebrow">DECISIÓN EN CURSO</p><h2>{game.players[game.turn].name} llegó a {BOARD[game.players[game.turn].position].name}</h2><p>Está decidiendo si compra la propiedad o la envía a subasta.</p></div>}
-          <nav className="table-tools" aria-label="Paneles de la mesa">
-            <button aria-expanded={sideOpen} onClick={()=>{setSideOpen(!sideOpen);setRosterOpen(false);}}>✈ Mi turno y propiedades</button>
-            <button aria-expanded={rosterOpen} onClick={()=>{setRosterOpen(!rosterOpen);setSideOpen(false);}}>♟ Viajeros y propiedades</button>
-          </nav>
+          <div className="table-toolbar">
+            <nav className="table-tools" aria-label="Paneles de la mesa">
+              {game.status === "finished" && <button onClick={() => setResultsDismissed(false)}>🏆 Resultados</button>}
+              <button aria-expanded={sideOpen} onClick={()=>{setSideOpen(!sideOpen);setRosterOpen(false);}}>✈ Mis opciones</button>
+              <button aria-expanded={rosterOpen} onClick={()=>{setRosterOpen(!rosterOpen);setSideOpen(false);}}>♟ Propiedades</button>
+            </nav>
+            <Activity game={game} event={playback.event} lastRoll={playback.lastRoll} onEvent={audio.playEvent} />
+          </div>
           <div className="game-layout">
             <section>
-              <Board game={game} onSelect={selectProperty} />
+              <Board game={game} positions={playback.positions} onSelect={selectProperty} />
               <div className="players-strip" aria-label="Propiedades de los viajeros"><button className="panel-close" onClick={()=>setRosterOpen(false)}>Cerrar ×</button><label>Viajero<select value={rosterIndex} onChange={(e)=>{setRosterIndex(Number(e.target.value));setRosterPage(0);}}>{game.players.map((p,i)=><option value={i} key={p.id}>{p.name}</option>)}</select></label>
                 {game.players.filter((_, i)=>i===rosterIndex).map((p) => (
                   <div
@@ -444,7 +430,7 @@ export default function Room({ id }: { id: string }) {
                 <PlayerPanel
                   game={game}
                   me={me}
-                  busy={busy}
+                  busy={busy || playback.busy}
                   send={(a) => void send(a)}
                   onTrade={() => setTradeOpen(true)}
                   onSelect={selectProperty}
@@ -517,10 +503,11 @@ export default function Room({ id }: { id: string }) {
         </>
       )}
       {me && game.status !== "lobby" && <div className="wallet" aria-label="Mi mano de billetes"><div className="wallet-summary">{DENOMINATIONS.filter((v)=>wallet(me)[v]).map((v)=><span key={v}><Banknote value={v} compact/><b>× {wallet(me)[v]}</b></span>)}</div></div>}
-      {propertyOpen && <PropertyDialog id={selected} game={game} me={me} busy={busy} send={(a)=>void send(a)} onClose={()=>setPropertyOpen(false)} />}
+      {propertyOpen && <PropertyDialog id={selected} game={game} me={me} busy={busy || playback.busy} suspended={playback.busy} send={(a)=>void send(a)} onClose={()=>setPropertyOpen(false)} />}
       {payment && me && game.status === "playing" && (
 
         <PaymentModal
+          suspended={playback.busy}
           player={me}
           {...payment}
           error={error}
@@ -530,6 +517,7 @@ export default function Room({ id }: { id: string }) {
       )}
       {tradeOpen && me && (
         <TradeModal
+          suspended={playback.busy}
           game={game}
           me={me}
           error={error}

@@ -1,8 +1,9 @@
 import { INITIAL_BILLS, pay, exchange, credit } from "./money";
+import { eventDuration, ROLL_LIMIT_MS } from "./presentation";
 import type { GameEvent } from "./types";
 import { BOARD, RULES_VERSION, INITIAL_MONEY, SALARY, DEPORTATION_FINE, PRISON_BAIL } from "./board";
 import { CARDS } from "./cards";
-import { assetError, group, liquidationValue, netWorth, rent, redemptionCost, buildingBidders } from "./rules";
+import { assetError, group, liquidationValue, netWorth, rent, redemptionCost, buildingBidders, auctionMinimum } from "./rules";
 import {
   COLORS,
   type Action,
@@ -78,6 +79,9 @@ export function newPlayer(id: string, name: string, color: string): Player {
   };
 }
 function nextTurn(s: Game, now: number) {
+  s.detentionDecision = null;
+  delete s.autoEndAt;
+  s.rollDeadline = now + ROLL_LIMIT_MS;
   s.players[s.turn].salary = 0;
   s.turnNumber = (s.turnNumber ?? 0) + 1;
   s.debt = null;
@@ -103,9 +107,89 @@ export function finishByTime(state: Game, now: number): Game {
     return s;
   }
   if (state.auction && now >= state.auction.endsAt) {
-    const s = structuredClone(state); closeAuction(s, now); return s;
+    const s = structuredClone(state); closeAuction(s, now); scheduleAutomatic(s, state, now); return s;
+  }
+  if (state.opening && now >= (state.rollDeadline ?? state.turnAt + ROLL_LIMIT_MS)) {
+    const s = structuredClone(state);
+    for (const id of s.opening!.candidates) {
+      if (s.opening!.rolls[id] === undefined) {
+        s.opening!.rolls[id] = 0;
+        addLog(s, `${s.players.find((p) => p.id === id)?.name} no tiró a tiempo y pierde la elección de salida.`);
+      }
+    }
+    resolveOpening(s, now);
+    scheduleAutomatic(s, state, now);
+    return s;
+  }
+  if (!state.opening && !state.auction && !state.debt && !state.choice && !state.detentionDecision) {
+    if (state.phase === "end" && state.autoEndAt === undefined) {
+      const s = structuredClone(state);
+      s.autoEndAt = Math.max(now, s.presentationUntil ?? 0) + 1000;
+      return s;
+    }
+    if (state.phase === "end" && state.autoEndAt !== undefined && now >= state.autoEndAt) {
+      const s = structuredClone(state), p = s.players[s.turn];
+      if (p.salary) {
+        credit(p, p.salary);
+        addLog(s, `${p.name} cobró automáticamente $${p.salary} de sueldo.`);
+        p.salary = 0;
+      }
+      if (s.extra) {
+        s.phase = "roll";s.extra = false;s.turnAt = now;s.rollDeadline = now + ROLL_LIMIT_MS;
+        delete s.autoEndAt;
+      } else nextTurn(s, now);
+      scheduleAutomatic(s, state, now);
+      return s;
+    }
+    if (state.phase === "roll" && now >= (state.rollDeadline ?? state.turnAt + ROLL_LIMIT_MS)) {
+      const s = structuredClone(state), p = s.players[s.turn];
+      addLog(s, `${p.name} agotó sus 20 segundos: se salta su turno.`);
+      if (p.jailed || p.skipTurns) waitTurn(s, p);
+      nextTurn(s, now);
+      // La siguiente cuenta empieza cuando acaba el aviso del turno vencido.
+      scheduleAutomatic(s, state, now);
+      return s;
+    }
   }
   return state;
+}
+
+function presentationTime(next: Game, previous: Game) {
+  return (next.events ?? []).filter((event) => event.id > (previous.eventSerial ?? 0))
+    .reduce((total, event) => total + eventDuration(event), 0);
+}
+
+function scheduleAutomatic(next: Game, previous: Game, now: number) {
+  if (next.status !== "playing") return;
+  const visualTime = presentationTime(next, previous);
+  const readyAt = Math.max(now, previous.presentationUntil ?? 0) + visualTime;
+  next.presentationUntil = readyAt;
+  if (next.opening && (!previous.opening || next.opening.round !== previous.opening.round)) {
+    next.rollDeadline = readyAt + ROLL_LIMIT_MS;
+  } else if (!next.opening && next.phase === "roll" &&
+    (previous.opening || previous.phase !== "roll" || next.turn !== previous.turn || !next.rollDeadline)) {
+    next.rollDeadline = readyAt + ROLL_LIMIT_MS;
+  } else if ((next.opening || next.phase === "roll") && visualTime) {
+    next.rollDeadline = Math.max(next.rollDeadline ?? 0, readyAt + ROLL_LIMIT_MS);
+  }
+  if (next.phase === "end" && !next.opening && !next.auction && !next.debt && !next.choice && !next.detentionDecision) {
+    next.autoEndAt = Math.max(next.autoEndAt ?? 0, readyAt);
+  } else delete next.autoEndAt;
+}
+
+function resolveOpening(s: Game, now: number) {
+  const opening = s.opening;
+  if (!opening || !opening.candidates.every((id) => opening.rolls[id] !== undefined)) return;
+  const max = Math.max(...Object.values(opening.rolls));
+  const tied = opening.candidates.filter((id) => opening.rolls[id] === max);
+  if (tied.length === 1 || max === 0) {
+    s.turn = s.players.findIndex((p) => p.id === tied[0]);
+    s.opening = null;s.turnAt = now;
+    addLog(s, `${s.players[s.turn].name} inicia el viaje.`);
+  } else {
+    s.opening = { candidates: tied, rolls: {}, round: opening.round + 1 };
+    addLog(s, "Empate: vuelven a tirar los finalistas.");
+  }
 }
 function winner(s: Game) {
   const alive = s.players.filter((p) => !p.bankrupt);
@@ -137,6 +221,7 @@ function jail(
   p.position = detention === "prison" ? 30 : 10;
   p.detention = detention;
   p.jailed = turns;
+  if (detention === "oceania") s.detentionDecision = p.id;
   p.salary = 0;
   if (detention === "prison") {
     charge(s, p, PRISON_BAIL, null);
@@ -180,6 +265,10 @@ function land(s: Game, p: Player, now: number) {
   const b = BOARD[p.position];
   addLog(s, `${p.name} llegó a ${b.name}.`, { type: "log", player: p.id, square: b.id });
   s.phase = "end";
+  if (b.kind === "oceania") {
+    jail(s, p, "oceania");
+    return;
+  }
   if (b.kind === "go-oceania") {
     jail(s, p);
     return;
@@ -328,7 +417,7 @@ function eliminate(s: Game, p: Player, creditor: string | null) {
   addLog(s, `${p.name} se declaró en quiebra.`);
   winner(s);
 }
-export function engine(
+function reduceAction(
   state: Game,
   action: Action,
   playerId: string,
@@ -337,7 +426,7 @@ export function engine(
   const timed = finishByTime(state, ctx.now);
   if (timed !== state) {
     if (timed.status === "finished" || action.type === "auction-expire") return timed;
-    throw new Error("La subasta acaba de terminar. Espera la actualización de la sala.");
+    throw new Error("El turno o la subasta cambió automáticamente. Espera la actualización de la sala.");
   }
   const s = structuredClone(state),
     p = s.players.find((x) => x.id === playerId);
@@ -391,14 +480,7 @@ export function engine(
       opening.rolls[roller.id] = value;
       addLog(s, `${roller.name} sacó ${value} para elegir la salida.`, { type: "roll", player: roller.id, dice: [value, 0] });
     }
-    if (opening.candidates.every((id) => opening.rolls[id] !== undefined)) {
-      const max = Math.max(...Object.values(opening.rolls));
-      const tied = opening.candidates.filter((id) => opening.rolls[id] === max);
-      if (tied.length === 1) {
-        s.turn = s.players.findIndex((x) => x.id === tied[0]); s.opening = null; s.turnAt = ctx.now;
-        addLog(s, `${s.players[s.turn].name} inicia el viaje.`);
-      } else { s.opening = { candidates: tied, rolls: {}, round: opening.round + 1 }; addLog(s, "Empate: vuelven a tirar los finalistas."); }
-    }
+    resolveOpening(s, ctx.now);
     return s;
   }
   if (s.auction) {
@@ -412,7 +494,8 @@ export function engine(
         requireRule(action.amount >= BOARD[square].buildCost, "La oferta debe cubrir el costo de construcción.");
         a.square = square;
       }
-      requireRule(!a.passed.includes(p.id) && Number.isSafeInteger(action.amount) && action.amount >= a.amount + 500 && action.amount <= p.money, "Oferta inválida: aumenta al menos $500 y usa solo tu saldo disponible.");
+      const minimum = auctionMinimum(a.square, a.amount, !!a.buildingOptions);
+      requireRule(!a.passed.includes(p.id) && Number.isSafeInteger(action.amount) && action.amount >= minimum && action.amount <= p.money, `Oferta inválida: el mínimo es $${minimum}; usa solo tu saldo disponible y no participes si ya rechazaste.`);
       a.amount = action.amount; a.bidder = p.id; a.endsAt = ctx.now + 20000;
       addLog(s, `${p.name} ofrece $${action.amount} por ${BOARD[a.square].name}.`);
     } else if (action.type === "fold") {
@@ -614,6 +697,12 @@ export function engine(
   requireRule(s.players[s.turn].id === p.id, "Espera tu turno.");
   requireRule(!s.choice, "Elige primero al viajero indicado en la carta.");
   requireRule(!s.debt, "Liquida tu deuda antes de continuar.");
+  if (action.type === "stay") {
+    requireRule(s.detentionDecision === p.id && p.detention === "oceania" && p.jailed > 0, "No tienes una decisión de deportación pendiente.");
+    s.detentionDecision = null;
+    addLog(s, `${p.name} decidió quedarse en Deportado durante tres turnos completos.`);
+    return s;
+  }
   if (action.type === "bail") {
     requireRule(p.jailed > 0 && p.detention === "oceania", "La multa solo permite salir de Deportado.");
     pay(p, DEPORTATION_FINE, action.bills); release(s, p);
@@ -664,11 +753,12 @@ export function engine(
     }
     s.phase = "end";
     if (action.type === "decline") {
-      s.auctionQueue = [...(s.auctionQueue ?? []), p.position]; openNextAuction(s, ctx.now);
+      s.auctionQueue = [...(s.auctionQueue ?? []), p.position]; openNextAuction(s, ctx.now, p);
     }
     return s;
   }
   if (action.type === "end") {
+    s.detentionDecision = null;
     requireRule(s.phase === "end", "Resuelve la tirada o la compra primero.");
     if (s.extra) {
       s.phase = "roll";
@@ -678,6 +768,12 @@ export function engine(
     return s;
   }
   throw new Error("Acción desconocida.");
+}
+
+export function engine(state: Game, action: Action, playerId: string, ctx: Context): Game {
+  const next = reduceAction(state, action, playerId, ctx);
+  scheduleAutomatic(next, state, ctx.now);
+  return next;
 }
 function validateTrade(
   s: Game,
@@ -720,6 +816,7 @@ function validateTrade(
 }
 
 function release(s: Game, p: Player) {
+  if (s.detentionDecision === p.id) s.detentionDecision = null;
   if (p.detention === "oceania") {
     const from = p.position; p.position = 0;
     addLog(s, `${p.name} regresa a Salida sin cobrar sueldo.`, { type: "move", player: p.id, from, path: [0], teleport: true });
@@ -736,12 +833,18 @@ function waitTurn(s: Game, p: Player) {
 function advanceAfterElimination(s: Game, now: number) {
   const debt = s.debt; nextTurn(s, now); s.debt = debt;
 }
-function openNextAuction(s: Game, now: number) {
+function openNextAuction(s: Game, now: number, rejectedBy?: Player) {
   if (s.auction || s.debt || s.status !== "playing") return;
   const square = (s.auctionQueue ?? []).shift();
   if (square === undefined) return;
   s.auction = { square, amount: 0, bidder: null, passed: [], endsAt: now + 30000 };
-  addLog(s, `Subasta de ${BOARD[square].name}: primera oferta desde $500. Todos pueden participar.`);
+  addLog(s, `Subasta de ${BOARD[square].name}: primera oferta desde $${auctionMinimum(square)}. Participan quienes no la hayan rechazado.`);
+  // Rechazar la compra también retira al visitante de esa subasta.
+  if (rejectedBy?.position === square) {
+    s.auction.passed.push(rejectedBy.id);
+    const participants = s.players.filter((p) => !p.bankrupt && !(p.jailed && p.detention === "prison"));
+    if (participants.every((p) => s.auction!.passed.includes(p.id))) closeAuction(s, now);
+  }
 }
 function closeAuction(s: Game, now: number) {
   const auction = s.auction; if (!auction) return;

@@ -72,6 +72,9 @@ export const SALARY = 20000;
 export const INITIAL_MONEY = 134500;
 export const DEPORTATION_FINE = 5000;
 export const PRISON_BAIL = 10000;
+// Regla de esta adaptación: subastas al 80% del valor, redondeadas a $500.
+export const AUCTION_PRICE_RATIO = 0.8;
+export const AUCTION_INCREMENT = 500;
 // VERIFICAR: la transcripción no especifica inventario; configuración de esta adaptación.
 export const HOUSE_SUPPLY = 36;
 export const HOTEL_SUPPLY = 12;

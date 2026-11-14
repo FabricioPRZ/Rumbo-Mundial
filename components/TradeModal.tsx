@@ -9,10 +9,12 @@ export default function TradeModal({
   onClose,
   send,
   error,
+  suspended = false,
 }: {
   game: Game;
   me: Player;
   error?: string;
+  suspended?: boolean;
   onClose: () => void;
   send: (a: Action) => Promise<boolean>;
 }) {
@@ -25,8 +27,9 @@ export default function TradeModal({
   const [tm, setTm] = useState(0);
   const [busy, setBusy] = useState(false);
   useEffect(() => {
-    dialog.current?.showModal();
-  }, []);
+    if (suspended) dialog.current?.close();
+    else if (!dialog.current?.open) dialog.current?.showModal();
+  }, [suspended]);
   const properties = (owner: string) =>
     BOARD.filter(
       (b) =>
