@@ -5,13 +5,14 @@ import type { Action, Game } from "@/lib/game/types";
 import { COLORS } from "@/lib/game/types";
 import { BOARD } from "@/lib/game/board";
 import { ranking, redemptionCost, buildingBidders } from "@/lib/game/rules";
+import { Banknote } from "./TravelArt";
+import { DENOMINATIONS, wallet } from "@/lib/game/money";
 import Board from "./Board";
 import EntryForm from "./EntryForm";
 import PropertyDialog from "./PropertyDialog";
-import PropertyCard from "./PropertyCard";
 import PlayerPanel from "./PlayerPanel";
 import TradeModal from "./TradeModal";
-import Log from "./Log";
+
 import Activity from "./Activity";
 import PaymentModal from "./PaymentModal";
 export default function Room({ id }: { id: string }) {
@@ -25,6 +26,10 @@ export default function Room({ id }: { id: string }) {
     [missing, setMissing] = useState(false),
     [selected, setSelected] = useState(0),
     [propertyOpen, setPropertyOpen] = useState(false),
+    [sideOpen, setSideOpen] = useState(false),
+    [rosterOpen, setRosterOpen] = useState(false),
+    [rosterIndex, setRosterIndex] = useState(0),
+    [rosterPage, setRosterPage] = useState(0),
     [tradeOpen, setTradeOpen] = useState(false),
     [inactive, setInactive] = useState(0),
     [notice, setNotice] = useState(""),
@@ -184,6 +189,11 @@ export default function Room({ id }: { id: string }) {
     return commit(action);
   };
   const selectProperty = (square: number) => { setSelected(square); setPropertyOpen(true); };
+  useEffect(() => {
+    if (!game || !playerId) return;
+    if ((game.phase === "buy" && game.players[game.turn].id === playerId) ||
+        game.debt?.payer === playerId || game.trades.some((t) => t.to === playerId)) setSideOpen(true);
+  }, [game?.phase, game?.debt?.payer, game?.trades, game?.turn, playerId, game]);
   const copy = async (value: string) => {
     try {
       await navigator.clipboard.writeText(value);
@@ -214,7 +224,7 @@ export default function Room({ id }: { id: string }) {
     ? Math.max(0, Math.ceil((game.endsAt - now) / 1000))
     : null;
   return (
-    <main className="room">
+    <main className={`room ${game.status !== "lobby" ? "table-viewport" : ""} ${sideOpen ? "side-open" : ""} ${rosterOpen ? "roster-open" : ""}`}>
       <header className="room-header">
         <Link href="/" className="brand">
           ✈ RUMBO MUNDIAL
@@ -380,11 +390,16 @@ export default function Room({ id }: { id: string }) {
             <span>Viaje compartido · {game.players.filter((p) => !p.bankrupt).length} en juego</span>
           </div>
           <Activity game={game} />
+          {game.status === "playing" && game.phase === "buy" && !game.auction && !game.debt && me?.id !== game.players[game.turn].id && <div className="buy-scene spectator-decision"><p className="eyebrow">DECISIÓN EN CURSO</p><h2>{game.players[game.turn].name} llegó a {BOARD[game.players[game.turn].position].name}</h2><p>Está decidiendo si compra la propiedad o la envía a subasta.</p></div>}
+          <nav className="table-tools" aria-label="Paneles de la mesa">
+            <button aria-expanded={sideOpen} onClick={()=>{setSideOpen(!sideOpen);setRosterOpen(false);}}>✈ Mi turno y propiedades</button>
+            <button aria-expanded={rosterOpen} onClick={()=>{setRosterOpen(!rosterOpen);setSideOpen(false);}}>♟ Viajeros y propiedades</button>
+          </nav>
           <div className="game-layout">
             <section>
               <Board game={game} onSelect={selectProperty} />
-              <div className="players-strip">
-                {game.players.map((p) => (
+              <div className="players-strip" aria-label="Propiedades de los viajeros"><button className="panel-close" onClick={()=>setRosterOpen(false)}>Cerrar ×</button><label>Viajero<select value={rosterIndex} onChange={(e)=>{setRosterIndex(Number(e.target.value));setRosterPage(0);}}>{game.players.map((p,i)=><option value={i} key={p.id}>{p.name}</option>)}</select></label>
+                {game.players.filter((_, i)=>i===rosterIndex).map((p) => (
                   <div
                     key={p.id}
                     style={{
@@ -398,7 +413,7 @@ export default function Room({ id }: { id: string }) {
                         ? "En quiebra"
                         : `$${p.money.toLocaleString("es-MX")}`}
                     </span>
-                    <details>
+                    <details open>
                       <summary>
                         {
                           Object.values(game.properties).filter(
@@ -410,20 +425,21 @@ export default function Room({ id }: { id: string }) {
                       <div className="owned">
                         {BOARD.filter(
                           (b) => game.properties[b.id]?.owner === p.id,
-                        ).map((b) => (
+                        ).slice(rosterPage*4,rosterPage*4+4).map((b) => (
                           <button key={b.id} onClick={() => selectProperty(b.id)}>
                             {b.name}
                             {game.properties[b.id].mortgaged ? " · H" : ""}
                           </button>
                         ))}
                       </div>
+                      <div className="row"><button disabled={!rosterPage} onClick={()=>setRosterPage(rosterPage-1)}>←</button><span>Página {rosterPage+1}</span><button disabled={(rosterPage+1)*4>=Object.values(game.properties).filter((a)=>a.owner===p.id).length} onClick={()=>setRosterPage(rosterPage+1)}>→</button></div>
                     </details>
                   </div>
                 ))}
               </div>
-              <Log events={game.log} history={game.events} />
+
             </section>
-            <aside>
+            <aside aria-label="Panel de jugador"><button className="panel-close" onClick={()=>setSideOpen(false)}>Volver al tablero ×</button>
               {me && game.status === "playing" && (
                 <PlayerPanel
                   game={game}
@@ -434,17 +450,10 @@ export default function Room({ id }: { id: string }) {
                   onSelect={selectProperty}
                 />
               )}
-              <PropertyCard
-                id={selected}
-                game={game}
-                me={me}
-                send={(a) => void send(a)}
-                busy={busy}
-              />
               {game.trades
                 .filter((t) => t.to === playerId || t.from === playerId)
                 .map((t) => (
-                  <section className="panel" key={t.id}>
+                  <section className="panel trade-scene" key={t.id}>
                     <h2>Propuesta de trato</h2>
                     <p>
                       {game.players.find((p) => p.id === t.from)?.name} ofrece $
@@ -507,6 +516,7 @@ export default function Room({ id }: { id: string }) {
           </div>
         </>
       )}
+      {me && game.status !== "lobby" && <div className="wallet" aria-label="Mi mano de billetes"><div className="wallet-summary">{DENOMINATIONS.filter((v)=>wallet(me)[v]).map((v)=><span key={v}><Banknote value={v} compact/><b>× {wallet(me)[v]}</b></span>)}</div></div>}
       {propertyOpen && <PropertyDialog id={selected} game={game} me={me} busy={busy} send={(a)=>void send(a)} onClose={()=>setPropertyOpen(false)} />}
       {payment && me && game.status === "playing" && (
 

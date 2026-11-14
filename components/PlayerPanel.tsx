@@ -3,12 +3,13 @@ import { useState } from "react";
 import { BOARD, cash } from "@/lib/game/board";
 import { bankStock, liquidationValue, netWorth } from "@/lib/game/rules";
 import type { Action, Game, Player } from "@/lib/game/types";
-import { DENOMINATIONS, wallet } from "@/lib/game/money";
-import { Banknote } from "./TravelArt";
+
+import { CountryArt } from "./TravelArt";
 export default function PlayerPanel({ game, me, busy, send, onTrade, onSelect }: {
   game: Game; me: Player; busy: boolean; send: (a: Action) => void;
   onTrade: () => void; onSelect: (id: number) => void;
 }) {
+  const [panelTab, setPanelTab] = useState<"turn" | "assets">("turn");
   const [offer, setOffer] = useState(500);
   const [buildSquare, setBuildSquare] = useState<number | null>(null);
   const options = game.auction?.buildingOptions?.[me.id];
@@ -23,14 +24,14 @@ export default function PlayerPanel({ game, me, busy, send, onTrade, onSelect }:
     {reason && <small>{reason}</small>}
   </div>;
   const properties = BOARD.filter((b) => game.properties[b.id]?.owner === me.id);
-  const held = wallet(me);
+  const [propertyPage, setPropertyPage] = useState(0);
+  const visiblePage = Math.min(propertyPage, Math.max(0, Math.ceil(properties.length / 4) - 1));
   return <section className={`panel player-panel ${mine ? "my-turn" : ""}`}>
     <p className="eyebrow">{game.opening ? "ELIGE QUIÉN DESPEGA" : mine ? "ES TU TURNO" : `VIAJA ${active.name}`}</p>
     <div className="row"><h2><i className="player-dot" style={{background:me.color}} />{me.name}</h2><span className="balance">{cash(me.money)}</span></div>
     <small>Patrimonio neto: {cash(netWorth(game, me))} · {properties.length} propiedades</small>
-    <details className="wallet"><summary>Mi cartera · ver billetes</summary><div className="wallet-summary">
-      {DENOMINATIONS.filter((v) => held[v]).map((v) => <span key={v}><Banknote value={v} compact /><b>× {held[v]}</b></span>)}
-    </div></details>
+    <div className="tabs player-tabs"><button aria-pressed={panelTab === "turn"} onClick={()=>setPanelTab("turn")}>Mi turno</button><button aria-pressed={panelTab === "assets"} onClick={()=>setPanelTab("assets")}>Propiedades ({properties.length})</button></div>
+    <div hidden={panelTab !== "turn"}>
     {me.acquisitionCard && <p className="notice">Tienes un permiso de adquisición. Selecciona el último país que te falte para completar un bloque.</p>}
     {me.rentBonus && <p className="notice">La próxima renta de un país sin edificios se duplica.</p>}
     {me.jailed > 0 && <div className="detention"><strong>{imprisoned ? "Cárcel" : "Deportado"}</strong><p>Quedan {me.jailed} turnos completos. Los dobles no reducen la estancia.</p><div className="detention-steps" aria-label={`${me.jailed} turnos pendientes`}>{[1,2,3].map((i) => <span key={i} className={i <= me.jailed ? "pending" : ""}>{i <= me.jailed ? "▥" : "✓"}</span>)}</div></div>}
@@ -61,19 +62,22 @@ export default function PlayerPanel({ game, me, busy, send, onTrade, onSelect }:
       </> : <>
         {game.phase === "roll" && (me.jailed || me.skipTurns) && mine ? button("Cumplir un turno de espera", {type:"wait"}) : game.phase === "roll" && button("✦ Tirar los dados", {type:"roll"}, mine ? null : "Espera tu turno.")}
         {mine && me.jailed > 0 && !imprisoned && button("Pagar $5,000 y volver a Salida", {type:"bail"}, me.money < 5000 ? "Saldo insuficiente." : null)}
-        {mine && game.phase === "buy" && <>
+        {mine && game.phase === "buy" && <div className="buy-scene"><div className="scene-country"><CountryArt id={me.position} /><span>{BOARD[me.position].flag ?? "✈"}</span><h2>{BOARD[me.position].name}</h2><p>¿Agregamos este destino a tu viaje?</p></div>
           {button(`Comprar ${BOARD[me.position].name} · ${cash(BOARD[me.position].price)}`, {type:"buy"}, me.money < BOARD[me.position].price ? "Saldo insuficiente." : null)}
           {button("Enviar a subasta", {type:"decline"})}
-        </>}
+        </div>}
         {game.phase === "end" && button(game.extra ? "Continuar · tiro extra" : "Terminar turno →", {type:"end"}, mine ? null : "Espera tu turno.")}
         {mine && !!me.salary && <small>Si terminas el turno sin cobrar el sueldo, lo pierdes.</small>}
       </>}
     </div>}
     {!me.bankrupt && <button className="trade-trigger" onClick={onTrade} disabled={busy || !!game.debt || !!game.auction || !!game.opening || imprisoned} title={imprisoned ? "En la cárcel no puedes negociar." : "Ofrece dinero y propiedades, incluso fuera de tu turno."}>⇄ Proponer trato</button>}
+    </div><div hidden={panelTab !== "assets"}>
     <h3>Mi pasaporte de propiedades</h3>
-    <div className="owned">{properties.map((b) => <button key={b.id} style={{borderLeftColor:b.color ?? "#777"}} onClick={() => onSelect(b.id)}>{b.flag} {b.name}<span>{game.properties[b.id].mortgaged ? "Hipotecada" : game.properties[b.id].buildings === 5 ? "Hotel" : game.properties[b.id].buildings ? `${game.properties[b.id].buildings} casas` : ""}</span></button>)}
+    <div className="owned">{properties.slice(visiblePage*4,visiblePage*4+4).map((b) => <button key={b.id} style={{borderLeftColor:b.color ?? "#777"}} onClick={() => onSelect(b.id)}>{b.flag} {b.name}<span>{game.properties[b.id].mortgaged ? "Hipotecada" : game.properties[b.id].buildings === 5 ? "Hotel" : game.properties[b.id].buildings ? `${game.properties[b.id].buildings} casas` : ""}</span></button>)}
       {!properties.length && <small>Tu primera escala te espera.</small>}
     </div>
+    {properties.length>4 && <div className="row"><button disabled={!visiblePage} onClick={()=>setPropertyPage(visiblePage-1)}>←</button><small>{visiblePage+1} / {Math.ceil(properties.length/4)}</small><button disabled={(visiblePage+1)*4>=properties.length} onClick={()=>setPropertyPage(visiblePage+1)}>→</button></div>}
     <small className="bank-stock">Banco · {stock.houses} casas · {stock.hotels} hoteles disponibles</small>
+    </div>
   </section>;
 }

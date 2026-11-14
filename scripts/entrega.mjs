@@ -1,6 +1,6 @@
 import { readdir, readFile, writeFile } from "node:fs/promises";
 import path from "node:path";
-const directories = ["app", "components", "lib", "tests", "scripts"];
+const directories = ["app", "components", "lib", "tests", "scripts", "public/art"];
 const files = [
   ".env.example",
   ".gitignore",
@@ -43,6 +43,7 @@ let markdown =
   "```text\nrumbo-mundial/\n" + render(tree).join("\n") + "\n```\n";
 for (const file of files) {
   const ext = path.extname(file);
+  if (ext === ".webp") { markdown += `\n## ${file}\n\nIlustración original incluida en el proyecto y en el ZIP.\n`; continue; }
   const lang =
     {
       ".ts": "typescript",

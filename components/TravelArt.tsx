@@ -1,3 +1,5 @@
+import Image from "next/image";
+import { COUNTRY_ART } from "@/lib/game/art";
 import type { CSSProperties } from "react";
 
 /** Original vector artwork: no downloaded illustration or reference photograph. */
@@ -26,4 +28,10 @@ export function Banknote({ value, compact = false }: { value: number; compact?: 
     <span className="note-label">BANCO DEL VIAJERO</span><span className="note-orbit" aria-hidden="true">✈</span>
     <strong>${value.toLocaleString("es-MX")}</strong><span className="note-serial">RM · CRÉDITOS DE VIAJE</span>
   </span>;
+}
+
+export function CountryArt({ id }: { id: number }) {
+  const art = COUNTRY_ART[id];
+  if (!art) return null;
+  return <Image className="country-art" src={art.src} alt={`Ilustración de ${art.name}`} width={960} height={640} sizes="(max-width: 780px) 90vw, 430px" />;
 }

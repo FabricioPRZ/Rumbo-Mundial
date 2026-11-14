@@ -1,6 +1,7 @@
 "use client";
 import { useEffect, useRef, useState } from "react";
-import { Globe, Building } from "./TravelArt";
+import Image from "next/image";
+import { Building, CountryArt } from "./TravelArt";
 import { BOARD, cash } from "@/lib/game/board";
 import type { Game, GameEvent } from "@/lib/game/types";
 export function coordinates(id: number): [number, number] {
@@ -19,8 +20,20 @@ export default function Board({
   const [zoom, setZoom] = useState(1);
   const [deckInfo, setDeckInfo] = useState<"email" | "sms" | null>(null);
   const scroll = useRef<HTMLDivElement>(null);
-  const fit = () => { if (scroll.current) setZoom(Math.min(1, (scroll.current.clientWidth - 4) / 760)); };
-  useEffect(() => { if (window.innerWidth < 780 && scroll.current) setZoom(Math.min(1, (scroll.current.clientWidth - 4) / 760)); }, []);
+  const fit = () => {
+    const container = scroll.current;
+    if (!container) return;
+    const available = Math.min(container.clientWidth - 8, container.clientHeight - 8);
+    if (available > 0) setZoom(available / 760);
+  };
+  useEffect(() => {
+    const container = scroll.current;
+    if (!container) return;
+    const observer = new ResizeObserver(fit);
+    observer.observe(container);
+    fit();
+    return () => observer.disconnect();
+  }, []);
   const [positions, setPositions] = useState<Record<string, number>>(() =>
     Object.fromEntries(game.players.map((p) => [p.id, p.position])),
   );
@@ -131,7 +144,7 @@ export default function Board({
                   className="stripe"
                   style={{ background: b.color ?? "transparent" }}
                 />
-                <span className="square-icon">{b.flag ?? icons[b.kind]}</span>
+                <span className="square-icon">{b.kind === "country" ? <CountryArt id={b.id} /> : icons[b.kind]}</span>
                 <strong>{b.name}</strong>
                 <small>
                   {b.price ? cash(b.price) : b.tax ? cash(b.tax) : ""}
@@ -146,9 +159,11 @@ export default function Board({
             );
           })}
           <div className="board-center">
-            <Globe className="board-globe" />
-            <p className="eyebrow">TU PRÓXIMA GRAN AVENTURA</p>
-            <h2>Rumbo<br />Mundial<span>✦</span></h2>
+            <Image className="world-board-art" src="/art/world-center.webp" alt="Mapa ilustrado de los continentes con monumentos y rutas de viaje" fill sizes="(max-width: 780px) 90vw, 650px" priority />
+            <div className="continent-labels" aria-label="Regiones del mundo">
+              <span className="region-north">Norteamérica</span><span className="region-central">Centroamérica</span><span className="region-south">Sudamérica</span><span className="region-europe">Europa</span><span className="region-africa">África</span><span className="region-asia">Asia</span><span className="region-oceania">Oceanía</span>
+            </div>
+            <h2 className="world-board-title">Rumbo Mundial ✦</h2>
             <div className="deck-cards">
               <button onClick={() => setDeckInfo(deckInfo === "email" ? null : "email")} aria-pressed={deckInfo === "email"}>
                 <span aria-hidden="true">✉</span><b>Correo</b><small>EL MUNDO TE ESCRIBE</small>
@@ -157,7 +172,7 @@ export default function Board({
                 <span aria-hidden="true">☏</span><b>Mensaje</b><small>UN NUEVO DESTINO</small>
               </button>
             </div>
-            <p className="deck-description">{deckInfo ? `El mazo de ${deckInfo === "email" ? "Correo" : "Mensaje"} se baraja en cada partida. La carta se revela al caer en su casilla y vuelve al fondo, salvo los permisos que conserves.` : "24 países. Una mesa. Mil historias."}</p>
+            <p className="deck-description">{deckInfo ? `El mazo de ${deckInfo === "email" ? "Correo" : "Mensaje"} se baraja en cada partida. La carta se revela al caer en su casilla y vuelve al fondo, salvo los permisos que conserves.` : ""}</p>
             <small>SALIDA ↓ MARRUECOS · SUELDO $20,000</small>
           </div>
           {game.players

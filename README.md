@@ -50,6 +50,26 @@ git push -u origin main
 
 En Vercel, importa el repositorio como proyecto Next.js. Usa la carpeta del proyecto como Root Directory. Desde Marketplace agrega o conecta Upstash Redis y comprueba que haya uno de los pares de variables admitidos. También puedes copiarlas manualmente desde Upstash. Habilítalas para Production y, si lo necesitas, Preview y Development. Ejecuta Deploy. No hace falta configurar otro backend.
 
+## Aparecer en Google
+
+La portada está preparada para búsquedas como **turista mundial online** y **jugar con amigos**: título y descripción, encabezado y contenido visible, datos estructurados del sitio, imagen para compartir, URL canónica, `robots.txt` y `sitemap.xml`. Las salas llevan `noindex` y no aparecen en el sitemap. Los despliegues Preview de Vercel y el servidor de desarrollo no permiten indexación. Esto no cambia las reglas ni el acceso a las partidas.
+
+La dirección principal configurada es `https://rumbo-mundial-khaki.vercel.app/`. Si cambias de dominio, define `SITE_URL` en Vercel con la nueva URL pública y vuelve a desplegar. Usa siempre el dominio principal, no un enlace temporal de Preview. La configuración opcional es:
+
+```dotenv
+SITE_URL=https://rumbo-mundial-khaki.vercel.app
+GOOGLE_SITE_VERIFICATION=
+```
+
+Después de desplegar:
+
+1. Comprueba que la portada se abre sin iniciar sesión en Vercel y que funcionan [robots.txt](https://rumbo-mundial-khaki.vercel.app/robots.txt) y [sitemap.xml](https://rumbo-mundial-khaki.vercel.app/sitemap.xml).
+2. Abre [Google Search Console](https://search.google.com/search-console), agrega una propiedad de **prefijo de URL** con `https://rumbo-mundial-khaki.vercel.app/` y elige la verificación por **etiqueta HTML**.
+3. Copia únicamente el valor `content` de esa etiqueta en `GOOGLE_SITE_VERIFICATION` en las variables de Production de Vercel. Despliega de nuevo y pulsa **Verificar** en Search Console. La etiqueta de verificación es pública; no es una contraseña.
+4. En **Sitemaps**, envía `sitemap.xml`. En **Inspección de URLs**, introduce la URL principal y solicita la indexación. Después consulta el rendimiento y las búsquedas reales en Search Console.
+
+El código prepara el sitio, pero no registra automáticamente la propiedad en Search Console ni garantiza que Google lo indexe o lo coloque primero. Google no utiliza la etiqueta `meta keywords`; por eso las palabras clave se incorporan de forma natural al contenido y los títulos. Consulta la [guía oficial de SEO de Google](https://developers.google.com/search/docs/fundamentals/seo-starter-guide). La indexación y los cambios de posición pueden tardar; no hay un plazo garantizado.
+
 ## Probar con amigos
 
 1. Abre la página en dos perfiles distintos: dos navegadores o una ventana normal y otra privada.
@@ -135,7 +155,7 @@ En el entorno de esta entrega se ejecutaron las pruebas, lint y compilación. La
 - `components/Room.tsx`: polling secuencial cada segundo, pausa al ocultar pestaña, heartbeat cada 20 s y reconexión por token.
 - `components/TravelArt.tsx`: ilustraciones originales de globo, billetes y edificios en SVG/CSS. No descarga imágenes ni fuentes externas.
 - `components/Board.tsx`: recorrido de fichas por eventos, casilla por casilla, sin repetir movimientos al refrescar.
-- `components/Activity.tsx`: dados y cola de avisos compartidos. `Log.tsx`: bitácora con los últimos 50 eventos.
+- `components/Activity.tsx`: escenas centrales compartidas, dados animados y fondo desenfocado. La bitácora no se muestra; el servidor conserva eventos para sincronizar las escenas. La cartera se presenta como una mano de billetes en la parte inferior.
 
 Las escrituras usan un único script Lua que compara la versión y guarda el nuevo estado atómicamente. Una carrera pierde con HTTP 409. La caducidad de sala se renueva a 24 horas en cada acción guardada. Cada acción lleva un `requestId`; se conservan los últimos 100 recibos para no duplicar efectos al repetir solicitudes. Los mazos y los tokens no se incluyen en el estado público. No se confía en un playerId enviado por el cliente.
 
@@ -144,3 +164,7 @@ El vencimiento de partidas y subastas se resuelve durante la siguiente consulta 
 ## Entrega completa
 
 `npm run entrega` genera `ENTREGA.md` con árbol y código completo archivo por archivo, README al final. El archivo `rumbo-mundial.zip` contiene el proyecto desplegable sin credenciales, dependencias instaladas, compilaciones o fotografías de referencia.
+
+## Ilustraciones de los países y del mapa
+
+Los 24 países usan ilustraciones raster originales, generadas individualmente con la herramienta integrada de imágenes. Cada casilla y tarjeta reutiliza la imagen correspondiente en `public/art/countries/`. `public/art/world-center.webp` es el mapa central ilustrado, con rótulos de regiones renderizados en HTML. El mapeo de países se encuentra en `lib/game/art.ts`; los prompts completos están en `public/art/PROMPTS.md`. Se entregan en WebP y se sirven con `next/image`. No requieren generación de imágenes, claves adicionales ni servicios gráficos cuando juegas.

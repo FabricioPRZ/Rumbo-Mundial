@@ -1,4 +1,4 @@
-import { Building } from "./TravelArt";
+import { Building, CountryArt } from "./TravelArt";
 import { BOARD } from "@/lib/game/board";
 import { assetError, group } from "@/lib/game/rules";
 import type { Action, Game, Player } from "@/lib/game/types";
@@ -24,6 +24,7 @@ export default function PropertyCard({
       style={{ borderTopColor: b.color ?? "#175344" }}
     >
       <p className="eyebrow">{b.group ?? "ESCALA DEL VIAJE"}</p>
+      {b.kind === "country" && <CountryArt id={b.id} />}
       <h2>{b.flag} {b.name}</h2>
       {!!a?.buildings && <div className="property-buildings">{a.buildings === 5 ? <Building hotel /> : Array.from({length: a.buildings}, (_, i) => <Building key={i} />)}</div>}
       {me?.acquisitionCard && b.kind === "country" && a?.owner !== me.id && group(id).every((x) => x.id === id || game.properties[x.id].owner === me.id) && <button className="primary" disabled={busy || !!game.debt || !!game.auction} onClick={() => send({type:"acquire", square:id})}>Usar permiso para completar bloque</button>}

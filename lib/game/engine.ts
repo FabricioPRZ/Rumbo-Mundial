@@ -178,6 +178,7 @@ function move(s: Game, p: Player, steps: number) {
 }
 function land(s: Game, p: Player, now: number) {
   const b = BOARD[p.position];
+  addLog(s, `${p.name} llegó a ${b.name}.`, { type: "log", player: p.id, square: b.id });
   s.phase = "end";
   if (b.kind === "go-oceania") {
     jail(s, p);
@@ -514,7 +515,7 @@ export function engine(
       ...s.trades.filter((t) => t.from !== p.id),
       { ...action, id: `${s.version}-${p.id}`, from: p.id },
     ];
-    addLog(s, `${p.name} propuso un trato a ${to.name}.`);
+    addLog(s, `${p.name} propone a ${to.name}: ofrece $${action.giveMoney} y ${action.give.map((id) => BOARD[id].name).join(", ") || "ninguna propiedad"}; pide $${action.takeMoney} y ${action.take.map((id) => BOARD[id].name).join(", ") || "ninguna propiedad"}.`);
     return s;
   }
   if ("square" in action && action.type !== "bid") {
