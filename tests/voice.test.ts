@@ -1,20 +1,12 @@
-import { beforeEach, expect, it, vi } from "vitest";
-import { applyVoice, cleanVoice, getVoice, updateVoice, voiceCommand } from "../lib/voice/store";
-import type { VoiceState } from "../lib/voice/types";
-
-const mock = vi.hoisted(() => ({ values: new Map<string, string>(), identity: vi.fn() }));
-vi.mock("../lib/store", () => ({
-  HttpError: class extends Error { constructor(readonly status: number, message: string) { super(message); } },
-  roomIdentity: mock.identity,
-  redis: () => ({
-    get: async (key: string) => mock.values.has(key) ? JSON.parse(mock.values.get(key)!) : null,
-    eval: async (_script: string, keys: string[], args: (number | string)[]) => {
-      const old = mock.values.has(keys[0]) ? JSON.parse(mock.values.get(keys[0])!) : { revision: 0 };
-      if (old.revision !== args[0]) return 0;
-      mock.values.set(keys[0], String(args[1]));return 1;
-    },
-  }),
-}));
+import { beforeEach, expect, it } from "vitest";
+import { applyVoice, cleanVoice } from "../src/domain/voice/rules";
+import { voiceCommand } from "../src/server/http/voice-schemas";
+import { getVoice as get } from "../src/application/voice/get-voice";
+import { updateVoice as update } from "../src/application/voice/update-voice";
+import type { VoiceDependencies } from "../src/application/voice/contracts";
+import type { VoiceCommand } from "../src/domain/voice/types";
+import { newGame, newPlayer } from "../src/domain/game/factory";
+import type { VoiceState } from "../src/domain/voice/types";
 
 const a = "00000000-0000-4000-8000-000000000001";
 const b = "00000000-0000-4000-8000-000000000002";
@@ -28,13 +20,33 @@ function joined() {
   return applyVoice(applyVoice(blank(), { type: "join", session: sa, muted: false }, a, [a, b, c], 1000), { type: "join", session: sb, muted: false }, b, [a, b, c], 1000);
 }
 const offer = { type: "signal" as const, session: sa, to: b, toSession: sb, connection, description: { type: "offer" as const, sdp } };
-beforeEach(() => {
-  mock.values.clear();mock.identity.mockReset();
-  mock.identity.mockImplementation(async (_room: string, token: string) => {
-    if (![a, b, c].includes(token)) throw new Error("Token inválido");
-    return { playerId: token, players: [a, b, c] };
-  });
-});
+// Injected repository and clock: no environment variables, network or module mocks.
+const values = new Map<string, VoiceState>();
+const roomGame = newGame("ABC234", newPlayer(a, "Ana", "#a00"), 0);
+roomGame.players.push(newPlayer(b, "Luis", "#0a0"), newPlayer(c, "Sol", "#00a"));
+const deps: VoiceDependencies = {
+  rooms: {
+    platform: { now: () => 1000, uuid: () => connection, digest: (token) => token, randomInt: () => 0 },
+    rooms: {
+      load: async () => ({ game: structuredClone(roomGame), tokens: { [a]: a, [b]: b, [c]: c }, receipts: {} }),
+      create: async () => { throw new Error("Unexpected create"); },
+      save: async () => { throw new Error("Unexpected game mutation"); },
+      markSeen: async () => {}, lastSeen: async () => null,
+    },
+  },
+  voice: {
+    load: async (room) => structuredClone(values.get(room) ?? null),
+    save: async (room, version, state) => {
+      if ((values.get(room)?.revision ?? 0) !== version) return false;
+      values.set(room, structuredClone(state)); return true;
+    },
+  },
+  iceServers: () => [{ urls: "stun:stun.cloudflare.com:3478" }],
+  retry: async () => {},
+};
+const getVoice = (room: string, token: string, session: string) => get(deps, room, token, session);
+const updateVoice = (room: string, token: string, command: VoiceCommand) => update(deps, room, token, command);
+beforeEach(() => values.clear());
 
 it("admite solo audio y rechaza video, datos y SDP excesivo", () => {
   expect(voiceCommand.safeParse(offer).success).toBe(true);
@@ -86,11 +98,11 @@ it("altas concurrentes no pierden participantes y solo el destinatario recibe SD
   expect((await getVoice("ABC234", a, sa)).signals).toHaveLength(0);
   expect((await getVoice("ABC234", c, connection)).signals).toHaveLength(0);
   expect(receiver.iceServers[0].urls).toBe("stun:stun.cloudflare.com:3478");
-  expect([...mock.values.keys()]).toEqual(["turista:voice:ABC234"]);
+  expect(values.get("ABC234")?.revision).toBe(3);
 });
 
 it("tokens inválidos no pueden leer ni modificar voz", async () => {
-  await expect(getVoice("ABC234", "inventado", sa)).rejects.toThrow(/Token/);
-  await expect(updateVoice("ABC234", "inventado", { type: "join", session: sa, muted: false })).rejects.toThrow(/Token/);
-  expect(mock.values.size).toBe(0);
+  await expect(getVoice("ABC234", "inventado", sa)).rejects.toThrow(/token/);
+  await expect(updateVoice("ABC234", "inventado", { type: "join", session: sa, muted: false })).rejects.toThrow(/token/);
+  expect(values.size).toBe(0);
 });

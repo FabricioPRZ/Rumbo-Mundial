@@ -9,7 +9,10 @@
     "lint": "eslint .",
     "test": "vitest run",
     "test:api": "node tests/api-smoke.mjs",
-    "entrega": "node scripts/entrega.mjs"
+    "entrega": "node scripts/entrega.mjs",
+    "check:architecture": "node scripts/check-architecture.mjs",
+    "prebuild": "npm run check:architecture",
+    "typecheck": "tsc --noEmit"
   },
   "dependencies": {
     "@upstash/redis": "^1.35.3",

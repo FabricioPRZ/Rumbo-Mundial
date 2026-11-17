@@ -1,11 +1,14 @@
 import { expect, it } from "vitest";
 import { game, go, ctx } from "./helpers";
-import { engine, newGame, newPlayer, finishByTime } from "../lib/game/engine";
-import { BOARD } from "../lib/game/board";
-import { assetError, ranking } from "../lib/game/rules";
-import { exchange, pay, totalBills, wallet } from "../lib/game/money";
-import { shuffleDeck } from "../lib/game/shuffle";
-import type { Action } from "../lib/game/types";
+import { engine } from "../src/domain/game/engine";
+import { newGame } from "../src/domain/game/factory";
+import { newPlayer } from "../src/domain/game/factory";
+import { finishByTime } from "../src/domain/game/timing";
+import { BOARD } from "../src/domain/game/board";
+import { assetError, ranking } from "../src/domain/game/rules";
+import { exchange, pay, totalBills, wallet } from "../src/domain/game/money";
+import { shuffleDeck } from "../src/domain/game/shuffle";
+import type { Action } from "../src/domain/game/types";
 
 it("pasar una subasta conserva la casilla de cada jugador y no genera movimientos", () => {
   let s = game(3);

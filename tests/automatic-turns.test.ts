@@ -1,6 +1,9 @@
 import { expect, it } from "vitest";
-import { engine, finishByTime, newGame, newPlayer } from "../lib/game/engine";
-import { auctionMinimum } from "../lib/game/rules";
+import { engine } from "../src/domain/game/engine";
+import { finishByTime } from "../src/domain/game/timing";
+import { newGame } from "../src/domain/game/factory";
+import { newPlayer } from "../src/domain/game/factory";
+import { auctionMinimum } from "../src/domain/game/rules";
 import { game, go, ctx } from "./helpers";
 
 it("el servidor salta la tirada vencida a los 20 segundos, sin mover la ficha", () => {

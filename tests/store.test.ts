@@ -23,8 +23,8 @@ vi.mock("@upstash/redis", () => ({
     }
   },
 }));
-import { act, createRoom, getRoom, joinRoom, roomIdentity } from "../lib/store";
-import type { Action } from "../lib/game/types";
+import { act, createRoom, getRoom, joinRoom, roomIdentity } from "../src/server/http/room-controller";
+import type { Action } from "../src/domain/game/types";
 async function setup() {
   const a = await createRoom({ name: "Ana" });
   const b = await joinRoom(a.id, { name: "Luis" });

@@ -1,6 +1,8 @@
-import { engine, newGame, newPlayer } from "../lib/game/engine";
-import { CARDS } from "../lib/game/cards";
-import type { Action, Context, Game } from "../lib/game/types";
+import { engine } from "../src/domain/game/engine";
+import { newGame } from "../src/domain/game/factory";
+import { newPlayer } from "../src/domain/game/factory";
+import { CARDS } from "../src/domain/game/cards";
+import type { Action, Context, Game } from "../src/domain/game/types";
 export const ctx: Context = {now:1000,dice:[1,2],shuffled:{email:CARDS.email.map((_,i)=>i),sms:CARDS.sms.map((_,i)=>i)}};
 export const go = (s:Game,a:Action,dice:[number,number]=[1,2],who="a")=>engine(s,a,who,{...ctx,dice});
 export function game(count=2) {

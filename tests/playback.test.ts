@@ -1,6 +1,6 @@
 import { afterEach, expect, it, vi } from "vitest";
-import { GamePlayback, type PlaybackView } from "../lib/game/playback";
-import { eventDuration } from "../lib/game/presentation";
+import { GamePlayback, type PlaybackView } from "../src/presentation/services/playback";
+import { eventDuration } from "../src/domain/game/presentation";
 import { game, go } from "./helpers";
 
 afterEach(() => vi.useRealTimers());

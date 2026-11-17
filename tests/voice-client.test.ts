@@ -1,6 +1,6 @@
 import { afterEach, expect, it, vi } from "vitest";
-import { gatherIce, microphoneError, VoiceClient, type VoiceClientView } from "../lib/voice/client";
-import type { VoiceCommand, VoiceMember, VoiceSignal } from "../lib/voice/types";
+import { gatherIce, microphoneError, VoiceClient, type VoiceClientView } from "../src/infrastructure/browser/voice-client";
+import type { VoiceCommand, VoiceMember, VoiceSignal } from "../src/domain/voice/types";
 
 afterEach(() => { vi.unstubAllGlobals();vi.useRealTimers(); });
 

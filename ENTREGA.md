@@ -11,70 +11,159 @@ rumbo-mundial/
 ├── tailwind.config.ts
 ├── postcss.config.mjs
 ├── eslint.config.mjs
-├── app
-│   ├── api
-│   │   └── rooms
-│   │       ├── [id]
-│   │       │   ├── action
-│   │       │   │   └── route.ts
-│   │       │   ├── join
-│   │       │   │   └── route.ts
-│   │       │   ├── route.ts
-│   │       │   └── voice
-│   │       │       └── route.ts
-│   │       └── route.ts
-│   ├── globals.css
-│   ├── layout.tsx
-│   ├── page.tsx
-│   ├── robots.ts
-│   ├── sala
-│   │   └── [id]
-│   │       └── page.tsx
-│   └── sitemap.ts
-├── components
-│   ├── Activity.tsx
-│   ├── AudioControls.tsx
-│   ├── Board.tsx
-│   ├── Dice.tsx
-│   ├── EntryForm.tsx
-│   ├── Log.tsx
-│   ├── MobileTurnBar.tsx
-│   ├── PaymentModal.tsx
-│   ├── PlayerPanel.tsx
-│   ├── PropertyCard.tsx
-│   ├── PropertyDialog.tsx
-│   ├── Room.tsx
-│   ├── TradeModal.tsx
-│   ├── TravelArt.tsx
-│   ├── Victory.tsx
-│   └── VoiceChat.tsx
-├── lib
-│   ├── audio.ts
-│   ├── game
-│   │   ├── art.ts
-│   │   ├── board.ts
-│   │   ├── cards.ts
-│   │   ├── engine.ts
-│   │   ├── money.ts
-│   │   ├── playback.ts
-│   │   ├── presentation.ts
-│   │   ├── rules.ts
-│   │   ├── shuffle.ts
-│   │   └── types.ts
-│   ├── http.ts
-│   ├── site.ts
-│   ├── store.ts
-│   ├── useGameAudio.ts
-│   ├── useGamePlayback.ts
-│   └── voice
-│       ├── client.ts
-│       ├── store.ts
-│       └── types.ts
+├── vitest.config.ts
+├── src
+│   ├── app
+│   │   ├── api
+│   │   │   └── rooms
+│   │   │       ├── [id]
+│   │   │       │   ├── action
+│   │   │       │   │   └── route.ts
+│   │   │       │   ├── join
+│   │   │       │   │   └── route.ts
+│   │   │       │   ├── route.ts
+│   │   │       │   └── voice
+│   │   │       │       └── route.ts
+│   │   │       └── route.ts
+│   │   ├── globals.css
+│   │   ├── layout.tsx
+│   │   ├── page.tsx
+│   │   ├── robots.ts
+│   │   ├── sala
+│   │   │   └── [id]
+│   │   │       └── page.tsx
+│   │   └── sitemap.ts
+│   ├── application
+│   │   ├── ports
+│   │   │   ├── platform.ts
+│   │   │   ├── room-repository.ts
+│   │   │   └── voice-repository.ts
+│   │   ├── rooms
+│   │   │   ├── act.ts
+│   │   │   ├── contracts.ts
+│   │   │   ├── create-room.ts
+│   │   │   ├── get-room.ts
+│   │   │   ├── identity.ts
+│   │   │   ├── join-room.ts
+│   │   │   └── shared.ts
+│   │   └── voice
+│   │       ├── contracts.ts
+│   │       ├── get-voice.ts
+│   │       ├── update-voice.ts
+│   │       └── view.ts
+│   ├── domain
+│   │   ├── game
+│   │   │   ├── assertions.ts
+│   │   │   ├── auctions.ts
+│   │   │   ├── bankruptcy.ts
+│   │   │   ├── board.ts
+│   │   │   ├── cards.ts
+│   │   │   ├── engine.ts
+│   │   │   ├── events.ts
+│   │   │   ├── factory.ts
+│   │   │   ├── landing.ts
+│   │   │   ├── money.ts
+│   │   │   ├── movement.ts
+│   │   │   ├── presentation.ts
+│   │   │   ├── rules.ts
+│   │   │   ├── settlement.ts
+│   │   │   ├── shuffle.ts
+│   │   │   ├── timing.ts
+│   │   │   ├── trading.ts
+│   │   │   ├── turns.ts
+│   │   │   └── types.ts
+│   │   ├── shared
+│   │   │   └── errors.ts
+│   │   └── voice
+│   │       ├── rules.ts
+│   │       └── types.ts
+│   ├── infrastructure
+│   │   ├── browser
+│   │   │   ├── audio.ts
+│   │   │   ├── room-api.ts
+│   │   │   ├── room-storage.ts
+│   │   │   └── voice-client.ts
+│   │   ├── config
+│   │   │   └── voice.ts
+│   │   ├── redis
+│   │   │   ├── client.ts
+│   │   │   ├── room-repository.ts
+│   │   │   └── voice-repository.ts
+│   │   └── security
+│   │       └── platform.ts
+│   ├── presentation
+│   │   ├── assets
+│   │   │   └── art.ts
+│   │   ├── atoms
+│   │   │   ├── Banknote.tsx
+│   │   │   ├── Building.tsx
+│   │   │   ├── Button.tsx
+│   │   │   ├── CountryArt.tsx
+│   │   │   ├── Globe.tsx
+│   │   │   ├── Input.tsx
+│   │   │   └── PlayerMarker.tsx
+│   │   ├── hooks
+│   │   │   ├── useEntryForm.ts
+│   │   │   ├── useGameAudio.ts
+│   │   │   ├── useGamePlayback.ts
+│   │   │   ├── useRoomActions.ts
+│   │   │   ├── useRoomSession.ts
+│   │   │   └── useVoiceChat.ts
+│   │   ├── molecules
+│   │   │   ├── ActionButton.tsx
+│   │   │   ├── BoardSquare.tsx
+│   │   │   ├── Dialog.tsx
+│   │   │   ├── Dice.tsx
+│   │   │   ├── Log.tsx
+│   │   │   ├── MobileTurnBar.tsx
+│   │   │   ├── TextField.tsx
+│   │   │   └── VolumeControl.tsx
+│   │   ├── organisms
+│   │   │   ├── Activity.tsx
+│   │   │   ├── AuctionPanel.tsx
+│   │   │   ├── AudioControls.tsx
+│   │   │   ├── Board.tsx
+│   │   │   ├── EntryForm.tsx
+│   │   │   ├── Lobby.tsx
+│   │   │   ├── PaymentModal.tsx
+│   │   │   ├── PlayerPanel.tsx
+│   │   │   ├── PlayerRoster.tsx
+│   │   │   ├── PropertyCard.tsx
+│   │   │   ├── PropertyDialog.tsx
+│   │   │   ├── PropertyInventory.tsx
+│   │   │   ├── RoomHeader.tsx
+│   │   │   ├── TradeModal.tsx
+│   │   │   ├── TradeOffers.tsx
+│   │   │   ├── TurnStatus.tsx
+│   │   │   ├── Victory.tsx
+│   │   │   ├── VoiceChat.tsx
+│   │   │   └── Wallet.tsx
+│   │   ├── pages
+│   │   │   ├── Home.tsx
+│   │   │   └── Room.tsx
+│   │   ├── services
+│   │   │   ├── board-geometry.ts
+│   │   │   ├── payment-quote.ts
+│   │   │   └── playback.ts
+│   │   └── templates
+│   │       └── RoomLayout.tsx
+│   └── server
+│       ├── composition.ts
+│       ├── http
+│       │   ├── errors.ts
+│       │   ├── responses.ts
+│       │   ├── room-controller.ts
+│       │   ├── room-schemas.ts
+│       │   ├── voice-controller.ts
+│       │   └── voice-schemas.ts
+│       └── site.ts
 ├── tests
 │   ├── api-smoke.mjs
+│   ├── architecture.test.mjs
 │   ├── audio.test.ts
 │   ├── automatic-turns.test.ts
 │   ├── engine.test.ts
+│   ├── forms.test.tsx
 │   ├── helpers.ts
 │   ├── playback.test.ts
 │   ├── regressions.test.ts
@@ -82,7 +171,10 @@ rumbo-mundial/
 │   ├── voice-client.test.ts
 │   └── voice.test.ts
 ├── scripts
+│   ├── check-architecture.mjs
 │   └── entrega.mjs
+├── docs
+│   └── ARQUITECTURA.md
 ├── public
 │   └── art
 │       ├── countries
@@ -8084,7 +8176,10 @@ ENTREGA.md
     "lint": "eslint .",
     "test": "vitest run",
     "test:api": "node tests/api-smoke.mjs",
-    "entrega": "node scripts/entrega.mjs"
+    "entrega": "node scripts/entrega.mjs",
+    "check:architecture": "node scripts/check-architecture.mjs",
+    "prebuild": "npm run check:architecture",
+    "typecheck": "tsc --noEmit"
   },
   "dependencies": {
     "@upstash/redis": "^1.35.3",
@@ -8118,7 +8213,11 @@ ENTREGA.md
 {
   "compilerOptions": {
     "target": "ES2022",
-    "lib": ["dom", "dom.iterable", "esnext"],
+    "lib": [
+      "dom",
+      "dom.iterable",
+      "esnext"
+    ],
     "allowJs": false,
     "skipLibCheck": true,
     "strict": true,
@@ -8130,11 +8229,26 @@ ENTREGA.md
     "isolatedModules": true,
     "jsx": "preserve",
     "incremental": true,
-    "plugins": [{ "name": "next" }],
-    "paths": { "@/*": ["./*"] }
+    "plugins": [
+      {
+        "name": "next"
+      }
+    ],
+    "paths": {
+      "@/*": [
+        "./src/*"
+      ]
+    }
   },
-  "include": ["next-env.d.ts", "**/*.ts", "**/*.tsx", ".next/types/**/*.ts"],
-  "exclude": ["node_modules"]
+  "include": [
+    "next-env.d.ts",
+    "**/*.ts",
+    "**/*.tsx",
+    ".next/types/**/*.ts"
+  ],
+  "exclude": [
+    "node_modules"
+  ]
 }
 ````
 
@@ -8166,7 +8280,7 @@ export default config;
 ````typescript
 import type { Config } from "tailwindcss";
 export default {
-  content: ["./app/**/*.{ts,tsx}", "./components/**/*.{ts,tsx}"],
+  content: ["./src/**/*.{ts,tsx}"],
   theme: { extend: {} },
   plugins: [],
 } satisfies Config;
@@ -8193,11 +8307,25 @@ const config = [
 export default config;
 ````
 
-## app/api/rooms/[id]/action/route.ts
+## vitest.config.ts
 
 ````typescript
-import { body, respond } from "@/lib/http";
-import { act } from "@/lib/store";
+import { fileURLToPath } from "node:url";
+import { defineConfig } from "vitest/config";
+
+export default defineConfig({
+  esbuild: { jsx: "automatic" },
+  resolve: {
+    alias: { "@": fileURLToPath(new URL("./src", import.meta.url)) },
+  },
+});
+````
+
+## src/app/api/rooms/[id]/action/route.ts
+
+````typescript
+import { body, respond } from "@/server/http/responses";
+import { act } from "@/server/http/room-controller";
 export const dynamic = "force-dynamic";
 export const runtime = "nodejs";
 export async function POST(
@@ -8208,11 +8336,11 @@ export async function POST(
 }
 ````
 
-## app/api/rooms/[id]/join/route.ts
+## src/app/api/rooms/[id]/join/route.ts
 
 ````typescript
-import { body, respond } from "@/lib/http";
-import { joinRoom } from "@/lib/store";
+import { body, respond } from "@/server/http/responses";
+import { joinRoom } from "@/server/http/room-controller";
 export const dynamic = "force-dynamic";
 export const runtime = "nodejs";
 export async function POST(
@@ -8223,12 +8351,12 @@ export async function POST(
 }
 ````
 
-## app/api/rooms/[id]/route.ts
+## src/app/api/rooms/[id]/route.ts
 
 ````typescript
+import { respond } from "@/server/http/responses";
+import { getRoom } from "@/server/http/room-controller";
 import { NextResponse } from "next/server";
-import { respond } from "@/lib/http";
-import { getRoom } from "@/lib/store";
 export const dynamic = "force-dynamic";
 export const runtime = "nodejs";
 export async function GET(
@@ -8260,12 +8388,12 @@ export async function GET(
 }
 ````
 
-## app/api/rooms/[id]/voice/route.ts
+## src/app/api/rooms/[id]/voice/route.ts
 
 ````typescript
-import { body, respond } from "@/lib/http";
-import { HttpError } from "@/lib/store";
-import { getVoice, updateVoice } from "@/lib/voice/store";
+import { HttpError } from "@/server/http/errors";
+import { body, respond } from "@/server/http/responses";
+import { getVoice, updateVoice } from "@/server/http/voice-controller";
 
 export const dynamic = "force-dynamic";
 export const runtime = "nodejs";
@@ -8282,11 +8410,11 @@ export async function POST(request: Request, { params }: { params: Promise<{ id:
 }
 ````
 
-## app/api/rooms/route.ts
+## src/app/api/rooms/route.ts
 
 ````typescript
-import { body, respond } from "@/lib/http";
-import { createRoom } from "@/lib/store";
+import { body, respond } from "@/server/http/responses";
+import { createRoom } from "@/server/http/room-controller";
 export const dynamic = "force-dynamic";
 export const runtime = "nodejs";
 export async function POST(req: Request) {
@@ -8294,7 +8422,7 @@ export async function POST(req: Request) {
 }
 ````
 
-## app/globals.css
+## src/app/globals.css
 
 ````css
 @tailwind base;
@@ -9699,11 +9827,11 @@ button:active:not(:disabled) { transform:translateY(1px) scale(.98); }
 }
 ````
 
-## app/layout.tsx
+## src/app/layout.tsx
 
 ````tsx
+import { indexable, siteDescription, siteTitle, siteUrl } from "@/server/site";
 import type { Metadata } from "next";
-import { indexable, siteDescription, siteTitle, siteUrl } from "@/lib/site";
 import "./globals.css";
 export const metadata: Metadata = {
   metadataBase: siteUrl,
@@ -9736,21 +9864,15 @@ export default function Layout({ children }: { children: React.ReactNode }) {
 }
 ````
 
-## app/page.tsx
+## src/app/page.tsx
 
 ````tsx
+import Home from "@/presentation/pages/Home";
+import { siteUrl } from "@/server/site";
 import type { Metadata } from "next";
-import { Globe } from "@/components/TravelArt";
-import EntryForm from "@/components/EntryForm";
-import { siteUrl } from "@/lib/site";
-
-export const metadata: Metadata = {
-  alternates: { canonical: "/" },
-};
-
-export default function Home() {
-  return (
-    <main className="home">
+export const metadata: Metadata = { alternates: { canonical: "/" } };
+export default function Page() {
+  return <>
       <script
         type="application/ld+json"
         dangerouslySetInnerHTML={{
@@ -9763,86 +9885,16 @@ export default function Home() {
           }).replace(/</g, "\\u003c"),
         }}
       />
-      <header className="brand">
-        ✈ RUMBO MUNDIAL <span>EDICIÓN ENTRE AMIGOS</span>
-      </header>
-      <div className="home-grid">
-        <section className="hero">
-          <p className="eyebrow">PASE DE ABORDAR / SIN SALIR DE CASA</p>
-          <h1 className="home-title">
-            Rumbo mundial
-            <br />
-            online<span>.</span>
-          </h1>
-          <p>
-            Juega con tus amigos en Rumbo Mundial, un juego de mesa multijugador
-            para 2 a 6 personas. Compra países, construye casas y hoteles y negocia
-            desde tu celular o computadora, sin descargar nada.
-          </p>
-          <Globe className="hero-globe" />
-          <div className="route-art" aria-hidden="true">
-            <span>MEX</span>
-            <i>✈</i>
-            <span>EL MUNDO</span>
-          </div>
-          <div className="facts">
-            <div>
-              <b>40</b>
-              <small>destinos y sorpresas</small>
-            </div>
-            <div>
-              <b>2–6</b>
-              <small>viajeros por sala</small>
-            </div>
-            <div>
-              <b>∞</b>
-              <small>ganas de revancha</small>
-            </div>
-          </div>
-        </section>
-        <EntryForm />
-      </div>
-      <section className="home-help" aria-label="Cómo jugar con amigos">
-        <details>
-          <summary>¿Cómo jugar turista mundial online con amigos?</summary>
-          <p>
-            Crea una sala con tu nombre y color de ficha, y comparte el ID o el
-            enlace. Tus amigos pueden entrar desde su navegador. Cuando haya de
-            2 a 6 jugadores, el anfitrión inicia la partida. El banco automático
-            administra compras, rentas y pagos.
-          </p>
-        </details>
-        <details>
-          <summary>¿Necesito una cuenta o instalar una aplicación?</summary>
-          <p>
-            No necesitas registrarte ni instalar una aplicación. Solo una conexión
-            a internet y un navegador en tu celular, tableta o computadora. Puedes
-            refrescar la página y recuperar tu lugar desde el mismo navegador,
-            mientras conserves sus datos y la sala siga disponible.
-          </p>
-        </details>
-        <details>
-          <summary>¿Es la versión oficial de Fotorama?</summary>
-          <p>
-            No. Rumbo Mundial es una adaptación independiente con ilustraciones y
-            textos propios; no está afiliada a Fotorama. Incluye países, aerolíneas,
-            casas, hoteles, cartas E-Mail y SMS, subastas y tratos entre jugadores.
-          </p>
-        </details>
-      </section>
-      <footer>
-        Rumbo Mundial · Un viaje entre amigos. Ilustraciones y textos originales.
-      </footer>
-    </main>
-  );
+    <Home />
+  </>;
 }
 ````
 
-## app/robots.ts
+## src/app/robots.ts
 
 ````typescript
+import { indexable, siteUrl } from "@/server/site";
 import type { MetadataRoute } from "next";
-import { indexable, siteUrl } from "@/lib/site";
 
 export default function robots(): MetadataRoute.Robots {
   return {
@@ -9854,11 +9906,11 @@ export default function robots(): MetadataRoute.Robots {
 }
 ````
 
-## app/sala/[id]/page.tsx
+## src/app/sala/[id]/page.tsx
 
 ````tsx
+import Room from "@/presentation/pages/Room";
 import type { Metadata } from "next";
-import Room from "@/components/Room";
 export const metadata: Metadata = {
   title: "Sala de juego",
   robots: { index: false, follow: false },
@@ -9868,2038 +9920,429 @@ export default async function Page({
 }: {
   params: Promise<{ id: string }>;
 }) {
-  return <Room id={(await params).id.toUpperCase()} />;
+  const id = (await params).id.toUpperCase();
+  return <Room key={id} id={id} />;
 }
 ````
 
-## app/sitemap.ts
+## src/app/sitemap.ts
 
 ````typescript
+import { indexable, siteUrl } from "@/server/site";
 import type { MetadataRoute } from "next";
-import { indexable, siteUrl } from "@/lib/site";
 
 export default function sitemap(): MetadataRoute.Sitemap {
   return indexable ? [{ url: siteUrl.href }] : [];
 }
 ````
 
-## components/Activity.tsx
-
-````tsx
-"use client";
-import { useEffect } from "react";
-import type { Game, GameEvent } from "@/lib/game/types";
-import Dice from "./Dice";
-import { Globe, Building } from "./TravelArt";
-import { BOARD } from "@/lib/game/board";
-export default function Activity({ game, event, lastRoll, onEvent }: {
-  game: Game;
-  event: GameEvent | null;
-  lastRoll: GameEvent | null;
-  onEvent?: (event: GameEvent) => void;
-}) {
-  useEffect(() => {
-    if (event) onEvent?.(event);
-  }, [event, onEvent]);
-  const scene = event?.type === "move" ? null : event;
-  const property=event?.square===undefined?null:BOARD[event.square];
-  return <section className="activity" aria-label="Actividad compartida">
-    <div className="shared-dice"><strong>{lastRoll?.text??"Preparando el despegue"}</strong><Dice values={lastRoll?.dice??game.dice}/></div>
-    {scene&&<div className="table-scene" key={scene.id} role="status" aria-live="polite">
-      <div className={`scene-content scene-${scene.type}`}>
-        <span className="eyebrow">{scene.type==="roll"?"LOS DADOS DECIDEN":scene.type==="card"?scene.deck==="email"?"CORREO RECIBIDO":"NUEVO MENSAJE":scene.type==="purchase"?"NUEVA PROPIEDAD":"EN NUESTRA MESA"}</span>
-        {scene.dice?<Dice values={scene.dice} rollId={scene.id}/>:scene.type==="card"?<div className="scene-envelope" aria-hidden="true">{scene.deck==="email"?"✉":"☏"}</div>:scene.text.includes("construyó")?<div className="scene-building"><Building hotel={Object.values(game.properties).some((p)=>p.buildings===5)}/></div>:<Globe className="scene-globe"/>}
-        {property&&<div className="scene-flag">{property.flag??"✈"}</div>}
-        <h2>{scene.text}</h2>
-        <small className="scene-auto-close">El viaje continúa automáticamente</small>
-      </div>
-    </div>}
-  </section>;
-}
-````
-
-## components/AudioControls.tsx
-
-````tsx
-"use client";
-
-import { useRef } from "react";
-import type { useGameAudio } from "@/lib/useGameAudio";
-
-export default function AudioControls({ audio }: { audio: ReturnType<typeof useGameAudio> }) {
-  const details = useRef<HTMLDetailsElement>(null);
-  const { preferences, change, error } = audio;
-  return (
-    <details className="audio-settings" ref={details} onKeyDown={(event) => {
-      if (event.key === "Escape" && details.current) {
-        details.current.open = false;
-        details.current.querySelector("summary")?.focus();
-      }
-    }}>
-      <summary aria-label="Configurar música, efectos y silencio">{preferences.muted ? "♪ Audio apagado" : "♫ Audio"}</summary>
-      <div className="audio-popover">
-        <div className="row"><strong>Música y sonidos</strong><button aria-label="Cerrar ajustes de audio" onClick={() => { if (details.current) details.current.open = false; }}>×</button></div>
-        <button className="primary" aria-pressed={preferences.muted} onClick={() => change({ muted: !preferences.muted })}>
-          {preferences.muted ? "Activar audio" : "Silenciar todo"}
-        </button>
-        <label htmlFor="music-volume">Música de fondo <output>{preferences.music}%</output></label>
-        <input id="music-volume" type="range" min="0" max="100" step="1" value={preferences.music} onChange={(event) => change({ music: Number(event.target.value) })} />
-        <label htmlFor="effects-volume">Efectos del juego <output>{preferences.effects}%</output></label>
-        <input id="effects-volume" type="range" min="0" max="100" step="1" value={preferences.effects} onChange={(event) => change({ effects: Number(event.target.value) })} />
-        <small>{preferences.muted ? "Música, efectos y chat de voz silenciados, incluido tu micrófono. Conservamos tus volúmenes." : "Se pausa al cambiar de pestaña. Tus ajustes se guardan en este navegador."}</small>
-        {error && <p role="status">{error}<button onClick={audio.unlock}>Activar audio</button></p>}
-      </div>
-    </details>
-  );
-}
-````
-
-## components/Board.tsx
-
-````tsx
-"use client";
-import { useEffect, useRef, useState } from "react";
-import Image from "next/image";
-import { Building, CountryArt } from "./TravelArt";
-import { BOARD, cash } from "@/lib/game/board";
-import type { Game } from "@/lib/game/types";
-export function coordinates(id: number): [number, number] {
-  if (id <= 10) return [0, id];
-  if (id <= 20) return [id - 10, 10];
-  if (id <= 30) return [10, 30 - id];
-  return [40 - id, 0];
-}
-export default function Board({
-  game,
-  onSelect,
-  positions,
-}: {
-  game: Game;
-  positions: Record<string, number>;
-  onSelect: (id: number) => void;
-}) {
-  const [zoom, setZoom] = useState(1);
-  const [deckInfo, setDeckInfo] = useState<"email" | "sms" | null>(null);
-  const scroll = useRef<HTMLDivElement>(null);
-  const fit = () => {
-    const container = scroll.current;
-    if (!container) return;
-    const available = Math.min(container.clientWidth - 8, container.clientHeight - 8);
-    if (available > 0) setZoom(available / 760);
-  };
-  useEffect(() => {
-    const container = scroll.current;
-    if (!container) return;
-    const observer = new ResizeObserver(fit);
-    observer.observe(container);
-    fit();
-    return () => observer.disconnect();
-  }, []);
-  const icons: Record<string, string> = {
-    start: "⚑",
-    oceania: "↩",
-    rest: "🏝",
-    "go-oceania": "▥",
-    email: "✉",
-    sms: "☏",
-    tax: "$",
-    airline: "✈",
-    utility: "⚖",
-  };
-  return (
-    <section className="board-section">
-      <label className="board-zoom">
-        Escala del tablero
-        <input
-          aria-label="Escala del tablero"
-          type="range"
-          min="0.35"
-          max="1.25"
-          step="0.05"
-          value={zoom}
-          onChange={(e) => setZoom(Number(e.target.value))}
-        />
-        <span>{Math.round(zoom * 100)}%</span>
-      </label>
-      <button className="fit-board" onClick={fit}>Ver tablero completo</button>
-      <div className="board-scroll" ref={scroll}>
-        <div
-          className="board"
-          style={{ zoom }}
-          aria-label="Tablero de 40 casillas"
-        >
-          {BOARD.map((b) => {
-            const [x, y] = coordinates(b.id),
-              a = game.properties[b.id],
-              owner = game.players.find((p) => p.id === a?.owner);
-            return (
-              <button
-                key={b.id}
-                onClick={() => onSelect(b.id)}
-                className={`square ${b.kind} ${(positions[game.players[game.turn]?.id] ?? game.players[game.turn]?.position) === b.id ? "current-square" : ""}`}
-                style={{
-                  gridColumn: x + 1,
-                  gridRow: y + 1,
-                  borderColor: owner?.color,
-                  boxShadow: owner ? `inset 0 -4px ${owner.color}` : undefined,
-                }}
-                aria-label={`${b.name}${b.group ? `, grupo ${b.group}` : ""}${a?.owner ? `, de ${owner?.name}` : ""}${a?.mortgaged ? ", hipotecada" : ""}`}
-              >
-                <span
-                  className="stripe"
-                  style={{ background: b.color ?? "transparent" }}
-                />
-                <span className="square-icon">{b.kind === "country" ? <CountryArt id={b.id} /> : icons[b.kind]}</span>
-                <strong>{b.color && <span className="group-marker" style={{ background: b.color }} aria-hidden="true" />}{b.name}</strong>
-                <small>
-                  {b.price ? cash(b.price) : b.tax ? cash(b.tax) : ""}
-                </small>
-                {a?.buildings ? (
-                  <span className="buildings">
-                    {a.buildings === 5 ? <Building hotel /> : Array.from({ length: a.buildings }, (_, i) => <Building key={i} />)}
-                  </span>
-                ) : null}
-                {a?.mortgaged && <span className="mortgage-badge">H</span>}
-              </button>
-            );
-          })}
-          <div className="board-center">
-            <Image className="world-board-art" src="/art/world-center.webp" alt="Mapa ilustrado de los continentes con monumentos y rutas de viaje" fill sizes="(max-width: 780px) 90vw, 650px" priority />
-            <div className="continent-labels" aria-label="Regiones del mundo">
-              <span className="region-north">Norteamérica</span><span className="region-central">Centroamérica</span><span className="region-south">Sudamérica</span><span className="region-europe">Europa</span><span className="region-africa">África</span><span className="region-asia">Asia</span><span className="region-oceania">Oceanía</span>
-            </div>
-            <h2 className="world-board-title">Rumbo Mundial ✦</h2>
-            <div className="deck-cards">
-              <button onClick={() => setDeckInfo(deckInfo === "email" ? null : "email")} aria-pressed={deckInfo === "email"}>
-                <span aria-hidden="true">✉</span><b>Correo</b><small>EL MUNDO TE ESCRIBE</small>
-              </button>
-              <button onClick={() => setDeckInfo(deckInfo === "sms" ? null : "sms")} aria-pressed={deckInfo === "sms"}>
-                <span aria-hidden="true">☏</span><b>Mensaje</b><small>UN NUEVO DESTINO</small>
-              </button>
-            </div>
-            <p className="deck-description">{deckInfo ? `El mazo de ${deckInfo === "email" ? "Correo" : "Mensaje"} se baraja en cada partida. La carta se revela al caer en su casilla y vuelve al fondo, salvo los permisos que conserves.` : ""}</p>
-            <small>SALIDA ↓ MARRUECOS · SUELDO $20,000</small>
-          </div>
-          {game.players
-            .filter((p) => !p.bankrupt)
-            .map((p, i) => {
-              const pos = positions[p.id] ?? p.position;
-              const [x, y] = coordinates(pos);
-              return (
-                <span
-                  key={p.id}
-                  className="token"
-                  title={p.name}
-                  aria-label={`${p.name} en ${BOARD[pos].name}`}
-                  style={{
-                    transform: `translate(${((x + 0.18 + (i % 3) * 0.27) * 10000) / (11 * 2.35)}%, ${((y + 0.57 + Math.floor(i / 3) * 0.2) * 10000) / (11 * 2.35)}%)`,
-                    background: p.color,
-                  }}
-                >
-                  ✈
-                </span>
-              );
-            })}
-        </div>
-      </div>
-    </section>
-  );
-}
-````
-
-## components/Dice.tsx
-
-````tsx
-const positions: Record<number, number[]> = {1:[4],2:[0,8],3:[0,4,8],4:[0,2,6,8],5:[0,2,4,6,8],6:[0,2,3,5,6,8]};
-export default function Dice({ values, rollId = 0 }: { values: [number, number]; rollId?: number }) {
-  return <div className={`dice ${rollId ? "rolling" : ""}`} key={rollId} aria-label={`Dados: ${values.filter(Boolean).join(" y ")}`}>
-    {values.filter(Boolean).map((value,i) => <span className="die-face" key={i} aria-hidden="true">{Array.from({length:9},(_,dot) => <i key={dot} className={positions[value]?.includes(dot) ? "pip visible" : "pip"}/>)}</span>)}
-  </div>;
-}
-````
-
-## components/EntryForm.tsx
-
-````tsx
-"use client";
-import { useState } from "react";
-import { useRouter } from "next/navigation";
-import { COLORS } from "@/lib/game/types";
-export default function EntryForm({ room }: { room?: string }) {
-  const router = useRouter();
-  const [mode, setMode] = useState<"create" | "join">(room ? "join" : "create");
-  const [name, setName] = useState("");
-  const [id, setId] = useState(room ?? "");
-  const [color, setColor] = useState(COLORS[0]);
-  const [duration, setDuration] = useState(0);
-  const [error, setError] = useState("");
-  const [busy, setBusy] = useState(false);
-  async function submit(e: React.FormEvent) {
-    e.preventDefault();
-    setBusy(true);
-    setError("");
-    try {
-      const roomId = id.trim().toUpperCase();
-      const res = await fetch(
-        mode === "create" ? "/api/rooms" : `/api/rooms/${roomId}/join`,
-        {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({
-            name,
-            ...(mode === "create"
-              ? { color, duration }
-              : {
-                  token: localStorage.getItem(`turista:${roomId}`) ?? undefined,
-                }),
-          }),
-        },
-      );
-      const data = await res.json();
-      if (!res.ok) throw new Error(data.error);
-      const target = data.id ?? roomId;
-      localStorage.setItem(`turista:${target}`, data.playerToken);
-      if (room) window.location.reload();
-      else router.push(`/sala/${target}`);
-    } catch (e) {
-      setError(e instanceof Error ? e.message : "No se pudo conectar.");
-    } finally {
-      setBusy(false);
-    }
-  }
-  return (
-    <form onSubmit={submit} className="entry panel">
-      {!room && (
-        <div className="tabs">
-          <button
-            type="button"
-            aria-pressed={mode === "create"}
-            onClick={() => setMode("create")}
-          >
-            Crear sala
-          </button>
-          <button
-            type="button"
-            aria-pressed={mode === "join"}
-            onClick={() => setMode("join")}
-          >
-            Unirse a sala
-          </button>
-        </div>
-      )}
-      <h2>
-        {mode === "create" ? "Tu próxima gran aventura" : "Tu lugar en la mesa"}
-      </h2>
-      <label>
-        Tu nombre
-        <input
-          required
-          maxLength={24}
-          autoComplete="nickname"
-          value={name}
-          onChange={(e) => setName(e.target.value)}
-          placeholder="¿Cómo te llamas?"
-        />
-      </label>
-      {mode === "join" ? (
-        <label>
-          ID de sala
-          <input
-            required
-            pattern="[A-HJ-NP-Z2-9]{6}"
-            maxLength={6}
-            value={id}
-            onChange={(e) => setId(e.target.value.toUpperCase())}
-            placeholder="ABC234"
-          />
-        </label>
-      ) : (
-        <>
-          <fieldset>
-            <legend>Elige tu avión</legend>
-            <div className="colors">
-              {COLORS.map((c, i) => (
-                <button
-                  type="button"
-                  key={c}
-                  style={{ background: c }}
-                  aria-label={`Color ${i + 1}`}
-                  aria-pressed={color === c}
-                  onClick={() => setColor(c)}
-                >
-                  ✈
-                </button>
-              ))}
-            </div>
-          </fieldset>
-          <label>
-            Duración
-            <select
-              value={duration}
-              onChange={(e) => setDuration(Number(e.target.value))}
-            >
-              <option value={0}>Hasta el último viajero</option>
-              {[30, 60, 90].map((n) => (
-                <option key={n} value={n}>
-                  {n} minutos
-                </option>
-              ))}
-            </select>
-          </label>
-        </>
-      )}
-      {error && (
-        <p role="alert" className="error">
-          {error}
-        </p>
-      )}
-      <button className="primary" disabled={busy}>
-        {busy
-          ? "Preparando el viaje…"
-          : mode === "create"
-            ? "Crear mi sala ↗"
-            : "Entrar a la sala ↗"}
-      </button>
-      <small>De 2 a 6 amigos. Una sala, todo el mundo.</small>
-    </form>
-  );
-}
-````
-
-## components/Log.tsx
-
-````tsx
-import type { GameEvent } from "@/lib/game/types";
-export default function Log({
-  events,
-  history = [],
-}: {
-  events: string[];
-  history?: GameEvent[];
-}) {
-  const entries = history.length
-    ? history.map((e) => ({ id: String(e.id), text: e.text }))
-    : events.map((text, i) => ({ id: `legacy-${i}`, text }));
-  return (
-    <section className="panel">
-      <h2>Bitácora de viaje</h2>
-      <ol className="log" aria-live="polite" aria-relevant="additions">
-        {entries
-          .slice(-50)
-          .reverse()
-          .map((event) => (
-            <li className="log-entry" key={event.id}>
-              {event.text}
-            </li>
-          ))}
-      </ol>
-    </section>
-  );
-}
-````
-
-## components/MobileTurnBar.tsx
-
-````tsx
-"use client";
-
-import { BOARD, cash, DEPORTATION_FINE } from "@/lib/game/board";
-import type { Action, Game, Player } from "@/lib/game/types";
-
-export default function MobileTurnBar({ game, me, busy, send, onOptions, animating = false, position }: {
-  game: Game;
-  me: Player;
-  busy: boolean;
-  send: (action: Action) => void;
-  onOptions: () => void;
-  animating?: boolean;
-  position?: number;
-}) {
-  const active = game.players[game.turn];
-  const mine = active.id === me.id;
-  let message = `Espera el turno de ${active.name}.`;
-  let label = "Tirar los dados";
-  let action: Action | null = null;
-  let showOptions = false;
-
-  if (me.bankrupt) {
-    message = "Terminó tu viaje. Puedes seguir viendo la partida.";
-  } else if (game.opening) {
-    label = "Tirar dado de salida";
-    if (!game.opening.candidates.includes(me.id)) {
-      message = "Espera el desempate de los finalistas.";
-    } else if (game.opening.rolls[me.id] !== undefined) {
-      message = `Sacaste ${game.opening.rolls[me.id]}. Esperando a los demás.`;
-    } else {
-      message = "Tira para decidir quién empieza.";
-      action = { type: "opening-roll" };
-    }
-  } else if (game.auction) {
-    const passed = game.auction.passed.includes(me.id);
-    message = passed ? "Ya rechazaste la subasta. Esperando a los demás." : "Subasta en curso. Puedes revisar las ofertas.";
-    label = passed ? "Subasta en curso" : "Ver subasta";
-    showOptions = !passed;
-  } else if (game.debt) {
-    const payer = game.debt.payer ?? active.id;
-    if (payer === me.id) {
-      message = `Pago pendiente: ${cash(game.debt.amount)}.`;
-      if (me.money >= game.debt.amount) {
-        label = "Seleccionar billetes";
-        action = { type: "settle" };
-      } else {
-        label = "Administrar bienes";
-        showOptions = true;
-      }
-    } else {
-      message = `Esperando el pago de ${game.players.find((p) => p.id === payer)?.name}.`;
-    }
-  } else if (game.choice) {
-    message = "Hay una elección pendiente antes de continuar.";
-    if (game.choice.player === me.id) {
-      label = "Elegir viajero";
-      showOptions = true;
-    }
-  } else if (mine && me.jailed > 0 && me.detention === "oceania") {
-    message = `Deportado: paga ${cash(DEPORTATION_FINE)} y vuelve a Salida sin sueldo, o espera. Quedan ${me.jailed} turnos.`;
-    label = game.detentionDecision === me.id ? "Quedarme · 3 turnos" : game.phase === "roll" ? "Cumplir un turno de espera" : "Cambio automático";
-    action = game.detentionDecision === me.id ? { type: "stay" } : game.phase === "roll" ? { type: "wait" } : null;
-  } else if (mine && game.phase === "roll") {
-    if (me.jailed || me.skipTurns) {
-      message = `${me.jailed ? me.detention === "prison" ? "Cárcel" : "Deportado" : "Estancia por carta"}: ${me.jailed || me.skipTurns} turnos pendientes.`;
-      label = "Cumplir turno de espera";
-      action = { type: "wait" };
-    } else {
-      message = "Es tu turno. ¡Tira los dados!";
-      action = { type: "roll" };
-    }
-  } else if (mine && game.phase === "buy") {
-    message = `Puedes comprar ${BOARD[me.position].name}.`;
-    label = "Decidir compra";
-    showOptions = true;
-  } else if (mine && game.phase === "end") {
-    message = game.extra ? "Sacaste dobles. Tu siguiente tiro se habilitará automáticamente." : "Tu turno termina automáticamente al completar la jugada.";
-    label = "Cambio automático";
-  }
-
-  const deported = mine && !me.bankrupt && me.jailed > 0 && me.detention === "oceania" &&
-    !game.opening && !game.auction && !game.debt && !game.choice;
-
-  return (
-    <section className={`mobile-turn-bar ${mine && !me.bankrupt ? "is-my-turn" : ""}`} aria-label="Tu turno y acciones">
-      <div className="mobile-turn-info">
-        <strong><i className="player-dot" style={{ background: me.color }} />{me.name} · {cash(me.money)}</strong>
-        <span>{BOARD[position ?? me.position].name}</span>
-        <p role="status">{animating ? "El viaje está en curso…" : message}</p>
-      </div>
-      <div className="mobile-turn-actions">
-        {deported && <>
-          <button disabled={busy || me.money < DEPORTATION_FINE} onClick={() => send({ type: "bail" })}>Pagar multa · {cash(DEPORTATION_FINE)}</button>
-          {me.money < DEPORTATION_FINE && <small>Saldo insuficiente para la multa.</small>}
-        </>}
-        {!me.bankrupt && (
-          <button
-            className="primary"
-            disabled={busy || (!action && !showOptions)}
-            title={!action && !showOptions ? message : undefined}
-            onClick={() => action ? send(action) : onOptions()}
-          >
-            {animating ? "Viajando…" : busy ? "Procesando…" : label}
-          </button>
-        )}
-      </div>
-    </section>
-  );
-}
-````
-
-## components/PaymentModal.tsx
-
-````tsx
-"use client";
-import { useEffect, useRef, useState } from "react";
-import { Banknote } from "./TravelArt";
-import { DENOMINATIONS, totalBills, wallet } from "@/lib/game/money";
-import type { Action, Player } from "@/lib/game/types";
-export default function PaymentModal({
-  player,
-  amount,
-  label,
-  action,
-  onClose,
-  commit,
-  error,
-  suspended = false,
-}: {
-  player: Player;
-  amount: number;
-  label: string;
-  action: Action;
-  error?: string;
-  suspended?: boolean;
-  onClose: () => void;
-  commit: (a: Action) => Promise<boolean>;
-}) {
-  const dialog = useRef<HTMLDialogElement>(null);
-  const [selected, setSelected] = useState<Record<string, number>>({});
-  const [busy, setBusy] = useState(false);
-  const held = wallet(player);
-  const total = totalBills(selected);
-  useEffect(() => {
-    if (suspended) dialog.current?.close();
-    else if (!dialog.current?.open) dialog.current?.showModal();
-  }, [suspended]);
-  return (
-    <dialog
-      ref={dialog}
-      onCancel={onClose}
-      className="trade-modal payment-modal"
-    >
-      <form
-        onSubmit={async (e) => {
-          e.preventDefault();
-          setBusy(true);
-          if (await commit({ ...action, bills: selected })) onClose();
-          setBusy(false);
-        }}
-      >
-        <div className="row">
-          <h2>Selecciona tus billetes</h2>
-          <button type="button" onClick={onClose} aria-label="Cerrar pago">
-            ×
-          </button>
-        </div>
-        <p>{label}</p>
-        {error && <p className="error" role="alert">{error}</p>}
-        <p className="balance">Por pagar: ${amount.toLocaleString("es-MX")}</p>
-        <small>
-          Tu saldo: ${player.money.toLocaleString("es-MX")}. El Banco entrega el
-          cambio automáticamente.
-        </small>
-        <div className="banknotes">
-          {DENOMINATIONS.filter((value) => held[value]).map((value) => (
-            <div
-              key={value}
-              className="banknote"
-            >
-              <button type="button" className="pick-note" disabled={busy || (selected[value] ?? 0) >= (held[value] ?? 0)} aria-label={`Añadir billete de $${value}`} onClick={() => setSelected({...selected, [value]: Math.min(held[value] ?? 0, (selected[value] ?? 0) + 1)})}><Banknote value={value} /></button>
-              <small>Tienes {held[value] ?? 0}</small>
-              <label>
-                Cantidad
-                <input
-                  type="number"
-                  disabled={busy}
-                  min="0"
-                  max={held[value] ?? 0}
-                  value={selected[value] ?? 0}
-                  onChange={(e) =>
-                    setSelected({
-                      ...selected,
-                      [value]: Number(e.target.value),
-                    })
-                  }
-                />
-              </label>
-              {value > 1 && (
-                <button
-                  type="button"
-                  disabled={busy || !held[value]}
-                  onClick={async () => {
-                    setBusy(true);
-                    if (await commit({ type: "change", denomination: value }))
-                      setSelected({});
-                    setBusy(false);
-                  }}
-                >
-                  Cambiar billete
-                </button>
-              )}
-            </div>
-          ))}
-        </div>
-        <div className="row">
-          <span>Entregas: ${total.toLocaleString("es-MX")}</span>
-          <span>Cambio: ${Math.max(0, total - amount)}</span>
-        </div>
-        <button
-          type="button"
-          onClick={() => {
-            let remaining = amount;
-            const next: Record<string, number> = {};
-            for (const value of DENOMINATIONS) {
-              next[value] = Math.min(
-                held[value] ?? 0,
-                Math.ceil(Math.max(0, remaining) / value),
-              );
-              remaining -= next[value] * value;
-            }
-            setSelected(next);
-          }}
-        >
-          Seleccionar por mí
-        </button>
-        <button
-          className="primary"
-          disabled={busy || total < amount || player.money < amount}
-        >
-          {busy ? "Procesando…" : `Pagar $${amount}`}
-        </button>
-      </form>
-    </dialog>
-  );
-}
-````
-
-## components/PlayerPanel.tsx
-
-````tsx
-"use client";
-import { useEffect, useState } from "react";
-import { BOARD, cash } from "@/lib/game/board";
-import { auctionMinimum, bankStock, liquidationValue, netWorth } from "@/lib/game/rules";
-import type { Action, Game, Player } from "@/lib/game/types";
-
-import { CountryArt } from "./TravelArt";
-export default function PlayerPanel({ game, me, busy, send, onTrade, onSelect }: {
-  game: Game; me: Player; busy: boolean; send: (a: Action) => void;
-  onTrade: () => void; onSelect: (id: number) => void;
-}) {
-  const [panelTab, setPanelTab] = useState<"turn" | "assets">("turn");
-  const auctionSquare = game.auction?.square;
-  useEffect(() => {
-    if (me.jailed || auctionSquare !== undefined) setPanelTab("turn");
-  }, [me.jailed, auctionSquare]);
-  const [offer, setOffer] = useState(500);
-  const [buildSquare, setBuildSquare] = useState<number | null>(null);
-  const options = game.auction?.buildingOptions?.[me.id];
-  const destination = options?.includes(buildSquare ?? -1) ? buildSquare! : options?.[0];
-  const minimumBid = game.auction ? auctionMinimum(destination ?? game.auction.square, game.auction.amount, !!game.auction.buildingOptions) : 500;
-  const active = game.players[game.turn], mine = active.id === me.id && !me.bankrupt;
-  const debt = game.debt && (game.debt.payer ?? active.id) === me.id ? game.debt : null;
-  const imprisoned = me.jailed > 0 && me.detention === "prison";
-  const stock = bankStock(game);
-  const button = (label: string, action: Action, reason: string | null = null) => <div>
-    <button className="primary" disabled={busy || !!reason} title={reason ?? ""} onClick={() => send(action)}>{label}</button>
-    {reason && <small>{reason}</small>}
-  </div>;
-  const properties = BOARD.filter((b) => game.properties[b.id]?.owner === me.id);
-  const [propertyPage, setPropertyPage] = useState(0);
-  const visiblePage = Math.min(propertyPage, Math.max(0, Math.ceil(properties.length / 4) - 1));
-  return <section className={`panel player-panel ${mine ? "my-turn" : ""}`}>
-    <p className="eyebrow">{game.opening ? "ELIGE QUIÉN DESPEGA" : mine ? "ES TU TURNO" : `VIAJA ${active.name}`}</p>
-    <div className="row"><h2><i className="player-dot" style={{background:me.color}} />{me.name}</h2><span className="balance">{cash(me.money)}</span></div>
-    <small>Patrimonio neto: {cash(netWorth(game, me))} · {properties.length} propiedades</small>
-    <div className="tabs player-tabs"><button aria-pressed={panelTab === "turn"} onClick={()=>setPanelTab("turn")}>Mi turno</button><button aria-pressed={panelTab === "assets"} onClick={()=>setPanelTab("assets")}>Propiedades ({properties.length})</button></div>
-    <div hidden={panelTab !== "turn"}>
-    {me.acquisitionCard && <p className="notice">Tienes un permiso de adquisición. Selecciona el último país que te falte para completar un bloque.</p>}
-    {me.rentBonus && <p className="notice">La próxima renta de un país sin edificios se duplica.</p>}
-    {me.jailed > 0 && <div className="detention"><strong>{imprisoned ? "Cárcel" : "Deportado"}</strong><p>Quedan {me.jailed} turnos completos. Los dobles no reducen la estancia.</p><div className="detention-steps" aria-label={`${me.jailed} turnos pendientes`}>{[1,2,3].map((i) => <span key={i} className={i <= me.jailed ? "pending" : ""}>{i <= me.jailed ? "▥" : "✓"}</span>)}</div></div>}
-    {!!me.skipTurns && <p>Estancia por carta: {me.skipTurns} turnos pendientes.</p>}
-    {me.jailed > 0 && me.passes.length > 0 && !game.auction && button("Usar pase diplomático", {type:"pass"})}
-    {mine && !!me.salary && <small>El Banco cobrará tu sueldo de {cash(me.salary)} automáticamente al cerrar el turno.</small>}
-    {me.bankrupt ? <p>Terminó tu viaje. Puedes seguir viendo la partida.</p> : <div className="actions">
-      {game.opening ? <>
-        <p>El número más alto inicia. En caso de empate vuelven a tirar los finalistas.</p>
-        {game.opening.candidates.map((id) => <div className="row" key={id}><span>{game.players.find((p) => p.id === id)?.name}</span><b>{game.opening?.rolls[id] ?? "Por tirar"}</b></div>)}
-        {button("Tirar dado de salida", {type:"opening-roll"}, !game.opening.candidates.includes(me.id) ? "Espera el desempate." : game.opening.rolls[me.id] !== undefined ? "Esperando a los demás." : null)}
-      </> : game.auction ? <div className="auction-box">
-        <span className="eyebrow">SUBASTA EN VIVO</span><h3>{game.auction.buildingOptions ? "Último edificio disponible" : BOARD[game.auction.square].name}</h3>
-        <p>{game.auction.bidder ? `${game.players.find((p) => p.id === game.auction?.bidder)?.name} ofrece ${cash(game.auction.amount)}` : `Oferta inicial desde ${cash(minimumBid)}`}</p>
-        <small>Quedan {Math.max(0, Math.ceil((game.auction.endsAt - Date.now()) / 1000))} s. Cada oferta añade 20 s.</small>
-        {game.auction.passed.includes(me.id) ? <p className="notice">Ya rechazaste esta subasta. Tu ficha permanece en {BOARD[me.position].name}. Esperando a los demás viajeros.</p> : <>
-        {game.auction.buildingOptions && options?.length ? <label>Construir en<select value={destination} onChange={(e)=>setBuildSquare(Number(e.target.value))}>{options.map((id)=><option key={id} value={id}>{BOARD[id].name}</option>)}</select></label> : null}
-        <label>Tu oferta<input type="number" step="500" min={minimumBid} max={me.money} value={Math.max(offer,minimumBid)} onChange={(e) => setOffer(Number(e.target.value))}/></label>
-        {button("Ofertar", {type:"bid",amount:Math.max(offer,minimumBid),square:destination}, imprisoned ? "No puedes comprar desde la cárcel." : game.auction.buildingOptions && !options?.length ? "No tienes un país listo para construir." : game.auction.passed.includes(me.id) ? "Te retiraste de esta subasta." : Math.max(offer,minimumBid)>me.money ? "Saldo insuficiente." : null)}
-        {button("Pasar esta subasta", {type:"fold"}, imprisoned || game.auction.passed.includes(me.id) || game.auction.bidder === me.id ? "No disponible." : null)}
-        </>}
-        <small>La oferta ganadora se paga automáticamente al cerrar.</small>
-      </div> : debt ? <>
-        <p className="error">Pago pendiente: {cash(debt.amount)}. Puedes seleccionar billetes o reunir dinero administrando tus propiedades.</p>
-        {button("Seleccionar billetes y pagar", {type:"settle"}, me.money < debt.amount ? "Primero reúne el importe completo." : null)}
-        {button("Declarar quiebra", {type:"bankrupt"}, liquidationValue(game, me) >= debt.amount ? "Tus activos todavía pueden cubrir el pago." : null)}
-      </> : game.debt ? <p className="notice">Esperando el pago de {game.players.find((p) => p.id === (game.debt?.payer ?? active.id))?.name}.</p> : game.choice ? <>
-        <p>Elige al viajero que te pagará {cash(game.choice.amount)}.</p>
-        {game.choice.player === me.id ? game.players.filter((p) => p.id !== me.id && !p.bankrupt).map((p) => <button key={p.id} onClick={() => send({type:"collect",target:p.id})} disabled={busy}>{p.name}</button>) : <small>Esperando la elección de {active.name}.</small>}
-      </> : <>
-        {game.phase === "roll" && (me.jailed || me.skipTurns) && mine ? button("Cumplir un turno de espera", {type:"wait"}) : game.phase === "roll" && button("✦ Tirar los dados", {type:"roll"}, mine ? null : "Espera tu turno.")}
-        {mine && me.jailed > 0 && !imprisoned && button("Pagar $5,000 y volver a Salida", {type:"bail"}, me.money < 5000 ? "Saldo insuficiente." : null)}
-        {mine && game.phase === "buy" && <div className="buy-scene"><div className="scene-country"><CountryArt id={me.position} /><span>{BOARD[me.position].flag ?? "✈"}</span><h2>{BOARD[me.position].name}</h2><p>¿Agregamos este destino a tu viaje?</p></div>
-          {button(`Comprar ${BOARD[me.position].name} · ${cash(BOARD[me.position].price)}`, {type:"buy"}, me.money < BOARD[me.position].price ? "Saldo insuficiente." : null)}
-          {button("Rechazar y subastar para los demás", {type:"decline"})}
-        </div>}
-        {mine && game.detentionDecision === me.id && button("Quedarme · esperar 3 turnos", {type:"stay"})}
-        {mine && game.phase === "end" && !game.detentionDecision && <p role="status">{game.extra ? "Tu tiro extra se habilitará automáticamente." : "El turno terminará automáticamente."}</p>}
-      </>}
-    </div>}
-    {!me.bankrupt && <button className="trade-trigger" onClick={onTrade} disabled={busy || !!game.debt || !!game.auction || !!game.opening || imprisoned} title={imprisoned ? "En la cárcel no puedes negociar." : "Ofrece dinero y propiedades, incluso fuera de tu turno."}>⇄ Proponer trato</button>}
-    </div><div hidden={panelTab !== "assets"}>
-    <h3>Mi pasaporte de propiedades</h3>
-    <div className="owned">{properties.slice(visiblePage*4,visiblePage*4+4).map((b) => <button key={b.id} style={{borderLeftColor:b.color ?? "#777"}} onClick={() => onSelect(b.id)}>{b.flag} {b.name}<span>{game.properties[b.id].mortgaged ? "Hipotecada" : game.properties[b.id].buildings === 5 ? "Hotel" : game.properties[b.id].buildings ? `${game.properties[b.id].buildings} casas` : ""}</span></button>)}
-      {!properties.length && <small>Tu primera escala te espera.</small>}
-    </div>
-    {properties.length>4 && <div className="row"><button disabled={!visiblePage} onClick={()=>setPropertyPage(visiblePage-1)}>←</button><small>{visiblePage+1} / {Math.ceil(properties.length/4)}</small><button disabled={(visiblePage+1)*4>=properties.length} onClick={()=>setPropertyPage(visiblePage+1)}>→</button></div>}
-    <small className="bank-stock">Banco · {stock.houses} casas · {stock.hotels} hoteles disponibles</small>
-    </div>
-  </section>;
-}
-````
-
-## components/PropertyCard.tsx
-
-````tsx
-import { Building, CountryArt } from "./TravelArt";
-import { BOARD } from "@/lib/game/board";
-import { assetError, group } from "@/lib/game/rules";
-import type { Action, Game, Player } from "@/lib/game/types";
-export default function PropertyCard({
-  id,
-  game,
-  me,
-  send,
-  busy,
-}: {
-  id: number;
-  game: Game;
-  me: Player | undefined;
-  send: (a: Action) => void;
-  busy: boolean;
-}) {
-  const b = BOARD[id],
-    a = game.properties[id],
-    owner = game.players.find((p) => p.id === a?.owner);
-  return (
-    <section
-      className="panel property"
-      style={{ borderTopColor: b.color ?? "#175344" }}
-    >
-      <p className="eyebrow">{b.group ?? "ESCALA DEL VIAJE"}</p>
-      {b.kind === "country" && <CountryArt id={b.id} />}
-      <h2>{b.flag} {b.name}</h2>
-      {!!a?.buildings && <div className="property-buildings">{a.buildings === 5 ? <Building hotel /> : Array.from({length: a.buildings}, (_, i) => <Building key={i} />)}</div>}
-      {me?.acquisitionCard && b.kind === "country" && a?.owner !== me.id && group(id).every((x) => x.id === id || game.properties[x.id].owner === me.id) && <button className="primary" disabled={busy || !!game.debt || !!game.auction} onClick={() => send({type:"acquire", square:id})}>Usar permiso para completar bloque</button>}
-      {b.price ? (
-        <>
-          <p>
-            {owner ? `Propiedad de ${owner.name}` : "Disponible en el Banco"}
-            {a?.mortgaged ? " · Hipotecada" : ""}
-          </p>
-          <dl>
-            <div>
-              <dt>Compra</dt>
-              <dd>${b.price}</dd>
-            </div>
-            <div>
-              <dt>Hipoteca</dt>
-              <dd>${b.mortgage}</dd>
-            </div>
-            {b.buildCost > 0 && (
-              <div>
-                <dt>Por edificio</dt>
-                <dd>${b.buildCost}</dd>
-              </div>
-            )}
-          </dl>
-          <div className="rent-list">
-            {b.rents.map((r, i) => (
-              <span key={i}>
-                {b.kind === "country"
-                  ? [
-                      "Base",
-                      "1 casa",
-                      "2 casas",
-                      "3 casas",
-                      "4 casas",
-                      "Hotel",
-                    ][i]
-                  : b.kind === "airline"
-                    ? `${i + 1} aerolínea(s)`
-                    : `${i + 1} servicio(s)`}
-                <b>{b.kind === "utility" ? `${r} × dados` : `$${r}`}</b>
-              </span>
-            ))}
-          </div>
-          {b.kind === "country" && (
-            <small>
-              Renta base doble con el grupo completo. Edificios vendidos al
-              Banco a mitad de precio.
-            </small>
-          )}
-          {me && a?.owner === me.id && game.status === "playing" && (
-            <div className="asset-actions">
-              {(["build", "sell", "sell-group", "mortgage", "redeem", "return"] as const).map(
-                (type) => {
-                  const reason =
-                    assetError(game, me, id, type);
-                  return (
-                    <div key={type}>
-                      <button
-                        disabled={busy || !!reason}
-                        title={reason ?? ""}
-                        onClick={() => send({ type, square: id })}
-                      >
-                        {
-                          {
-                            build: "Construir",
-                            sell: "Vender edificio",
-                            "sell-group": "Vender edificios del bloque",
-                            mortgage: "Hipotecar",
-                            redeem: "Deshipotecar",
-                            return: "Devolver al Banco",
-                          }[type]
-                        }
-                      </button>
-                      {reason && <small>{reason}</small>}
-                    </div>
-                  );
-                },
-              )}
-            </div>
-          )}
-        </>
-      ) : (
-        <p>
-          {b.kind === "oceania"
-            ? "De visita al caer con dados. Si te envían aquí: paga $5,000 o cumple tres turnos completos; después regresas a Salida sin sueldo. Puedes administrar tus propiedades."
-            : b.kind === "start"
-              ? "Reclama $20,000 al pasar o caer aquí, antes de ceder el turno."
-              : b.kind === "tax"
-                ? `Paga $${b.tax} al Banco.`
-                : b.kind === "go-oceania"
-                  ? "Paga $10,000 de fianza y cumple tres turnos completos. No cobras rentas ni administras propiedades. Los dobles no te liberan."
-                  : b.kind === "rest"
-                    ? "Australia es descanso: no hay castigo al caer con dados. Algunas cartas pueden indicar una estancia especial."
-                    : "Roba una carta y sigue sus instrucciones."}
-        </p>
-      )}
-    </section>
-  );
-}
-````
-
-## components/PropertyDialog.tsx
-
-````tsx
-"use client";
-import { useEffect, useRef } from "react";
-import PropertyCard from "./PropertyCard";
-import type { Action, Game, Player } from "@/lib/game/types";
-export default function PropertyDialog({ id, game, me, busy, send, onClose, suspended = false }: {
-  id:number; game:Game; me:Player|undefined; busy:boolean;
-  send:(a:Action)=>void; onClose:()=>void;
-  suspended?: boolean;
-}) {
-  const dialog=useRef<HTMLDialogElement>(null);
-  useEffect(()=>{
-    if (suspended) dialog.current?.close();
-    else if (!dialog.current?.open) dialog.current?.showModal();
-  },[suspended]);
-  return <dialog className="property-dialog" ref={dialog} onCancel={onClose} aria-label={`Tarjeta de propiedad`}>
-    <button aria-label="Cerrar tarjeta" onClick={onClose}>Cerrar ×</button>
-    <PropertyCard id={id} game={game} me={me} busy={busy} send={(a)=>{onClose();send(a);}}/>
-  </dialog>;
-}
-````
-
-## components/Room.tsx
-
-````tsx
-"use client";
-import { useCallback, useEffect, useRef, useState } from "react";
-import Link from "next/link";
-import type { Action, Game } from "@/lib/game/types";
-import { COLORS } from "@/lib/game/types";
-import { BOARD } from "@/lib/game/board";
-import { redemptionCost, buildingBidders } from "@/lib/game/rules";
-import { Banknote } from "./TravelArt";
-import { DENOMINATIONS, wallet } from "@/lib/game/money";
-import Board from "./Board";
-import EntryForm from "./EntryForm";
-import PropertyDialog from "./PropertyDialog";
-import PlayerPanel from "./PlayerPanel";
-import MobileTurnBar from "./MobileTurnBar";
-import AudioControls from "./AudioControls";
-import VoiceChat from "./VoiceChat";
-import Victory from "./Victory";
-import { useGameAudio } from "@/lib/useGameAudio";
-import { useGamePlayback } from "@/lib/useGamePlayback";
-import TradeModal from "./TradeModal";
-
-import Activity from "./Activity";
-import PaymentModal from "./PaymentModal";
-export default function Room({ id }: { id: string }) {
-  const [game, setGame] = useState<Game | null>(null),
-    [token, setToken] = useState<string | null>(null),
-    [playerId, setPlayerId] = useState<string | null>(null),
-    [error, setError] = useState(""),
-    [connectionError, setConnectionError] = useState(""),
-    [busy, setBusy] = useState(false),
-    [loaded, setLoaded] = useState(false),
-    [missing, setMissing] = useState(false),
-    [selected, setSelected] = useState(0),
-    [propertyOpen, setPropertyOpen] = useState(false),
-    [sideOpen, setSideOpen] = useState(false),
-    [rosterOpen, setRosterOpen] = useState(false),
-    [rosterIndex, setRosterIndex] = useState(0),
-    [rosterPage, setRosterPage] = useState(0),
-    [resultsDismissed, setResultsDismissed] = useState(false),
-    [tradeOpen, setTradeOpen] = useState(false),
-    [inactive, setInactive] = useState(0),
-    [notice, setNotice] = useState(""),
-    [now, setNow] = useState(Date.now());
-  const audio = useGameAudio(game, playerId);
-  const playback = useGamePlayback(game);
-  const [payment, setPayment] = useState<{
-    action: Action;
-    amount: number;
-    label: string;
-  } | null>(null);
-  const state = useRef<Game | null>(null),
-    heartbeat = useRef(0),
-    inFlight = useRef(false),
-    actionFlight = useRef(false);
-  const apply = useCallback((next: Game) => {
-    if (!state.current || next.version >= state.current.version) {
-      state.current = next;
-      setGame(next);
-    }
-  }, []);
-  useEffect(() => {
-    setToken(localStorage.getItem(`turista:${id}`));
-    setLoaded(true);
-  }, [id]);
-  const refresh = useCallback(async () => {
-    if (document.hidden || inFlight.current || !loaded) return;
-    inFlight.current = true;
-    try {
-      const pulse = Date.now() - heartbeat.current > 20000;
-      const response = await fetch(
-        `/api/rooms/${id}?since=${state.current?.version ?? 0}`,
-        {
-          cache: "no-store",
-          headers: token
-            ? {
-                Authorization: `Bearer ${token}`,
-                "x-heartbeat": pulse ? "1" : "0",
-              }
-            : {},
-          signal: AbortSignal.timeout(12000),
-        },
-      );
-      const data = await response.json();
-      if (!response.ok) {
-        if (response.status === 404) setMissing(true);
-        throw new Error(data.error);
-      }
-      if (pulse) heartbeat.current = Date.now();
-      if (data.game) apply(data.game);
-      setPlayerId(data.playerId);
-      setInactive(data.inactiveFor ?? 0);
-      setConnectionError("");
-    } catch (e) {
-      setConnectionError(e instanceof Error ? e.message : "Reconectando…");
-    } finally {
-      inFlight.current = false;
-    }
-  }, [id, token, loaded, apply]);
-  useEffect(() => {
-    if (!loaded) return;
-    void refresh();
-    const timer = setInterval(() => {
-      setNow(Date.now());
-      void refresh();
-    }, 1000);
-    const visible = () => {
-      if (!document.hidden) void refresh();
-    };
-    document.addEventListener("visibilitychange", visible);
-    return () => {
-      clearInterval(timer);
-      document.removeEventListener("visibilitychange", visible);
-    };
-  }, [loaded, refresh]);
-  const commit = async (action: Action): Promise<boolean> => {
-    if (!token || !state.current || actionFlight.current) return false;
-    actionFlight.current = true;
-    setBusy(true);
-    setError("");
-    try {
-      const response = await fetch(`/api/rooms/${id}/action`, {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          token,
-          action,
-          version: state.current.version,
-          requestId: crypto.randomUUID(),
-        }),
-        signal: AbortSignal.timeout(15000),
-      });
-      const data = await response.json();
-      if (!response.ok) {
-        void refresh();
-        throw new Error(data.error);
-      }
-      apply(data.game);
-      if (action.type === "decline" || action.type === "fold") setSideOpen(false);
-      return true;
-    } catch (e) {
-      setError(
-        e instanceof Error ? e.message : "No se pudo enviar. Reconectando…",
-      );
-      return false;
-    } finally {
-      setBusy(false);
-      actionFlight.current = false;
-    }
-  };
-  const send = async (action: Action): Promise<boolean> => {
-    if (playback.busy) return false;
-    const s = state.current;
-    const p = s?.players.find((x) => x.id === playerId);
-    if (!s || !p) return false;
-    let amount = 0,
-      label = "";
-    if (action.type === "buy") {
-      amount = BOARD[p.position].price;
-      label = `Comprar ${BOARD[p.position].name}`;
-    }
-    if (action.type === "settle" && s.debt) {
-      amount = s.debt.amount;
-      label = `Pago a ${s.players.find((x) => x.id === s.debt?.creditor)?.name ?? "el Banco"}`;
-    }
-    if (action.type === "bail") {
-      amount = 5000;
-      label = "Multa para salir de Deportado";
-    }
-    if (action.type === "build") {
-      if (Object.keys(buildingBidders(s, action.square)).length > 1) return commit(action);
-      amount = BOARD[action.square].buildCost;
-      label = `Construir en ${BOARD[action.square].name}`;
-    }
-    if (action.type === "redeem") {
-      amount = redemptionCost(s, action.square);
-      label = `Deshipotecar ${BOARD[action.square].name}`;
-    }
-    if (action.type === "acquire") {
-      const b = BOARD[action.square]; amount = s.properties[b.id].owner ? b.rents[0] : b.price - 1000;
-      label = `Completar bloque con ${b.name}`;
-    }
-    if (amount > 0) {
-      setPayment({ action, amount, label });
-      return false;
-    }
-    return commit(action);
-  };
-  const selectProperty = (square: number) => { setSelected(square); setPropertyOpen(true); };
-  useEffect(() => {
-    if (!game || !playerId) return;
-    if ((game.phase === "buy" && game.players[game.turn].id === playerId) ||
-        game.debt?.payer === playerId || game.trades.some((t) => t.to === playerId)) setSideOpen(true);
-  }, [game?.phase, game?.debt?.payer, game?.trades, game?.turn, playerId, game]);
-  const copy = async (value: string) => {
-    try {
-      await navigator.clipboard.writeText(value);
-      setNotice("Copiado. Ya puedes invitar a tus amigos.");
-    } catch {
-      setNotice(`Copia este dato: ${value}`);
-    }
-  };
-  if (missing)
-    return (
-      <main className="empty panel">
-        <h1>Sala no encontrada</h1>
-        <p>Revisa el ID. Las salas vencen después de 24 horas sin acciones.</p>
-        <Link href="/">Volver al inicio</Link>
-      </main>
-    );
-  if (!game)
-    return (
-      <main className="empty panel">
-        <h1>Preparando tu viaje…</h1>
-        <p role="status">{error || connectionError || "Conectando con la sala."}</p>
-        <Link href="/">Volver al inicio</Link>
-      </main>
-    );
-  const me = game.players.find((p) => p.id === playerId),
-    host = playerId === game.host;
-  const seconds = game.endsAt
-    ? Math.max(0, Math.ceil((game.endsAt - now) / 1000))
-    : null;
-  const rollSeconds = game.status === "playing" && (game.opening || game.phase === "roll") && !game.debt && !game.auction && !game.choice && !game.detentionDecision
-    ? Math.min(20, Math.max(0, Math.ceil(((game.rollDeadline ?? game.turnAt + 20000) - now) / 1000))) : null;
-  return (
-    <main className={`room ${game.status !== "lobby" ? "table-viewport" : ""} ${sideOpen ? "side-open" : ""} ${rosterOpen ? "roster-open" : ""} ${playback.busy ? "presentation-playing" : ""}`}>
-      <header className="room-header">
-        <Link href="/" className="brand">
-          ✈ RUMBO MUNDIAL
-        </Link>
-        <div className="room-code">
-          <span>
-            SALA <b>{id}</b>
-          </span>
-          <button onClick={() => void copy(id)}>Copiar ID</button>
-          <button
-            onClick={() => void copy(`${window.location.origin}/sala/${id}`)}
-          >
-            Copiar link
-          </button>
-        </div>
-        <div className="room-audio-controls">
-          <AudioControls audio={audio} />
-          {me && token && <VoiceChat room={id} token={token} playerId={me.id} players={game.players} masterMuted={audio.preferences.muted} onEnableAudio={() => audio.change({ muted: false })} />}
-        </div>
-      </header>
-      {notice && (
-        <p role="status" className="notice">
-          {notice}
-        </p>
-      )}
-      {(error || connectionError) && (
-        <p role="alert" className="error">
-          {error || connectionError}
-        </p>
-      )}
-      {game.status === "finished" && !playback.busy && !resultsDismissed && (
-        <Victory game={game} onClose={() => setResultsDismissed(true)} muted={audio.preferences.muted} onMute={() => audio.change({ muted: !audio.preferences.muted })} />
-      )}
-      {game.status === "lobby" ? (
-        <div className="lobby-grid">
-          <section className="panel lobby">
-            <p className="eyebrow">SALA DE ABORDAJE</p>
-            <h1>
-              El viaje empieza
-              <br />
-              con tus amigos.
-            </h1>
-            <p>
-              Comparte el ID <b>{id}</b>. Necesitan de 2 a 6 jugadores.
-            </p>
-            <p>
-              {game.duration
-                ? `Partida de ${game.duration} minutos.`
-                : "Gana el último jugador que siga en pie."}
-            </p>
-            <ul className="passengers">
-              {game.players.map((p) => (
-                <li key={p.id}>
-                  <span style={{ background: p.color }}>✈</span>
-                  <b>{p.name}</b>
-                  <small>
-                    {p.id === game.host ? "Anfitrión" : "Listo para viajar"}
-                  </small>
-                </li>
-              ))}
-            </ul>
-            {me && (
-              <>
-                <fieldset>
-                  <legend>Tu avión</legend>
-                  <div className="colors">
-                    {COLORS.map((c, i) => (
-                      <button
-                        key={c}
-                        aria-label={`Color ${i + 1}`}
-                        aria-pressed={me.color === c}
-                        style={{ background: c }}
-                        disabled={
-                          busy ||
-                          game.players.some(
-                            (p) => p.id !== me.id && p.color === c,
-                          )
-                        }
-                        onClick={() => void send({ type: "color", color: c })}
-                      >
-                        ✈
-                      </button>
-                    ))}
-                  </div>
-                </fieldset>
-                {host ? (
-                  <>
-                    <button
-                      className="primary"
-                      disabled={busy || game.players.length < 2}
-                      onClick={() => void send({ type: "start" })}
-                    >
-                      Iniciar partida
-                    </button>
-                    {game.players.length < 2 && (
-                      <small>Espera a que llegue al menos un amigo.</small>
-                    )}
-                  </>
-                ) : (
-                  <p>El anfitrión iniciará la partida.</p>
-                )}
-              </>
-            )}
-          </section>
-          {!me && !token ? (
-            <EntryForm room={id} />
-          ) : (
-            <section className="panel guide">
-              <h2>Antes de despegar</h2>
-              <p>Todos empiezan con $134,500. El Banco abona $20,000 al cerrar un turno en el que pasaste por Salida.</p>
-              <p>
-                Compra países y completa grupos para construir casas.
-                Cinco construcciones se convierten en un hotel.
-              </p>
-              <p>
-                Caer en Deportado: multa de $5,000 o tres turnos. Cárcel: fianza de $10,000 y tres turnos completos. Australia es descanso.
-              </p>
-              <p>Selecciona cualquier casilla para consultar su tarjeta.</p>
-            </section>
-          )}
-        </div>
-      ) : (
-        <>
-          <div className="status-strip">
-            <span>
-              <i style={{ background: game.players[game.turn].color }} />
-              Turno de <b>{game.players[game.turn].name}</b>
-            </span>
-            {seconds !== null && (
-              <span>
-                Tiempo: {Math.floor(seconds / 60)}:
-                {String(seconds % 60).padStart(2, "0")}
-              </span>
-            )}
-            {rollSeconds !== null && <span className={`roll-countdown ${rollSeconds <= 5 ? "urgent" : ""}`} role="timer">{rollSeconds ? `${rollSeconds} s para tirar` : "Cambiando turno…"}</span>}
-            <span>Viaje compartido · {game.players.filter((p) => !p.bankrupt).length} en juego</span>
-          </div>
-          {me && game.status === "playing" && (
-            <MobileTurnBar
-              animating={playback.busy}
-              position={playback.positions[me.id]}
-              game={game}
-              me={me}
-              busy={busy || playback.busy}
-              send={(action) => void send(action)}
-              onOptions={() => { setSideOpen(true); setRosterOpen(false); }}
-            />
-          )}
-          {game.status === "playing" && game.phase === "buy" && !game.auction && !game.debt && me?.id !== game.players[game.turn].id && <div className="buy-scene spectator-decision"><p className="eyebrow">DECISIÓN EN CURSO</p><h2>{game.players[game.turn].name} llegó a {BOARD[game.players[game.turn].position].name}</h2><p>Está decidiendo si compra la propiedad o la envía a subasta.</p></div>}
-          <div className="table-toolbar">
-            <nav className="table-tools" aria-label="Paneles de la mesa">
-              {game.status === "finished" && <button onClick={() => setResultsDismissed(false)}>🏆 Resultados</button>}
-              <button aria-expanded={sideOpen} onClick={()=>{setSideOpen(!sideOpen);setRosterOpen(false);}}>✈ Mis opciones</button>
-              <button aria-expanded={rosterOpen} onClick={()=>{setRosterOpen(!rosterOpen);setSideOpen(false);}}>♟ Propiedades</button>
-            </nav>
-            <Activity game={game} event={playback.event} lastRoll={playback.lastRoll} onEvent={audio.playEvent} />
-          </div>
-          <div className="game-layout">
-            <section>
-              <Board game={game} positions={playback.positions} onSelect={selectProperty} />
-              <div className="players-strip" aria-label="Propiedades de los viajeros"><button className="panel-close" onClick={()=>setRosterOpen(false)}>Cerrar ×</button><label>Viajero<select value={rosterIndex} onChange={(e)=>{setRosterIndex(Number(e.target.value));setRosterPage(0);}}>{game.players.map((p,i)=><option value={i} key={p.id}>{p.name}</option>)}</select></label>
-                {game.players.filter((_, i)=>i===rosterIndex).map((p) => (
-                  <div
-                    key={p.id}
-                    style={{
-                      borderColor: p.color,
-                      opacity: p.bankrupt ? 0.5 : 1,
-                    }}
-                  >
-                    <b>{p.name}</b>
-                    <span>
-                      {p.bankrupt
-                        ? "En quiebra"
-                        : `$${p.money.toLocaleString("es-MX")}`}
-                    </span>
-                    <details open>
-                      <summary>
-                        {
-                          Object.values(game.properties).filter(
-                            (a) => a.owner === p.id,
-                          ).length
-                        }{" "}
-                        propiedades
-                      </summary>
-                      <div className="owned">
-                        {BOARD.filter(
-                          (b) => game.properties[b.id]?.owner === p.id,
-                        ).slice(rosterPage*4,rosterPage*4+4).map((b) => (
-                          <button key={b.id} onClick={() => selectProperty(b.id)}>
-                            {b.name}
-                            {game.properties[b.id].mortgaged ? " · H" : ""}
-                          </button>
-                        ))}
-                      </div>
-                      <div className="row"><button disabled={!rosterPage} onClick={()=>setRosterPage(rosterPage-1)}>←</button><span>Página {rosterPage+1}</span><button disabled={(rosterPage+1)*4>=Object.values(game.properties).filter((a)=>a.owner===p.id).length} onClick={()=>setRosterPage(rosterPage+1)}>→</button></div>
-                    </details>
-                  </div>
-                ))}
-              </div>
-
-            </section>
-            <aside aria-label="Panel de jugador"><button className="panel-close" onClick={()=>setSideOpen(false)}>Volver al tablero ×</button>
-              {me && game.status === "playing" && (
-                <PlayerPanel
-                  game={game}
-                  me={me}
-                  busy={busy || playback.busy}
-                  send={(a) => void send(a)}
-                  onTrade={() => setTradeOpen(true)}
-                  onSelect={selectProperty}
-                />
-              )}
-              {game.trades
-                .filter((t) => t.to === playerId || t.from === playerId)
-                .map((t) => (
-                  <section className="panel trade-scene" key={t.id}>
-                    <h2>Propuesta de trato</h2>
-                    <p>
-                      {game.players.find((p) => p.id === t.from)?.name} ofrece $
-                      {t.giveMoney} y{" "}
-                      {t.give.map((i) => BOARD[i].name).join(", ") ||
-                        "ninguna propiedad"}
-                      .
-                    </p>
-                    <p>
-                      Pide ${t.takeMoney} y{" "}
-                      {t.take.map((i) => BOARD[i].name).join(", ") ||
-                        "ninguna propiedad"}
-                      .
-                    </p>
-                    {t.to === playerId && (
-                      <button
-                        className="primary"
-                        disabled={busy || !!game.debt}
-                        onClick={() =>
-                          void send({ type: "accept", trade: t.id })
-                        }
-                      >
-                        Aceptar trato
-                      </button>
-                    )}
-                    <button
-                      disabled={busy}
-                      onClick={() => void send({ type: "reject", trade: t.id })}
-                    >
-                      {t.from === playerId ? "Cancelar" : "Rechazar"}
-                    </button>
-                  </section>
-                ))}
-              {host && game.status === "playing" && inactive >= 90000 && (
-                <section className="panel">
-                  <h2>Jugador sin conexión</h2>
-                  <p>Sin responder por más de 90 segundos.</p>
-                  <button
-                    disabled={busy || !!game.debt}
-                    onClick={() => void send({ type: "skip" })}
-                  >
-                    Saltar turno
-                  </button>
-                  <button
-                    disabled={busy}
-                    onClick={() => {
-                      if (
-                        window.confirm(
-                          "¿Declarar en quiebra al jugador inactivo?",
-                        )
-                      )
-                        void send({ type: "expel" });
-                    }}
-                  >
-                    Declarar quiebra
-                  </button>
-                </section>
-              )}
-            </aside>
-          </div>
-        </>
-      )}
-      {me && game.status !== "lobby" && <div className="wallet" aria-label="Mi mano de billetes"><div className="wallet-summary">{DENOMINATIONS.filter((v)=>wallet(me)[v]).map((v)=><span key={v}><Banknote value={v} compact/><b>× {wallet(me)[v]}</b></span>)}</div></div>}
-      {propertyOpen && <PropertyDialog id={selected} game={game} me={me} busy={busy || playback.busy} suspended={playback.busy} send={(a)=>void send(a)} onClose={()=>setPropertyOpen(false)} />}
-      {payment && me && game.status === "playing" && (
-
-        <PaymentModal
-          suspended={playback.busy}
-          player={me}
-          {...payment}
-          error={error}
-          onClose={() => setPayment(null)}
-          commit={commit}
-        />
-      )}
-      {tradeOpen && me && (
-        <TradeModal
-          suspended={playback.busy}
-          game={game}
-          me={me}
-          error={error}
-          send={send}
-          onClose={() => setTradeOpen(false)}
-        />
-      )}
-      <footer>
-        Reglas y valores adaptados · Selecciona una casilla para conocer sus
-        detalles.
-      </footer>
-    </main>
-  );
-}
-````
-
-## components/TradeModal.tsx
-
-````tsx
-"use client";
-import { useEffect, useRef, useState } from "react";
-import { BOARD } from "@/lib/game/board";
-import { group } from "@/lib/game/rules";
-import type { Action, Game, Player } from "@/lib/game/types";
-export default function TradeModal({
-  game,
-  me,
-  onClose,
-  send,
-  error,
-  suspended = false,
-}: {
-  game: Game;
-  me: Player;
-  error?: string;
-  suspended?: boolean;
-  onClose: () => void;
-  send: (a: Action) => Promise<boolean>;
-}) {
-  const dialog = useRef<HTMLDialogElement>(null);
-  const others = game.players.filter((p) => p.id !== me.id && !p.bankrupt && !(p.jailed && p.detention === "prison"));
-  const [to, setTo] = useState(others[0]?.id ?? "");
-  const [give, setGive] = useState<number[]>([]);
-  const [take, setTake] = useState<number[]>([]);
-  const [gm, setGm] = useState(0);
-  const [tm, setTm] = useState(0);
-  const [busy, setBusy] = useState(false);
-  useEffect(() => {
-    if (suspended) dialog.current?.close();
-    else if (!dialog.current?.open) dialog.current?.showModal();
-  }, [suspended]);
-  const properties = (owner: string) =>
-    BOARD.filter(
-      (b) =>
-        game.properties[b.id]?.owner === owner &&
-        !game.properties[b.id].buildings &&
-        !group(b.id).some((x) => game.properties[x.id].buildings),
-    );
-  return (
-    <dialog ref={dialog} onCancel={onClose} className="trade-modal">
-      <form
-        onSubmit={async (e) => {
-          e.preventDefault();
-          setBusy(true);
-          if (
-            await send({
-              type: "trade",
-              to,
-              give,
-              take,
-              giveMoney: gm,
-              takeMoney: tm,
-            })
-          )
-            onClose();
-          setBusy(false);
-        }}
-      >
-        <div className="row">
-          <h2>Hagamos un trato</h2>
-          <button type="button" onClick={onClose} aria-label="Cerrar">
-            ×
-          </button>
-        </div>
-        {error && <p className="error" role="alert">{error}</p>}
-        <label>
-          Negociar con
-          <select
-            value={to}
-            onChange={(e) => {
-              setTo(e.target.value);
-              setTake([]);
-            }}
-          >
-            {others.map((p) => (
-              <option key={p.id} value={p.id}>
-                {p.name}
-              </option>
-            ))}
-          </select>
-        </label>
-        <div className="trade-columns">
-          {[
-            {
-              title: "Tú ofreces",
-              owner: me.id,
-              selected: give,
-              set: setGive,
-              money: gm,
-              setMoney: setGm,
-            },
-            {
-              title: "Tú pides",
-              owner: to,
-              selected: take,
-              set: setTake,
-              money: tm,
-              setMoney: setTm,
-            },
-          ].map((side) => (
-            <fieldset key={side.title}>
-              <legend>{side.title}</legend>
-              <label>
-                Dinero
-                <input
-                  type="number"
-                  min={0}
-                  max={
-                    game.players.find((p) => p.id === side.owner)?.money ?? 0
-                  }
-                  value={side.money}
-                  onChange={(e) => side.setMoney(Number(e.target.value))}
-                />
-              </label>
-              {properties(side.owner).map((b) => (
-                <label key={b.id} className="checkbox">
-                  <input
-                    type="checkbox"
-                    checked={side.selected.includes(b.id)}
-                    onChange={(e) =>
-                      side.set(
-                        e.target.checked
-                          ? [...side.selected, b.id]
-                          : side.selected.filter((id) => id !== b.id),
-                      )
-                    }
-                  />
-                  {b.name}
-                  {game.properties[b.id].mortgaged ? " (hipotecada)" : ""}
-                </label>
-              ))}
-            </fieldset>
-          ))}
-        </div>
-        <p>
-          Solo propiedades de grupos sin edificios. Las hipotecas se transfieren
-          y conservan su costo de liberación.
-        </p>
-        <button className="primary" disabled={busy || !to}>
-          Enviar propuesta
-        </button>
-      </form>
-    </dialog>
-  );
-}
-````
-
-## components/TravelArt.tsx
-
-````tsx
-import Image from "next/image";
-import { COUNTRY_ART } from "@/lib/game/art";
-import type { CSSProperties } from "react";
-
-/** Original vector artwork: no downloaded illustration or reference photograph. */
-export function Globe({ className = "" }: { className?: string }) {
-  return <svg className={className} viewBox="0 0 360 240" fill="none" aria-hidden="true">
-    <ellipse cx="180" cy="218" rx="94" ry="12" fill="currentColor" opacity=".08" />
-    <circle cx="180" cy="112" r="94" fill="#d7efeb" stroke="#217b7b" strokeWidth="2" />
-    <ellipse cx="180" cy="112" rx="48" ry="94" stroke="#8bc3b7" />
-    <ellipse cx="180" cy="112" rx="82" ry="94" stroke="#8bc3b7" />
-    <path d="M86 112h188M100 64h160M100 160h160M180 18v188" stroke="#8bc3b7" />
-    <path d="m115 46 22-10 15 8 9 23-8 12-13 2 3 17-10 13-18-7-3-14-13-9 4-18zm28 69 24 5 14 17-8 27-17 25-8-8-1-23-11-18zm51-71 18-9 25 13-3 12 20 13 8 21-14 10-23-6-9 12-10-8 4-19-18-10zm1 61 21 4 14 24-10 27-12 5-14-23-8-23zm43 54 22 4 8 15-18 8-19-8z" fill="#60a695" />
-    <path d="M54 151C16 185 53 210 151 183s180-95 153-119c-10-8-26-8-42-4" stroke="#e5914c" strokeWidth="3" strokeDasharray="6 6" />
-    <g transform="translate(290 65) rotate(-35)"><path d="m0-18 5 13 18 10v5L5 6l-1 13 7 6v4L0 25l-11 4v-4l7-6-1-13-18 4V5L-5-5z" fill="#203f59" stroke="#fff" strokeWidth="2" /></g>
-    <circle cx="130" cy="101" r="5" fill="#e77753" stroke="white" strokeWidth="2" />
-    <circle cx="227" cy="69" r="5" fill="#e77753" stroke="white" strokeWidth="2" />
-  </svg>;
-}
-export function Building({ hotel = false }: { hotel?: boolean }) {
-  return <svg className={`building-piece ${hotel ? "hotel" : "house"}`} viewBox="0 0 32 32" aria-label={hotel ? "Hotel" : "Casa"} role="img">
-    {hotel ? <><path d="M7 6h19v23H7z" fill="#c66646"/><path d="M3 10 7 6v23l-4-3z" fill="#91442e"/><path d="M5 4h23v4H5z" fill="#edab70"/><path d="M11 11h4v4h-4zm7 0h4v4h-4zm-7 7h4v4h-4zm7 0h4v4h-4z" fill="#ffedbc"/><path d="M14 24h5v5h-5z" fill="#723c37"/></> : <><path d="M5 15 17 5l12 10v14H5z" fill="#5db6a2"/><path d="M2 15 16 3l15 12-3 3L16 8 5 18z" fill="#216c68"/><path d="M10 20h6v9h-6zm10-3h5v6h-5z" fill="#fff0b8"/></>}
-  </svg>;
-}
-export function Banknote({ value, compact = false }: { value: number; compact?: boolean }) {
-  const palette: Record<number, string> = {50000:"#a883c7",10000:"#75a99d",5000:"#77a8c7",2000:"#d5a16a",1000:"#d58e99",500:"#afad71"};
-  return <span className={`note-art ${compact ? "compact" : ""}`} style={{ "--note-color": palette[value] ?? "#9aa7ab" } as CSSProperties}>
-    <span className="note-label">BANCO DEL VIAJERO</span><span className="note-orbit" aria-hidden="true">✈</span>
-    <strong>${value.toLocaleString("es-MX")}</strong><span className="note-serial">RM · CRÉDITOS DE VIAJE</span>
-  </span>;
-}
-
-export function CountryArt({ id }: { id: number }) {
-  const art = COUNTRY_ART[id];
-  if (!art) return null;
-  return <Image className="country-art" src={art.src} alt={`Ilustración de ${art.name}`} width={960} height={640} sizes="(max-width: 780px) 90vw, 430px" />;
-}
-````
-
-## components/Victory.tsx
-
-````tsx
-"use client";
-
-import { useEffect, useRef, type CSSProperties } from "react";
-import Link from "next/link";
-import { cash } from "@/lib/game/board";
-import { ranking } from "@/lib/game/rules";
-import type { Game } from "@/lib/game/types";
-
-const CONFETTI_COLORS = ["#f6c85b", "#eb8267", "#63cebd", "#83b8ff", "#d9a1ee"];
-
-export default function Victory({ game, onClose, muted, onMute }: {
-  game: Game;
-  onClose: () => void;
-  muted: boolean;
-  onMute: () => void;
-}) {
-  const dialog = useRef<HTMLDialogElement>(null);
-  const results = ranking(game);
-  const winners = game.players.filter((player) => game.winner.includes(player.id));
-  useEffect(() => { dialog.current?.showModal(); }, []);
-  return (
-    <dialog ref={dialog} className="victory-celebration" onCancel={onClose} aria-labelledby="victory-title">
-      <div className="victory-confetti" aria-hidden="true">
-        {Array.from({ length: 42 }, (_, i) => <span key={i} style={{
-          left: `${(i * 29) % 100}%`, background: CONFETTI_COLORS[i % CONFETTI_COLORS.length],
-          animationDelay: `${(i % 9) * 0.11}s`, animationDuration: `${3.5 + (i % 5) * 0.3}s`,
-          "--confetti-drift": `${((i * 37) % 150) - 75}px`,
-          borderRadius: i % 3 ? "2px" : "50%",
-        } as CSSProperties} />)}
-      </div>
-      <header className="victory-heading">
-        <span className="victory-trophy" aria-hidden="true">🏆</span>
-        <p className="eyebrow">{winners.length ? `EL MUNDO TIENE ${winners.length > 1 ? "CAMPEONES" : "CAMPEÓN"}` : "VIAJE COMPLETADO"}</p>
-        <h1 id="victory-title">{winners.length ? winners.map((player) => player.name).join(" y ") : "Un viaje inolvidable"}</h1>
-        <p>{winners.length > 1 ? "¡Victoria compartida!" : winners.length ? "¡La victoria es tuya!" : "La partida ha terminado."}</p>
-      </header>
-      <div className="victory-podium" aria-label="Podio de la partida">
-        {[2, 1, 3].map((place) => {
-          const occupants = results.filter((entry) => entry.place === place);
-          return <div key={place} className={`podium-group podium-rank-${place}`}>
-            {!!occupants.length && <>
-              <div className="podium-travelers">
-                {occupants.map(({ player }) => <div key={player.id}>
-                  <span className="podium-avatar" style={{ background: player.color }} aria-hidden="true">✈</span>
-                  <strong>{player.name}</strong>
-                </div>)}
-              </div>
-              <div className="podium-step"><span aria-hidden="true">{place === 1 ? "🥇" : place === 2 ? "🥈" : "🥉"}</span><b>{place}º</b></div>
-            </>}
-          </div>;
-        })}
-      </div>
-      <ol className="victory-results" aria-label="Clasificación final por patrimonio y eliminación">
-        {results.map(({ player, place, score }) => <li key={player.id} className={game.winner.includes(player.id) ? "champion" : ""}>
-          <b className="result-place">{place}º</b>
-          <i className="player-dot" style={{ background: player.color }} aria-hidden="true" />
-          <div><strong>{player.name}</strong><small>{player.bankrupt ? "Eliminado" : "Patrimonio neto"}</small></div>
-          <span>{cash(score)}</span>
-        </li>)}
-      </ol>
-      <footer className="victory-actions">
-        <button onClick={onClose} autoFocus>Ver tablero</button>
-        <Link href="/">Organizar revancha ↗</Link>
-        <button onClick={onMute}>{muted ? "Activar audio" : "Silenciar todo"}</button>
-      </footer>
-    </dialog>
-  );
-}
-````
-
-## components/VoiceChat.tsx
-
-````tsx
-"use client";
-
-import { useEffect, useId, useRef, useState } from "react";
-import { EMPTY_VOICE, VoiceClient, type VoiceClientView } from "@/lib/voice/client";
-import type { Player } from "@/lib/game/types";
-
-export default function VoiceChat({ room, token, playerId, players, masterMuted, onEnableAudio }: {
-  room: string; token: string; playerId: string; players: Player[];
-  masterMuted: boolean; onEnableAudio: () => void;
-}) {
-  const client = useRef<VoiceClient | null>(null);
-  const details = useRef<HTMLDetailsElement>(null);
-  const [view, setView] = useState<VoiceClientView>(EMPTY_VOICE);
-  const [micMuted, setMicMuted] = useState(false);
-  const [volume, setVolume] = useState(80);
-  const volumeId = useId();
-  useEffect(() => {
-    try {
-      const stored = localStorage.getItem("rumbo:voice-volume");
-      const saved = stored === null ? 80 : Number(stored);
-      if (Number.isFinite(saved)) setVolume(Math.max(0, Math.min(100, saved)));
-    } catch { /* El volumen sigue disponible sin almacenamiento local. */ }
-  }, []);
-  useEffect(() => {
-    const leave = () => {
-      if (!client.current) return;
-      client.current.dispose();client.current = null;
-      setView({ ...EMPTY_VOICE, error: "Voz desconectada al salir de esta pestaña. Puedes volver a activarla." });
-    };
-    const visibility = () => { if (document.hidden) leave(); };
-    document.addEventListener("visibilitychange", visibility);
-    window.addEventListener("pagehide", leave);
-    return () => {
-      document.removeEventListener("visibilitychange", visibility);
-      window.removeEventListener("pagehide", leave);
-      client.current?.dispose();client.current = null;
-    };
-  }, [room, token, playerId]);
-  useEffect(() => { client.current?.setMasterMuted(masterMuted); }, [masterMuted]);
-  useEffect(() => { client.current?.setVolume(volume / 100); }, [volume]);
-
-  const join = () => {
-    client.current?.dispose();
-    onEnableAudio();setMicMuted(false);
-    const connection = new VoiceClient(room, token, playerId, setView, volume / 100);
-    client.current = connection;
-    void connection.join();
-  };
-  const leave = () => {
-    client.current?.dispose();client.current = null;
-    setView(EMPTY_VOICE);setMicMuted(false);
-  };
-  const silent = micMuted || masterMuted;
-  const failed = Object.values(view.connections).some((status) => status === "failed");
-  return (
-    <details className="voice-controls" ref={details} onKeyDown={(event) => {
-      if (event.key === "Escape" && details.current) {
-        details.current.open = false;details.current.querySelector("summary")?.focus();
-      }
-    }}>
-      <summary className={view.phase === "joined" && !silent ? "mic-live" : ""}>
-        <span aria-hidden="true">🎙</span> {view.phase === "joining" ? "Conectando…" : view.phase === "joined" ? silent ? "Mic. silenciado" : "Mic. encendido" : "Chat de voz"}
-      </summary>
-      <section className="voice-popover" aria-label="Voz de la sala">
-        <div className="row"><strong>Habla con tus amigos</strong><button aria-label="Cerrar controles de voz" onClick={() => { if (details.current) details.current.open = false; }}>×</button></div>
-        {view.phase === "off" ? <>
-          <p>Activa el micrófono para entrar a la conversación. No se graba el audio.</p>
-          <button className="primary" onClick={join}>Activar micrófono y entrar</button>
-        </> : view.phase === "joining" ? <>
-          <p role="status">Esperando permiso del micrófono y conectando…</p>
-          <button onClick={leave}>Cancelar</button>
-        </> : <>
-          <button className={silent ? "primary" : "voice-mute"} onClick={() => {
-            const next = !silent;
-            if (silent && masterMuted) onEnableAudio();
-            setMicMuted(next);client.current?.setMuted(next);
-          }}>{silent ? "Encender mi micrófono" : "Silenciar mi micrófono"}</button>
-          <label htmlFor={volumeId}>Volumen de voces <output>{volume}%</output></label>
-          <input id={volumeId} type="range" min="0" max="100" step="1" value={volume} onChange={(event) => {
-            const next = Number(event.target.value);setVolume(next);
-            try { localStorage.setItem("rumbo:voice-volume", String(next)); } catch { /* Preferencia de esta sesión. */ }
-          }} />
-          {masterMuted && <p>«Silenciar todo» está activo: no envías ni escuchas voz. <button onClick={onEnableAudio}>Activar sonido</button></p>}
-          <ul className="voice-members" aria-label="Participantes en la conversación">
-            {view.members.map((member) => {
-              const player = players.find((p) => p.id === member.playerId);
-              const own = member.playerId === playerId;
-              const status = view.connections[member.playerId];
-              return <li key={member.playerId}>
-                <i className="player-dot" style={{ background: player?.color }} />
-                <span>{player?.name ?? "Viajero"}{own ? " (tú)" : ""}</span>
-                <small>{own ? silent ? "Silenciado" : "Micrófono activo" : status === "failed" ? "Sin conexión" : status === "connected" ? member.muted ? "Silenciado" : "En línea" : "Conectando…"}</small>
-              </li>;
-            })}
-          </ul>
-          {view.members.length < 2 && <p>Ya estás dentro. Esperando a que tus amigos activen el chat de voz.</p>}
-          {view.playbackBlocked && <button className="primary" onClick={() => void client.current?.resumePlayback()}>Tocar para escuchar voces</button>}
-          {failed && <p role="status">No se pudo conectar con algún viajero. Prueba otra red o reconecta. Algunas redes necesitan el respaldo TURN.</p>}
-          <div className="voice-buttons"><button onClick={join}>Reconectar</button><button onClick={leave}>Salir de la voz</button></div>
-        </>}
-        {view.error && <p role="status" className="voice-error">{view.error}</p>}
-        <small>Usa audífonos para evitar eco. La voz se desconecta al ocultar la pestaña y nunca activa el micrófono sola al refrescar.</small>
-      </section>
-    </details>
-  );
-}
-````
-
-## lib/audio.ts
+## src/application/ports/platform.ts
 
 ````typescript
-export interface AudioPreferences {
-  muted: boolean;
-  music: number;
-  effects: number;
+export interface Platform {
+  now(): number;
+  uuid(): string;
+  digest(token: string): string;
+  randomInt(max: number): number;
 }
+````
 
-export const DEFAULT_AUDIO: AudioPreferences = { muted: true, music: 30, effects: 65 };
-export type SoundCue = "roll" | "purchase" | "payment" | "card" | "turn" | "trade" | "victory" | "travel";
+## src/application/ports/room-repository.ts
 
-export function audioPreferences(value: unknown): AudioPreferences {
-  const input = value && typeof value === "object" ? value as Record<string, unknown> : {};
-  const volume = (v: unknown, fallback: number) =>
-    typeof v === "number" && Number.isFinite(v) ? Math.max(0, Math.min(100, v)) : fallback;
+````typescript
+import type { Game } from "@/domain/game/types";
+export interface StoredRoom { game: Game; tokens: Record<string, string>; receipts: Record<string, number>; }
+export interface RoomRepository {
+  load(id: string): Promise<StoredRoom | null>;
+  create(id: string, room: StoredRoom): Promise<boolean>;
+  save(id: string, expectedVersion: number, room: StoredRoom): Promise<void>;
+  markSeen(id: string, playerId: string, now: number): Promise<void>;
+  lastSeen(id: string, playerId: string): Promise<number | null>;
+}
+````
+
+## src/application/ports/voice-repository.ts
+
+````typescript
+import type { VoiceState } from "@/domain/voice/types";
+export interface VoiceRepository {
+  load(room: string): Promise<VoiceState | null>;
+  save(room: string, expectedRevision: number, state: VoiceState): Promise<boolean>;
+}
+````
+
+## src/application/rooms/act.ts
+
+````typescript
+import { engine } from "@/domain/game/engine";
+import { waitingPlayer } from "@/domain/game/turns";
+import type { Game } from "@/domain/game/types";
+import { OperationError } from "@/domain/shared/errors";
+import type { RoomActionInput, RoomDependencies } from "./contracts";
+import { authorize, context, loadRoom, publicGame } from "./shared";
+export async function act(deps: RoomDependencies, id: string, data: RoomActionInput) {
+  const stored = await loadRoom(deps, id),
+    pid = authorize(deps, stored, data.token);
+  const receipt = `${pid}:${data.requestId}`;
+  if (stored.receipts[receipt]) return { game: publicGame(stored.game) };
+  if (stored.game.version !== data.version)
+    throw new OperationError("conflict", "La sala cambió. Revisa el estado actualizado.");
+  const ctx = context(deps);
+  if (data.action.type === "skip" || data.action.type === "expel") {
+    const active = stored.game.players.find((p) => p.id === waitingPlayer(stored.game))!;
+    const seen = await deps.rooms.lastSeen(id, active.id);
+    ctx.inactive = ctx.now - Math.max(stored.game.turnAt, seen ?? 0) >= 90000;
+  }
+  let next: Game;
+  try {
+    next = engine(stored.game, data.action, pid, ctx);
+  } catch (e) {
+    throw new OperationError("invalid",
+      e instanceof Error ? e.message : "Acción inválida.",
+    );
+  }
+  next.version = stored.game.version + 1;
+  const old = stored.game.version;
+  stored.game = next;
+  stored.receipts[receipt] = next.version;
+  stored.receipts = Object.fromEntries(
+    Object.entries(stored.receipts).slice(-100),
+  );
+  await deps.rooms.save(id, old, stored);
+  await deps.rooms.markSeen(id, pid, ctx.now);
+  return { game: publicGame(next) };
+}
+````
+
+## src/application/rooms/contracts.ts
+
+````typescript
+import type { Action } from "@/domain/game/types";
+import type { Platform } from "../ports/platform";
+import type { RoomRepository } from "../ports/room-repository";
+export interface RoomDependencies { rooms: RoomRepository; platform: Platform; }
+export interface CreateRoomInput { name: string; color?: string; duration: 0 | 30 | 60 | 90; }
+export interface JoinRoomInput { name: string; color?: string; token?: string; }
+export interface RoomActionInput { token: string; action: Action; version: number; requestId: string; }
+````
+
+## src/application/rooms/create-room.ts
+
+````typescript
+import { newGame, newPlayer } from "@/domain/game/factory";
+import { COLORS } from "@/domain/game/types";
+import { OperationError } from "@/domain/shared/errors";
+import type { StoredRoom } from "../ports/room-repository";
+import type { CreateRoomInput, RoomDependencies } from "./contracts";
+import { publicGame } from "./shared";
+export async function createRoom(deps: RoomDependencies, data: CreateRoomInput) {
+  const token = deps.platform.uuid(),
+    player = newPlayer(deps.platform.uuid(), data.name, data.color ?? COLORS[0]);
+  for (let attempt = 0; attempt < 8; attempt++) {
+    const alphabet = "ABCDEFGHJKLMNPQRSTUVWXYZ23456789";
+    const id = Array.from(
+      { length: 6 },
+      () => alphabet[deps.platform.randomInt(alphabet.length)],
+    ).join("");
+    const game = newGame(id, player, data.duration);
+    const stored: StoredRoom = {
+      game,
+      tokens: { [deps.platform.digest(token)]: player.id },
+      receipts: {},
+    };
+    if (await deps.rooms.create(id, stored))
+      return {
+        id,
+        playerToken: token,
+        playerId: player.id,
+        game: publicGame(game),
+      };
+  }
+  throw new OperationError("unavailable", "No se pudo crear una sala. Intenta otra vez.");
+}
+````
+
+## src/application/rooms/get-room.ts
+
+````typescript
+import { finishByTime } from "@/domain/game/timing";
+import { waitingPlayer } from "@/domain/game/turns";
+import { OperationError } from "@/domain/shared/errors";
+import type { RoomDependencies } from "./contracts";
+import { authorize, loadRoom, publicGame } from "./shared";
+export async function getRoom(deps: RoomDependencies, id: string, token: string | null, heartbeat: boolean) {
+  let stored = await loadRoom(deps, id);
+  let playerId: string | null = null;
+  if (token) {
+    playerId = authorize(deps, stored, token);
+    if (heartbeat)
+      await deps.rooms.markSeen(id, playerId, deps.platform.now());
+  }
+  const expired = finishByTime(stored.game, deps.platform.now());
+  if (expired !== stored.game) {
+    const old = stored.game.version;
+    expired.version = old + 1;
+    stored.game = expired;
+    try {
+      await deps.rooms.save(id, old, stored);
+    } catch (e) {
+      if (!(e instanceof OperationError) || e.code !== "conflict") throw e;
+      stored = await loadRoom(deps, id);
+    }
+  }
+  const active = stored.game.players.find((p) => p.id === waitingPlayer(stored.game))!;
+  const seen = await deps.rooms.lastSeen(id, active.id);
   return {
-    muted: typeof input.muted === "boolean" ? input.muted : DEFAULT_AUDIO.muted,
-    music: volume(input.music, DEFAULT_AUDIO.music),
-    effects: volume(input.effects, DEFAULT_AUDIO.effects),
+    game: publicGame(stored.game),
+    playerId,
+    inactiveFor: Math.max(
+      0,
+      deps.platform.now() - Math.max(stored.game.turnAt, seen ?? 0),
+    ),
   };
 }
+````
 
-// Partitura original: marimba suave, acordes y bajo. No descarga pistas externas.
-const CHORDS = [[48, 55, 60, 64], [45, 52, 57, 60], [41, 48, 53, 57], [43, 50, 55, 59]];
-const MELODY = [
-  [76, 0, 79, 76, 74, 0, 72, 0, 0, 76, 79, 0, 81, 79, 76, 0],
-  [72, 0, 76, 0, 81, 79, 76, 0, 74, 0, 72, 0, 71, 72, 0, 0],
-  [69, 0, 72, 76, 77, 0, 76, 72, 0, 69, 72, 0, 76, 74, 72, 0],
-  [71, 0, 74, 79, 0, 77, 74, 0, 71, 74, 0, 72, 0, 0, 0, 0],
-];
-const frequency = (note: number) => 440 * 2 ** ((note - 69) / 12);
+## src/application/rooms/identity.ts
 
-export class GameAudio {
-  private readonly music: GainNode;
-  private readonly effects: GainNode;
-  private preferences = DEFAULT_AUDIO;
-  private timer: ReturnType<typeof setInterval> | null = null;
-  private notes = new Set<OscillatorNode>();
-  private step = 0;
-  private nextBeat = 0;
-  private visible = true;
-  private disposed = false;
-
-  constructor(private readonly context: AudioContext) {
-    this.music = context.createGain();
-    this.effects = context.createGain();
-    this.music.connect(context.destination);
-    this.effects.connect(context.destination);
-    this.music.gain.value = 0;
-    this.effects.gain.value = 0;
-  }
-
-  configure(preferences: AudioPreferences) {
-    this.preferences = audioPreferences(preferences);
-    const { muted, music, effects } = this.preferences;
-    this.music.gain.setTargetAtTime(muted ? 0 : (music / 100) ** 2, this.context.currentTime, 0.025);
-    this.effects.gain.setTargetAtTime(muted ? 0 : (effects / 100) ** 2, this.context.currentTime, 0.025);
-    if (muted) this.pause();
-    else if (this.context.state === "running" && this.visible) this.startMusic();
-  }
-
-  async unlock() {
-    if (this.disposed || this.preferences.muted || !this.visible) return;
-    await this.context.resume();
-    if (!this.disposed && !this.preferences.muted && this.visible) this.startMusic();
-    else if (!this.disposed) this.pause();
-  }
-
-  setVisible(visible: boolean) {
-    this.visible = visible;
-    if (!visible) this.pause();
-  }
-
-  private tone(note: number, at: number, duration: number, level: number, bus: GainNode, type: OscillatorType = "sine") {
-    const oscillator = this.context.createOscillator();
-    const envelope = this.context.createGain();
-    oscillator.type = type;
-    oscillator.frequency.value = frequency(note);
-    envelope.gain.setValueAtTime(0, at);
-    envelope.gain.linearRampToValueAtTime(level, at + 0.012);
-    envelope.gain.exponentialRampToValueAtTime(0.001, at + duration);
-    oscillator.connect(envelope);
-    envelope.connect(bus);
-    this.notes.add(oscillator);
-    oscillator.onended = () => {
-      oscillator.disconnect();
-      envelope.disconnect();
-      this.notes.delete(oscillator);
-    };
-    oscillator.start(at);
-    oscillator.stop(at + duration + 0.02);
-  }
-
-  private startMusic() {
-    if (this.timer || this.disposed) return;
-    this.nextBeat = this.context.currentTime + 0.05;
-    const schedule = () => {
-      if (this.context.state !== "running") return;
-      if (this.nextBeat < this.context.currentTime) this.nextBeat = this.context.currentTime + 0.03;
-      while (this.nextBeat < this.context.currentTime + 0.2) {
-        const beat = this.step % 16;
-        const bar = Math.floor(this.step / 16) % 4;
-        if (this.preferences.music > 0) {
-          if (beat % 4 === 0) {
-            this.tone(CHORDS[bar][beat === 8 ? 1 : 0], this.nextBeat, 0.5, 0.18, this.music);
-            CHORDS[bar].slice(1).forEach((note, i) => this.tone(note + 12, this.nextBeat + i * 0.018, 0.65, 0.035, this.music, "triangle"));
-          }
-          const melody = MELODY[bar][beat];
-          if (melody) this.tone(melody, this.nextBeat, 0.32, 0.13, this.music);
-          if (beat % 2) this.tone(90, this.nextBeat, 0.025, 0.025, this.music, "triangle");
-        }
-        this.step = (this.step + 1) % 64;
-        this.nextBeat += 60 / 104 / 2;
-      }
-    };
-    schedule();
-    this.timer = setInterval(schedule, 100);
-  }
-
-  play(cue: SoundCue) {
-    if (this.disposed || this.preferences.muted || !this.visible || !this.preferences.effects || this.context.state !== "running") return;
-    const scores: Record<SoundCue, number[]> = {
-      roll: [64, 53, 71, 57, 76, 60, 67],
-      purchase: [72, 76, 79, 84], payment: [79, 76, 72],
-      card: [76, 83, 88], turn: [72, 79], trade: [67, 74, 79, 74],
-      victory: [72, 76, 79, 84, 79, 84, 88], travel: [64, 67, 72],
-    };
-    const start = this.context.currentTime + 0.01;
-    scores[cue].forEach((note, i) => this.tone(
-      note, start + i * (cue === "roll" ? 0.075 : 0.13),
-      cue === "roll" ? 0.055 : 0.25, 0.15, this.effects,
-      cue === "roll" ? "triangle" : "sine",
-    ));
-  }
-
-  private pause() {
-    if (this.timer) clearInterval(this.timer);
-    this.timer = null;
-    for (const note of this.notes) note.stop();
-    this.notes.clear();
-    if (this.context.state !== "closed") void this.context.suspend().catch(() => {});
-  }
-
-  dispose() {
-    this.disposed = true;
-    this.pause();
-    void this.context.close().catch(() => {});
-  }
+````typescript
+import type { RoomDependencies } from "./contracts";
+import { authorize, loadRoom } from "./shared";
+export async function roomIdentity(deps: RoomDependencies, id: string, token: string) {
+  const stored = await loadRoom(deps, id);
+  return { playerId: authorize(deps, stored, token), players: stored.game.players.map((player) => player.id) };
 }
 ````
 
-## lib/game/art.ts
+## src/application/rooms/join-room.ts
 
 ````typescript
-// Ilustraciones raster originales generadas para este proyecto; no son las fotos de referencia.
-export const COUNTRY_ART: Record<number, {name:string;src:string}> = {
-  1:{name:"Marruecos",src:"/art/countries/marruecos.webp"},
-  2:{name:"Egipto",src:"/art/countries/egipto.webp"},
-  4:{name:"Sudáfrica",src:"/art/countries/sudafrica.webp"},
-  6:{name:"Rusia",src:"/art/countries/rusia.webp"},
-  7:{name:"China",src:"/art/countries/china.webp"},
-  9:{name:"Japón",src:"/art/countries/japon.webp"},
-  11:{name:"Canadá",src:"/art/countries/canada.webp"},
-  12:{name:"Estados Unidos",src:"/art/countries/estados-unidos.webp"},
-  14:{name:"México",src:"/art/countries/mexico.webp"},
-  16:{name:"Guatemala",src:"/art/countries/guatemala.webp"},
-  17:{name:"Costa Rica",src:"/art/countries/costa-rica.webp"},
-  19:{name:"Panamá",src:"/art/countries/panama.webp"},
-  21:{name:"Colombia",src:"/art/countries/colombia.webp"},
-  23:{name:"Venezuela",src:"/art/countries/venezuela.webp"},
-  24:{name:"Perú",src:"/art/countries/peru.webp"},
-  26:{name:"Brasil",src:"/art/countries/brasil.webp"},
-  28:{name:"Chile",src:"/art/countries/chile.webp"},
-  29:{name:"Argentina",src:"/art/countries/argentina.webp"},
-  31:{name:"España",src:"/art/countries/espana.webp"},
-  32:{name:"Francia",src:"/art/countries/francia.webp"},
-  34:{name:"Inglaterra",src:"/art/countries/inglaterra.webp"},
-  36:{name:"Italia",src:"/art/countries/italia.webp"},
-  38:{name:"Suiza",src:"/art/countries/suiza.webp"},
-  39:{name:"Alemania",src:"/art/countries/alemania.webp"},
-};
+import { addLog } from "@/domain/game/events";
+import { newPlayer } from "@/domain/game/factory";
+import { COLORS } from "@/domain/game/types";
+import { OperationError } from "@/domain/shared/errors";
+import type { JoinRoomInput, RoomDependencies } from "./contracts";
+import { loadRoom, publicGame } from "./shared";
+export async function joinRoom(deps: RoomDependencies, id: string, data: JoinRoomInput) {
+  const token = deps.platform.uuid();
+  for (let i = 0; i < 4; i++) {
+    const stored = await loadRoom(deps, id);
+    if (data.token) {
+      const existing = stored.tokens[deps.platform.digest(data.token)];
+      if (!existing)
+        throw new OperationError("unauthorized", "El token no pertenece a esta sala.");
+      return {
+        playerToken: data.token,
+        playerId: existing,
+        game: publicGame(stored.game),
+      };
+    }
+    const s = stored.game;
+    if (s.status !== "lobby")
+      throw new OperationError("conflict", "La partida ya comenzó.");
+    if (s.players.length >= 6) throw new OperationError("conflict", "La sala está llena.");
+    const color =
+      data.color ?? COLORS.find((c) => !s.players.some((p) => p.color === c));
+    if (!color || s.players.some((p) => p.color === color))
+      throw new OperationError("conflict", "Este color ya está ocupado.");
+    const p = newPlayer(deps.platform.uuid(), data.name, color);
+    s.players.push(p);
+    stored.tokens[deps.platform.digest(token)] = p.id;
+    const old = s.version;
+    s.version++;
+    addLog(s, `${p.name} se unió al viaje.`);
+    try {
+      await deps.rooms.save(id, old, stored);
+      return { playerToken: token, playerId: p.id, game: publicGame(s) };
+    } catch (e) {
+      if (!(e instanceof OperationError) || e.code !== "conflict" || i === 3) throw e;
+    }
+  }
+  throw new OperationError("conflict", "Intenta unirte nuevamente.");
+}
 ````
 
-## lib/game/board.ts
+## src/application/rooms/shared.ts
+
+````typescript
+import { RULES_VERSION } from "@/domain/game/board";
+import { CARDS } from "@/domain/game/cards";
+import { shuffleDeck } from "@/domain/game/shuffle";
+import type { Context, Game } from "@/domain/game/types";
+import { OperationError } from "@/domain/shared/errors";
+import type { StoredRoom } from "../ports/room-repository";
+import type { RoomDependencies } from "./contracts";
+export async function loadRoom(deps: RoomDependencies, id: string) {
+  const stored = await deps.rooms.load(id);
+  if (!stored) throw new OperationError("not_found", "Sala no encontrada.");
+  if (stored.game.rulesVersion !== RULES_VERSION) throw new OperationError("gone", "Esta sala usa el tablero anterior. Crea una sala nueva para jugar Rumbo Mundial.");
+  return stored;
+}
+export function authorize(deps: RoomDependencies, stored: StoredRoom, token: string) {
+  const id = stored.tokens[deps.platform.digest(token)];
+  if (!id) throw new OperationError("unauthorized", "El token no pertenece a esta sala.");
+  return id;
+}
+export function publicGame(game: Game): Game { return { ...game, decks: { email: [], sms: [] } }; }
+export function context(deps: RoomDependencies): Context {
+  return { now: deps.platform.now(), dice: [deps.platform.randomInt(6) + 1, deps.platform.randomInt(6) + 1],
+    shuffled: { email: shuffleDeck(CARDS.email.length, deps.platform.randomInt), sms: shuffleDeck(CARDS.sms.length, deps.platform.randomInt) } };
+}
+````
+
+## src/application/voice/contracts.ts
+
+````typescript
+import type { IceServer } from "@/domain/voice/types";
+import type { VoiceRepository } from "../ports/voice-repository";
+import type { RoomDependencies } from "../rooms/contracts";
+export interface VoiceDependencies {
+  rooms: RoomDependencies;
+  voice: VoiceRepository;
+  iceServers(): IceServer[];
+  retry(): Promise<void>;
+}
+````
+
+## src/application/voice/get-voice.ts
+
+````typescript
+import { cleanVoice } from "@/domain/voice/rules";
+import type { VoiceState } from "@/domain/voice/types";
+import { roomIdentity } from "../rooms/identity";
+import type { VoiceDependencies } from "./contracts";
+import { voiceView } from "./view";
+export async function getVoice(deps: VoiceDependencies, room: string, token: string, ownSession: string) {
+  const identity = await roomIdentity(deps.rooms, room, token);
+  const state: VoiceState = await deps.voice.load(room) ?? { revision: 0, members: {}, signals: [] };
+  return voiceView(cleanVoice(state, identity.players, deps.rooms.platform.now()), identity.playerId, ownSession, deps.iceServers());
+}
+````
+
+## src/application/voice/update-voice.ts
+
+````typescript
+import { OperationError } from "@/domain/shared/errors";
+import { applyVoice } from "@/domain/voice/rules";
+import type { VoiceCommand, VoiceState } from "@/domain/voice/types";
+import { roomIdentity } from "../rooms/identity";
+import type { VoiceDependencies } from "./contracts";
+import { voiceView } from "./view";
+export async function updateVoice(deps: VoiceDependencies, room: string, token: string, command: VoiceCommand) {
+  const identity = await roomIdentity(deps.rooms, room, token);
+  for (let attempt = 0; attempt < 12; attempt++) {
+    const old: VoiceState = await deps.voice.load(room) ?? { revision: 0, members: {}, signals: [] };
+    const next = applyVoice(old, command, identity.playerId, identity.players, deps.rooms.platform.now());
+    if (await deps.voice.save(room, old.revision, next)) return voiceView(next, identity.playerId, command.session, deps.iceServers());
+    await deps.retry();
+  }
+  throw new OperationError("conflict", "La voz está conectando a otros viajeros. Intenta de nuevo.");
+}
+````
+
+## src/application/voice/view.ts
+
+````typescript
+import type { IceServer, VoiceState, VoiceView } from "@/domain/voice/types";
+export function voiceView(state: VoiceState, playerId: string, ownSession: string, servers: IceServer[]): VoiceView {
+  return { members: Object.values(state.members), replaced: state.members[playerId]?.session !== ownSession,
+    signals: state.signals.filter((signal) => signal.to === playerId && signal.toSession === ownSession), iceServers: servers };
+}
+
+````
+
+## src/domain/game/assertions.ts
+
+````typescript
+
+
+export function requireRule(ok: unknown, message: string): asserts ok {
+  if (!ok) throw new Error(message);
+}
+````
+
+## src/domain/game/auctions.ts
+
+````typescript
+import { BOARD } from "./board";
+import { addLog } from "./events";
+import { pay } from "./money";
+import { auctionMinimum } from "./rules";
+import type { Game, Player } from "./types";
+
+export function openNextAuction(s: Game, now: number, rejectedBy?: Player) {
+  if (s.auction || s.debt || s.status !== "playing") return;
+  const square = (s.auctionQueue ?? []).shift();
+  if (square === undefined) return;
+  s.auction = { square, amount: 0, bidder: null, passed: [], endsAt: now + 30000 };
+  addLog(s, `Subasta de ${BOARD[square].name}: primera oferta desde $${auctionMinimum(square)}. Participan quienes no la hayan rechazado.`);
+  // Rechazar la compra también retira al visitante de esa subasta.
+  if (rejectedBy?.position === square) {
+    s.auction.passed.push(rejectedBy.id);
+    const participants = s.players.filter((p) => !p.bankrupt && !(p.jailed && p.detention === "prison"));
+    if (participants.every((p) => s.auction!.passed.includes(p.id))) closeAuction(s, now);
+  }
+}
+
+export function closeAuction(s: Game, now: number) {
+  const auction = s.auction; if (!auction) return;
+  if (auction.bidder) {
+    const buyer = s.players.find((p) => p.id === auction.bidder)!;
+    pay(buyer, auction.amount);
+    if (auction.buildingOptions) s.properties[auction.square].buildings++;
+    else { s.properties[auction.square].owner = buyer.id; buyer.lastBought = auction.square; }
+    addLog(s, `${buyer.name} ganó la subasta ${auction.buildingOptions ? "del edificio en" : "de"} ${BOARD[auction.square].name} por $${auction.amount}.`, { type: "purchase", player: buyer.id, square: auction.square });
+  } else addLog(s, `Sin ofertas: ${BOARD[auction.square].name} permanece en el Banco.`);
+  s.auction = null; openNextAuction(s, now);
+}
+````
+
+## src/domain/game/bankruptcy.ts
+
+````typescript
+import { BOARD } from "./board";
+import { CARDS } from "./cards";
+import { addLog } from "./events";
+import { credit } from "./money";
+import { winner } from "./settlement";
+import type { Game, Player } from "./types";
+
+export function eliminate(s: Game, p: Player, creditor: string | null) {
+  const recipient = s.players.find((x) => x.id === creditor && !x.bankrupt);
+  for (const [id, property] of Object.entries(s.properties))
+    if (property.owner === p.id) { credit(p, property.buildings * BOARD[Number(id)].buildCost / 2); property.buildings = 0; }
+  if (recipient) credit(recipient, p.money);
+  p.money = 0;
+  p.bankrupt = true;
+  p.eliminatedAt = s.version;
+  s.eliminated = [...(s.eliminated ?? []), p.id];
+  s.trades = s.trades.filter((t) => t.from !== p.id && t.to !== p.id);
+  if (s.choice?.player === p.id) s.choice = null;
+  for (const [id, a] of Object.entries(s.properties))
+    if (a.owner === p.id) {
+      a.owner = recipient?.id ?? null;
+      if (recipient && a.mortgaged) {
+        a.inheritanceTurn = (s.turnNumber ?? 0) + (s.players[s.turn].id === p.id ? 1 : 0);
+        s.debts = [...(s.debts ?? []), { payer: recipient.id, amount: BOARD[Number(id)].price * 0.1, creditor: null, reason: "inheritance" }];
+      }
+      if (!recipient) {
+        s.auctionQueue = [...(s.auctionQueue ?? []), Number(id)];
+        a.buildings = 0;
+        a.mortgaged = false;
+      }
+    }
+  for (const deck of p.passes)
+    s.decks[deck].push(CARDS[deck].findIndex((c) => c.kind === "pass"));
+  p.passes = [];
+  s.debts = (s.debts ?? []).filter((d) => d.payer !== p.id).map((d) => ({ ...d, creditor: d.creditor === p.id ? null : d.creditor }));
+  s.debt = s.debts.shift() ?? null;
+  if (p.acquisitionCard) { s.decks.email.push(CARDS.email.findIndex((c) => c.kind === "acquisition")); p.acquisitionCard = false; }
+  addLog(s, `${p.name} se declaró en quiebra.`);
+  winner(s);
+}
+````
+
+## src/domain/game/board.ts
 
 ````typescript
 import type { Square, SquareKind } from "./types";
@@ -11985,7 +10428,7 @@ export const HOTEL_SUPPLY = 12;
 export const cash = (amount: number) => `$${amount.toLocaleString("es-MX")}`;
 ````
 
-## lib/game/cards.ts
+## src/domain/game/cards.ts
 
 ````typescript
 // Redacción original. Efectos inspirados en las referencias aportadas por el usuario.
@@ -12038,429 +10481,27 @@ export const CARDS: Record<"email" | "sms", Card[]> = {
 };
 ````
 
-## lib/game/engine.ts
+## src/domain/game/engine.ts
 
 ````typescript
-import { INITIAL_BILLS, pay, exchange, credit } from "./money";
-import { eventDuration, ROLL_LIMIT_MS } from "./presentation";
-import type { GameEvent } from "./types";
-import { BOARD, RULES_VERSION, INITIAL_MONEY, SALARY, DEPORTATION_FINE, PRISON_BAIL } from "./board";
+import { requireRule } from "./assertions";
+import { closeAuction, openNextAuction } from "./auctions";
+import { eliminate } from "./bankruptcy";
+import { BOARD, DEPORTATION_FINE } from "./board";
 import { CARDS } from "./cards";
-import { assetError, group, liquidationValue, netWorth, rent, redemptionCost, buildingBidders, auctionMinimum } from "./rules";
-import {
-  COLORS,
-  type Action,
-  type Context,
-  type Game,
-  type Player,
-} from "./types";
-function requireRule(ok: unknown, message: string): asserts ok {
-  if (!ok) throw new Error(message);
-}
-export function addLog(
-  s: Game,
-  text: string,
-  event: Omit<GameEvent, "id" | "text"> = { type: "log" },
-) {
-  s.log = [...s.log, text].slice(-50);
-  s.eventSerial = (s.eventSerial ?? 0) + 1;
-  s.events = [...(s.events ?? []), { ...event, id: s.eventSerial, text }].slice(
-    -100,
-  );
-}
-export function newGame(id: string, host: Player, duration: number): Game {
-  return {
-    id,
-    version: 1,
-    rulesVersion: RULES_VERSION,
-    turnNumber: 0,
-    debts: [],
-    auction: null,
-    auctionQueue: [],
-    choice: null,
-    opening: null,
-    host: host.id,
-    status: "lobby",
-    players: [host],
-    properties: Object.fromEntries(
-      BOARD.filter((b) => b.price).map((b) => [
-        b.id,
-        { owner: null, buildings: 0, mortgaged: false },
-      ]),
-    ),
-    turn: 0,
-    phase: "roll",
-    doubles: 0,
-    extra: false,
-    dice: [1, 1],
-    debt: null,
-    trades: [],
-    decks: { email: [], sms: [] },
-    log: [`${host.name} creó la sala.`],
-    duration,
-    endsAt: null,
-    turnAt: 0,
-    winner: [],
-    motion: null,
-    lastCard: null,
-    events: [],
-    eventSerial: 0,
-    eliminated: [],
-  };
-}
-export function newPlayer(id: string, name: string, color: string): Player {
-  return {
-    id,
-    name,
-    color,
-    money: INITIAL_MONEY,
-    position: 0,
-    jailed: 0,
-    bankrupt: false,
-    passes: [],
-    bills: { ...INITIAL_BILLS },
-  };
-}
-function nextTurn(s: Game, now: number) {
-  s.detentionDecision = null;
-  delete s.autoEndAt;
-  s.rollDeadline = now + ROLL_LIMIT_MS;
-  s.players[s.turn].salary = 0;
-  s.turnNumber = (s.turnNumber ?? 0) + 1;
-  s.debt = null;
-  s.doubles = 0;
-  s.extra = false;
-  s.phase = "roll";
-  s.turnAt = now;
-  for (let i = 0; i < s.players.length; i++) {
-    s.turn = (s.turn + 1) % s.players.length;
-    if (!s.players[s.turn].bankrupt) break;
-  }
-}
-export function finishByTime(state: Game, now: number): Game {
-  if (state.status !== "playing") return state;
-  if (state.endsAt && now >= state.endsAt) {
-    const s = structuredClone(state), active = s.players.filter((p) => !p.bankrupt);
-    const score = (p: Player) => netWorth(s, p) - [s.debt, ...(s.debts ?? [])]
-      .reduce((sum, d) => sum + (d && (d.payer ?? s.players[s.turn].id) === p.id ? d.amount : 0), 0);
-    const best = Math.max(...active.map(score));
-    s.winner = active.filter((p) => score(p) === best).map((p) => p.id);
-    s.status = "finished"; s.trades = []; s.auction = null; s.choice = null;
-    addLog(s, "Terminó el tiempo. Se compara el patrimonio neto.");
-    return s;
-  }
-  if (state.auction && now >= state.auction.endsAt) {
-    const s = structuredClone(state); closeAuction(s, now); scheduleAutomatic(s, state, now); return s;
-  }
-  if (state.opening && now >= (state.rollDeadline ?? state.turnAt + ROLL_LIMIT_MS)) {
-    const s = structuredClone(state);
-    for (const id of s.opening!.candidates) {
-      if (s.opening!.rolls[id] === undefined) {
-        s.opening!.rolls[id] = 0;
-        addLog(s, `${s.players.find((p) => p.id === id)?.name} no tiró a tiempo y pierde la elección de salida.`);
-      }
-    }
-    resolveOpening(s, now);
-    scheduleAutomatic(s, state, now);
-    return s;
-  }
-  if (!state.opening && !state.auction && !state.debt && !state.choice && !state.detentionDecision) {
-    if (state.phase === "end" && state.autoEndAt === undefined) {
-      const s = structuredClone(state);
-      s.autoEndAt = Math.max(now, s.presentationUntil ?? 0) + 1000;
-      return s;
-    }
-    if (state.phase === "end" && state.autoEndAt !== undefined && now >= state.autoEndAt) {
-      const s = structuredClone(state), p = s.players[s.turn];
-      if (p.salary) {
-        credit(p, p.salary);
-        addLog(s, `${p.name} cobró automáticamente $${p.salary} de sueldo.`);
-        p.salary = 0;
-      }
-      if (s.extra) {
-        s.phase = "roll";s.extra = false;s.turnAt = now;s.rollDeadline = now + ROLL_LIMIT_MS;
-        delete s.autoEndAt;
-      } else nextTurn(s, now);
-      scheduleAutomatic(s, state, now);
-      return s;
-    }
-    if (state.phase === "roll" && now >= (state.rollDeadline ?? state.turnAt + ROLL_LIMIT_MS)) {
-      const s = structuredClone(state), p = s.players[s.turn];
-      addLog(s, `${p.name} agotó sus 20 segundos: se salta su turno.`);
-      if (p.jailed || p.skipTurns) waitTurn(s, p);
-      nextTurn(s, now);
-      // La siguiente cuenta empieza cuando acaba el aviso del turno vencido.
-      scheduleAutomatic(s, state, now);
-      return s;
-    }
-  }
-  return state;
-}
+import { addLog } from "./events";
+import { land } from "./landing";
+import { credit, exchange, pay } from "./money";
+import { jail, move } from "./movement";
+import { assetError, auctionMinimum, buildingBidders, group, liquidationValue, redemptionCost } from "./rules";
+import { charge, winner } from "./settlement";
+import { finishByTime, resolveOpening, scheduleAutomatic } from "./timing";
+import { validateTrade } from "./trading";
+import { advanceAfterElimination, nextTurn, release, waitTurn, waitingPlayer } from "./turns";
+import type { Action, Context, Game } from "./types";
+import { COLORS } from "./types";
 
-function presentationTime(next: Game, previous: Game) {
-  return (next.events ?? []).filter((event) => event.id > (previous.eventSerial ?? 0))
-    .reduce((total, event) => total + eventDuration(event), 0);
-}
-
-function scheduleAutomatic(next: Game, previous: Game, now: number) {
-  if (next.status !== "playing") return;
-  const visualTime = presentationTime(next, previous);
-  const readyAt = Math.max(now, previous.presentationUntil ?? 0) + visualTime;
-  next.presentationUntil = readyAt;
-  if (next.opening && (!previous.opening || next.opening.round !== previous.opening.round)) {
-    next.rollDeadline = readyAt + ROLL_LIMIT_MS;
-  } else if (!next.opening && next.phase === "roll" &&
-    (previous.opening || previous.phase !== "roll" || next.turn !== previous.turn || !next.rollDeadline)) {
-    next.rollDeadline = readyAt + ROLL_LIMIT_MS;
-  } else if ((next.opening || next.phase === "roll") && visualTime) {
-    next.rollDeadline = Math.max(next.rollDeadline ?? 0, readyAt + ROLL_LIMIT_MS);
-  }
-  if (next.phase === "end" && !next.opening && !next.auction && !next.debt && !next.choice && !next.detentionDecision) {
-    next.autoEndAt = Math.max(next.autoEndAt ?? 0, readyAt);
-  } else delete next.autoEndAt;
-}
-
-function resolveOpening(s: Game, now: number) {
-  const opening = s.opening;
-  if (!opening || !opening.candidates.every((id) => opening.rolls[id] !== undefined)) return;
-  const max = Math.max(...Object.values(opening.rolls));
-  const tied = opening.candidates.filter((id) => opening.rolls[id] === max);
-  if (tied.length === 1 || max === 0) {
-    s.turn = s.players.findIndex((p) => p.id === tied[0]);
-    s.opening = null;s.turnAt = now;
-    addLog(s, `${s.players[s.turn].name} inicia el viaje.`);
-  } else {
-    s.opening = { candidates: tied, rolls: {}, round: opening.round + 1 };
-    addLog(s, "Empate: vuelven a tirar los finalistas.");
-  }
-}
-function winner(s: Game) {
-  const alive = s.players.filter((p) => !p.bankrupt);
-  if (alive.length <= 1 && !s.debt) {
-    s.status = "finished";
-    s.winner = alive.map((p) => p.id);
-    s.trades = [];
-    addLog(s, alive[0] ? `${alive[0].name} ganó la partida.` : "Todos los viajeros quedaron en quiebra.");
-  }
-}
-function charge(s: Game, p: Player, amount: number, creditor: string | null) {
-  if (amount <= 0) return;
-  const debt = { amount, creditor, payer: p.id };
-  if (s.debt) s.debts = [...(s.debts ?? []), debt];
-  else s.debt = debt;
-  addLog(
-    s,
-    `${p.name} debe pagar $${amount} a ${s.players.find((x) => x.id === creditor)?.name ?? "el Banco"}.`,
-    { type: "payment", player: p.id },
-  );
-}
-function jail(
-  s: Game,
-  p: Player,
-  detention: "prison" | "oceania" = "prison",
-  turns = 3,
-) {
-  const from = p.position;
-  p.position = detention === "prison" ? 30 : 10;
-  p.detention = detention;
-  p.jailed = turns;
-  if (detention === "oceania") s.detentionDecision = p.id;
-  p.salary = 0;
-  if (detention === "prison") {
-    charge(s, p, PRISON_BAIL, null);
-    const debt = (s.debts?.length ? s.debts[s.debts.length - 1] : s.debt)!;
-    debt.reason = "bail";
-  }
-  s.extra = false;
-  s.doubles = 0;
-  s.phase = "end";
-  s.motion = {
-    serial: (s.motion?.serial ?? 0) + 1,
-    player: p.id,
-    path: [p.position],
-  };
-  addLog(
-    s,
-    `${p.name} va a ${detention === "prison" ? "Cárcel" : "Deportado"} por ${turns} turnos.`,
-    { type: "move", player: p.id, path: [p.position], from, teleport: true },
-  );
-}
-function move(s: Game, p: Player, steps: number) {
-  const from = p.position;
-  const path: number[] = [];
-  for (let i = 0; i < steps; i++) {
-    p.position = (p.position + 1) % 40;
-    path.push(p.position);
-    if (p.position === 0) {
-      p.salary = (p.salary ?? 0) + SALARY;
-      addLog(s, `${p.name} pasó por Salida: puede cobrar $${SALARY} antes de terminar su turno.`);
-    }
-  }
-  s.motion = { serial: (s.motion?.serial ?? 0) + 1, player: p.id, path };
-  if (path.length)
-    addLog(
-      s,
-      `${p.name} avanza ${steps} casillas hasta ${BOARD[p.position].name}.`,
-      { type: "move", player: p.id, path, from },
-    );
-}
-function land(s: Game, p: Player, now: number) {
-  const b = BOARD[p.position];
-  addLog(s, `${p.name} llegó a ${b.name}.`, { type: "log", player: p.id, square: b.id });
-  s.phase = "end";
-  if (b.kind === "oceania") {
-    jail(s, p, "oceania");
-    return;
-  }
-  if (b.kind === "go-oceania") {
-    jail(s, p);
-    return;
-  }
-  if (b.kind === "rest") {
-    return;
-  }
-  if (b.kind === "tax") {
-    charge(s, p, b.tax ?? 0, null);
-    return;
-  }
-  if (b.price) {
-    const a = s.properties[b.id];
-    if (!a.owner) s.phase = "buy";
-    else if (a.owner !== p.id) {
-      const owner = s.players.find((x) => x.id === a.owner)!;
-      let amount = rent(s, b.id, s.dice[0] + s.dice[1]);
-      if (amount && b.kind === "country" && !a.buildings && owner.rentBonus) {
-        amount *= 2; owner.rentBonus = false;
-      }
-      charge(s, p, amount, a.owner);
-    }
-    return;
-  }
-  if (b.kind === "email" || b.kind === "sms") {
-    const deck = s.decks[b.kind];
-    const index = deck.shift();
-    requireRule(index !== undefined, "Mazo vacío.");
-    const c = CARDS[b.kind][index];
-    s.lastCard = c.text;
-    addLog(s, `${p.name} · ${b.name}: ${c.text}`, {
-      type: "card",
-      player: p.id,
-      deck: b.kind,
-    });
-    if (c.kind === "acquisition") { p.acquisitionCard = true; return; }
-    if (c.kind === "pass") {
-      p.passes.push(b.kind);
-      return;
-    }
-    deck.push(index);
-    if (c.kind === "money") {
-      if (c.amount >= 0) credit(p, c.amount);
-      else charge(s, p, -c.amount, null);
-    }
-    if (c.kind === "jail") {
-      if (c.fine) charge(s, p, c.fine, null);
-      jail(s, p, c.detention ?? "prison", c.turns ?? 3);
-    }
-    if (c.kind === "bonus") p.rentBonus = true;
-    if (c.kind === "collect") {
-      s.choice = { player: p.id, kind: "collect", amount: c.amount };
-      p.skipTurns = (p.skipTurns ?? 0) + (c.skip ?? 0);
-      if (c.skip) s.extra = false;
-    }
-    if (c.kind === "everyone") {
-      for (const other of s.players.filter((x) => !x.bankrupt)) {
-        if (c.toPlayer === false) charge(s, other, c.amount, null);
-        else if (other.id !== p.id) {
-          if (c.amount < 0) charge(s, other, -c.amount, p.id);
-          else charge(s, p, c.amount, other.id);
-        }
-      }
-    }
-    if (c.kind === "refund" || c.kind === "expropriate") {
-      const owned = BOARD.filter((x) => s.properties[x.id]?.owner === p.id);
-      const target = c.kind === "refund" ? owned.find((x) => x.id === p.lastBought)
-        : owned.sort((a, b) => b.price - a.price || a.id - b.id)[0];
-      if (target) {
-        // Sell the entire block's buildings to preserve even development.
-        for (const peer of group(target.id)) {
-          const property = s.properties[peer.id];
-          if (property.owner === p.id) {
-            credit(p, property.buildings * peer.buildCost / 2); property.buildings = 0;
-          }
-        }
-        const property = s.properties[target.id];
-        credit(p, c.kind === "refund" ? (property.mortgaged ? 0 : target.price / 2) : target.rents[0]);
-        property.owner = null; property.mortgaged = false;
-        addLog(s, `${p.name} devuelve ${target.name} al Banco por una carta.`);
-        if (c.kind === "expropriate") s.auctionQueue = [...(s.auctionQueue ?? []), target.id];
-      }
-    }
-    if (c.kind === "airline") {
-      const target = BOARD.filter((x) => x.kind === "airline" && !s.properties[x.id].owner)
-        .sort((a,b) => (a.id - p.position + 40) % 40 - (b.id - p.position + 40) % 40)[0];
-      if (target) {
-        move(s, p, (target.id - p.position + 40) % 40);
-        charge(s, p, target.price + 5000, null);
-        const debt = (s.debts?.length ? s.debts[s.debts.length - 1] : s.debt)!;
-        debt.reason = "purchase"; debt.square = target.id;
-      }
-    }
-    if (c.kind === "repairs") {
-      const amount = Object.values(s.properties)
-        .filter((a) => a.owner === p.id)
-        .reduce(
-          (v, a) =>
-            v + (a.buildings === 5 ? c.hotel : a.buildings * c.restaurant),
-          0,
-        );
-      charge(s, p, amount, null);
-    }
-    if (c.kind === "move") {
-      const steps = (c.target - p.position + BOARD.length) % BOARD.length;
-      if (steps > 0) {
-        move(s, p, steps);
-        land(s, p, now);
-      }
-      if (c.fine) charge(s, p, c.fine, null);
-      if (c.skip) { p.skipTurns = (p.skipTurns ?? 0) + c.skip; s.extra = false; }
-    }
-    openNextAuction(s, now);
-  }
-}
-function eliminate(s: Game, p: Player, creditor: string | null) {
-  const recipient = s.players.find((x) => x.id === creditor && !x.bankrupt);
-  for (const [id, property] of Object.entries(s.properties))
-    if (property.owner === p.id) { credit(p, property.buildings * BOARD[Number(id)].buildCost / 2); property.buildings = 0; }
-  if (recipient) credit(recipient, p.money);
-  p.money = 0;
-  p.bankrupt = true;
-  p.eliminatedAt = s.version;
-  s.eliminated = [...(s.eliminated ?? []), p.id];
-  s.trades = s.trades.filter((t) => t.from !== p.id && t.to !== p.id);
-  if (s.choice?.player === p.id) s.choice = null;
-  for (const [id, a] of Object.entries(s.properties))
-    if (a.owner === p.id) {
-      a.owner = recipient?.id ?? null;
-      if (recipient && a.mortgaged) {
-        a.inheritanceTurn = (s.turnNumber ?? 0) + (s.players[s.turn].id === p.id ? 1 : 0);
-        s.debts = [...(s.debts ?? []), { payer: recipient.id, amount: BOARD[Number(id)].price * 0.1, creditor: null, reason: "inheritance" }];
-      }
-      if (!recipient) {
-        s.auctionQueue = [...(s.auctionQueue ?? []), Number(id)];
-        a.buildings = 0;
-        a.mortgaged = false;
-      }
-    }
-  for (const deck of p.passes)
-    s.decks[deck].push(CARDS[deck].findIndex((c) => c.kind === "pass"));
-  p.passes = [];
-  s.debts = (s.debts ?? []).filter((d) => d.payer !== p.id).map((d) => ({ ...d, creditor: d.creditor === p.id ? null : d.creditor }));
-  s.debt = s.debts.shift() ?? null;
-  if (p.acquisitionCard) { s.decks.email.push(CARDS.email.findIndex((c) => c.kind === "acquisition")); p.acquisitionCard = false; }
-  addLog(s, `${p.name} se declaró en quiebra.`);
-  winner(s);
-}
-function reduceAction(
+export function reduceAction(
   state: Game,
   action: Action,
   playerId: string,
@@ -12818,95 +10859,229 @@ export function engine(state: Game, action: Action, playerId: string, ctx: Conte
   scheduleAutomatic(next, state, ctx.now);
   return next;
 }
-function validateTrade(
+````
+
+## src/domain/game/events.ts
+
+````typescript
+import type { Game, GameEvent } from "./types";
+
+export function addLog(
   s: Game,
-  from: Player,
-  to: Player,
-  give: number[],
-  take: number[],
-  gm: number,
-  tm: number,
+  text: string,
+  event: Omit<GameEvent, "id" | "text"> = { type: "log" },
 ) {
-  requireRule(!(from.jailed && from.detention === "prison") && !(to.jailed && to.detention === "prison"), "No se puede negociar con jugadores en la cárcel.");
-  requireRule(
-    Number.isSafeInteger(gm) &&
-      Number.isSafeInteger(tm) &&
-      gm >= 0 &&
-      tm >= 0 &&
-      from.money >= gm &&
-      to.money >= tm,
-    "Dinero del trato inválido.",
+  s.log = [...s.log, text].slice(-50);
+  s.eventSerial = (s.eventSerial ?? 0) + 1;
+  s.events = [...(s.events ?? []), { ...event, id: s.eventSerial, text }].slice(
+    -100,
   );
-  requireRule(give.length + take.length + gm + tm > 0, "El trato está vacío.");
-  requireRule(
-    new Set([...give, ...take]).size === give.length + take.length,
-    "Propiedad repetida.",
-  );
-  for (const [ids, owner] of [
-    [give, from.id],
-    [take, to.id],
-  ] as const)
-    for (const id of ids) {
-      const a = s.properties[id];
-      requireRule(
-        a &&
-          a.owner === owner &&
-          !a.buildings &&
-          !group(id).some((b) => s.properties[b.id].buildings),
-        "Las propiedades del trato deben pertenecer al jugador y tener todo su grupo sin edificios.",
-      );
-    }
-}
-
-function release(s: Game, p: Player) {
-  if (s.detentionDecision === p.id) s.detentionDecision = null;
-  if (p.detention === "oceania") {
-    const from = p.position; p.position = 0;
-    addLog(s, `${p.name} regresa a Salida sin cobrar sueldo.`, { type: "move", player: p.id, from, path: [0], teleport: true });
-  }
-  p.jailed = 0; delete p.detention;
-}
-function waitTurn(s: Game, p: Player) {
-  if (p.jailed) {
-    p.jailed--; addLog(s, `${p.name} cumple un turno de castigo; quedan ${p.jailed}.`);
-    if (!p.jailed) release(s, p);
-  } else { p.skipTurns = Math.max(0, (p.skipTurns ?? 0) - 1); addLog(s, `${p.name} descansa; quedan ${p.skipTurns} turnos.`); }
-  s.phase = "end"; s.extra = false; s.doubles = 0;
-}
-function advanceAfterElimination(s: Game, now: number) {
-  const debt = s.debt; nextTurn(s, now); s.debt = debt;
-}
-function openNextAuction(s: Game, now: number, rejectedBy?: Player) {
-  if (s.auction || s.debt || s.status !== "playing") return;
-  const square = (s.auctionQueue ?? []).shift();
-  if (square === undefined) return;
-  s.auction = { square, amount: 0, bidder: null, passed: [], endsAt: now + 30000 };
-  addLog(s, `Subasta de ${BOARD[square].name}: primera oferta desde $${auctionMinimum(square)}. Participan quienes no la hayan rechazado.`);
-  // Rechazar la compra también retira al visitante de esa subasta.
-  if (rejectedBy?.position === square) {
-    s.auction.passed.push(rejectedBy.id);
-    const participants = s.players.filter((p) => !p.bankrupt && !(p.jailed && p.detention === "prison"));
-    if (participants.every((p) => s.auction!.passed.includes(p.id))) closeAuction(s, now);
-  }
-}
-function closeAuction(s: Game, now: number) {
-  const auction = s.auction; if (!auction) return;
-  if (auction.bidder) {
-    const buyer = s.players.find((p) => p.id === auction.bidder)!;
-    pay(buyer, auction.amount);
-    if (auction.buildingOptions) s.properties[auction.square].buildings++;
-    else { s.properties[auction.square].owner = buyer.id; buyer.lastBought = auction.square; }
-    addLog(s, `${buyer.name} ganó la subasta ${auction.buildingOptions ? "del edificio en" : "de"} ${BOARD[auction.square].name} por $${auction.amount}.`, { type: "purchase", player: buyer.id, square: auction.square });
-  } else addLog(s, `Sin ofertas: ${BOARD[auction.square].name} permanece en el Banco.`);
-  s.auction = null; openNextAuction(s, now);
-}
-
-export function waitingPlayer(s: Game): string {
-  return s.debt?.payer ?? s.choice?.player ?? s.opening?.candidates.find((id) => s.opening?.rolls[id] === undefined) ?? s.players[s.turn].id;
 }
 ````
 
-## lib/game/money.ts
+## src/domain/game/factory.ts
+
+````typescript
+import { BOARD, INITIAL_MONEY, RULES_VERSION } from "./board";
+import { INITIAL_BILLS } from "./money";
+import type { Game, Player } from "./types";
+
+export function newGame(id: string, host: Player, duration: number): Game {
+  return {
+    id,
+    version: 1,
+    rulesVersion: RULES_VERSION,
+    turnNumber: 0,
+    debts: [],
+    auction: null,
+    auctionQueue: [],
+    choice: null,
+    opening: null,
+    host: host.id,
+    status: "lobby",
+    players: [host],
+    properties: Object.fromEntries(
+      BOARD.filter((b) => b.price).map((b) => [
+        b.id,
+        { owner: null, buildings: 0, mortgaged: false },
+      ]),
+    ),
+    turn: 0,
+    phase: "roll",
+    doubles: 0,
+    extra: false,
+    dice: [1, 1],
+    debt: null,
+    trades: [],
+    decks: { email: [], sms: [] },
+    log: [`${host.name} creó la sala.`],
+    duration,
+    endsAt: null,
+    turnAt: 0,
+    winner: [],
+    motion: null,
+    lastCard: null,
+    events: [],
+    eventSerial: 0,
+    eliminated: [],
+  };
+}
+
+export function newPlayer(id: string, name: string, color: string): Player {
+  return {
+    id,
+    name,
+    color,
+    money: INITIAL_MONEY,
+    position: 0,
+    jailed: 0,
+    bankrupt: false,
+    passes: [],
+    bills: { ...INITIAL_BILLS },
+  };
+}
+````
+
+## src/domain/game/landing.ts
+
+````typescript
+import { requireRule } from "./assertions";
+import { openNextAuction } from "./auctions";
+import { BOARD } from "./board";
+import { CARDS } from "./cards";
+import { addLog } from "./events";
+import { credit } from "./money";
+import { jail, move } from "./movement";
+import { group, rent } from "./rules";
+import { charge } from "./settlement";
+import type { Game, Player } from "./types";
+
+export function land(s: Game, p: Player, now: number) {
+  const b = BOARD[p.position];
+  addLog(s, `${p.name} llegó a ${b.name}.`, { type: "log", player: p.id, square: b.id });
+  s.phase = "end";
+  if (b.kind === "oceania") {
+    jail(s, p, "oceania");
+    return;
+  }
+  if (b.kind === "go-oceania") {
+    jail(s, p);
+    return;
+  }
+  if (b.kind === "rest") {
+    return;
+  }
+  if (b.kind === "tax") {
+    charge(s, p, b.tax ?? 0, null);
+    return;
+  }
+  if (b.price) {
+    const a = s.properties[b.id];
+    if (!a.owner) s.phase = "buy";
+    else if (a.owner !== p.id) {
+      const owner = s.players.find((x) => x.id === a.owner)!;
+      let amount = rent(s, b.id, s.dice[0] + s.dice[1]);
+      if (amount && b.kind === "country" && !a.buildings && owner.rentBonus) {
+        amount *= 2; owner.rentBonus = false;
+      }
+      charge(s, p, amount, a.owner);
+    }
+    return;
+  }
+  if (b.kind === "email" || b.kind === "sms") {
+    const deck = s.decks[b.kind];
+    const index = deck.shift();
+    requireRule(index !== undefined, "Mazo vacío.");
+    const c = CARDS[b.kind][index];
+    s.lastCard = c.text;
+    addLog(s, `${p.name} · ${b.name}: ${c.text}`, {
+      type: "card",
+      player: p.id,
+      deck: b.kind,
+    });
+    if (c.kind === "acquisition") { p.acquisitionCard = true; return; }
+    if (c.kind === "pass") {
+      p.passes.push(b.kind);
+      return;
+    }
+    deck.push(index);
+    if (c.kind === "money") {
+      if (c.amount >= 0) credit(p, c.amount);
+      else charge(s, p, -c.amount, null);
+    }
+    if (c.kind === "jail") {
+      if (c.fine) charge(s, p, c.fine, null);
+      jail(s, p, c.detention ?? "prison", c.turns ?? 3);
+    }
+    if (c.kind === "bonus") p.rentBonus = true;
+    if (c.kind === "collect") {
+      s.choice = { player: p.id, kind: "collect", amount: c.amount };
+      p.skipTurns = (p.skipTurns ?? 0) + (c.skip ?? 0);
+      if (c.skip) s.extra = false;
+    }
+    if (c.kind === "everyone") {
+      for (const other of s.players.filter((x) => !x.bankrupt)) {
+        if (c.toPlayer === false) charge(s, other, c.amount, null);
+        else if (other.id !== p.id) {
+          if (c.amount < 0) charge(s, other, -c.amount, p.id);
+          else charge(s, p, c.amount, other.id);
+        }
+      }
+    }
+    if (c.kind === "refund" || c.kind === "expropriate") {
+      const owned = BOARD.filter((x) => s.properties[x.id]?.owner === p.id);
+      const target = c.kind === "refund" ? owned.find((x) => x.id === p.lastBought)
+        : owned.sort((a, b) => b.price - a.price || a.id - b.id)[0];
+      if (target) {
+        // Sell the entire block's buildings to preserve even development.
+        for (const peer of group(target.id)) {
+          const property = s.properties[peer.id];
+          if (property.owner === p.id) {
+            credit(p, property.buildings * peer.buildCost / 2); property.buildings = 0;
+          }
+        }
+        const property = s.properties[target.id];
+        credit(p, c.kind === "refund" ? (property.mortgaged ? 0 : target.price / 2) : target.rents[0]);
+        property.owner = null; property.mortgaged = false;
+        addLog(s, `${p.name} devuelve ${target.name} al Banco por una carta.`);
+        if (c.kind === "expropriate") s.auctionQueue = [...(s.auctionQueue ?? []), target.id];
+      }
+    }
+    if (c.kind === "airline") {
+      const target = BOARD.filter((x) => x.kind === "airline" && !s.properties[x.id].owner)
+        .sort((a,b) => (a.id - p.position + 40) % 40 - (b.id - p.position + 40) % 40)[0];
+      if (target) {
+        move(s, p, (target.id - p.position + 40) % 40);
+        charge(s, p, target.price + 5000, null);
+        const debt = (s.debts?.length ? s.debts[s.debts.length - 1] : s.debt)!;
+        debt.reason = "purchase"; debt.square = target.id;
+      }
+    }
+    if (c.kind === "repairs") {
+      const amount = Object.values(s.properties)
+        .filter((a) => a.owner === p.id)
+        .reduce(
+          (v, a) =>
+            v + (a.buildings === 5 ? c.hotel : a.buildings * c.restaurant),
+          0,
+        );
+      charge(s, p, amount, null);
+    }
+    if (c.kind === "move") {
+      const steps = (c.target - p.position + BOARD.length) % BOARD.length;
+      if (steps > 0) {
+        move(s, p, steps);
+        land(s, p, now);
+      }
+      if (c.fine) charge(s, p, c.fine, null);
+      if (c.skip) { p.skipTurns = (p.skipTurns ?? 0) + c.skip; s.extra = false; }
+    }
+    openNextAuction(s, now);
+  }
+}
+````
+
+## src/domain/game/money.ts
 
 ````typescript
 import type { Player } from "./types";
@@ -12983,129 +11158,68 @@ export function credit(player: Player, amount: number) {
 }
 ````
 
-## lib/game/playback.ts
+## src/domain/game/movement.ts
 
 ````typescript
-import type { Game, GameEvent } from "./types";
-import { eventDuration, MOVE_SETTLE_MS, MOVE_STEP_MS } from "./presentation";
+import { BOARD, PRISON_BAIL, SALARY } from "./board";
+import { addLog } from "./events";
+import { charge } from "./settlement";
+import type { Game, Player } from "./types";
 
-export interface PlaybackView {
-  serial: number;
-  positions: Record<string, number>;
-  event: GameEvent | null;
-  lastRoll: GameEvent | null;
-  busy: boolean;
+export function jail(
+  s: Game,
+  p: Player,
+  detention: "prison" | "oceania" = "prison",
+  turns = 3,
+) {
+  const from = p.position;
+  p.position = detention === "prison" ? 30 : 10;
+  p.detention = detention;
+  p.jailed = turns;
+  if (detention === "oceania") s.detentionDecision = p.id;
+  p.salary = 0;
+  if (detention === "prison") {
+    charge(s, p, PRISON_BAIL, null);
+    const debt = (s.debts?.length ? s.debts[s.debts.length - 1] : s.debt)!;
+    debt.reason = "bail";
+  }
+  s.extra = false;
+  s.doubles = 0;
+  s.phase = "end";
+  s.motion = {
+    serial: (s.motion?.serial ?? 0) + 1,
+    player: p.id,
+    path: [p.position],
+  };
+  addLog(
+    s,
+    `${p.name} va a ${detention === "prison" ? "Cárcel" : "Deportado"} por ${turns} turnos.`,
+    { type: "move", player: p.id, path: [p.position], from, teleport: true },
+  );
 }
 
-// Una sola cola dirige dados, recorridos y avisos; las reglas siguen en el servidor.
-export class GamePlayback {
-  private latest: Game;
-  private seen: number;
-  private queue: GameEvent[] = [];
-  private timer: ReturnType<typeof setTimeout> | null = null;
-  private visible = true;
-  private disposed = false;
-  private view: PlaybackView;
-
-  constructor(game: Game, private readonly publish: (view: PlaybackView) => void, private reduced = false) {
-    this.latest = game;
-    this.seen = game.eventSerial ?? 0;
-    this.view = { serial: this.seen, positions: this.snapshot(), event: null, lastRoll: this.findLastRoll(), busy: false };
-    this.emit();
-  }
-
-  private snapshot() {
-    return Object.fromEntries(this.latest.players.map((player) => [player.id, player.position]));
-  }
-
-  private findLastRoll() {
-    return [...(this.latest.events ?? [])].reverse().find((event) => event.type === "roll") ?? null;
-  }
-
-  private emit() {
-    if (!this.disposed) this.publish({ ...this.view, positions: { ...this.view.positions } });
-  }
-
-  private clearTimer() {
-    if (this.timer !== null) clearTimeout(this.timer);
-    this.timer = null;
-  }
-
-  private sync() {
-    this.clearTimer();
-    this.queue = [];
-    this.view = { serial: this.seen, positions: this.snapshot(), event: null, lastRoll: this.findLastRoll(), busy: false };
-    this.emit();
-  }
-
-  update(game: Game) {
-    if (this.disposed) return;
-    if (game.id === this.latest.id && game.version < this.latest.version) return;
-    const newRoom = game.id !== this.latest.id;
-    this.latest = game;
-    const events = game.events ?? [];
-    const gap = events.length > 0 && events[0].id > this.seen + 1;
-    const fresh = events.filter((event) => event.id > this.seen);
-    this.seen = game.eventSerial ?? this.seen;
-    this.view.serial = this.seen;
-    if (newRoom || gap || !this.visible || game.status === "lobby") {
-      this.sync();
-      return;
+export function move(s: Game, p: Player, steps: number) {
+  const from = p.position;
+  const path: number[] = [];
+  for (let i = 0; i < steps; i++) {
+    p.position = (p.position + 1) % 40;
+    path.push(p.position);
+    if (p.position === 0) {
+      p.salary = (p.salary ?? 0) + SALARY;
+      addLog(s, `${p.name} pasó por Salida: puede cobrar $${SALARY} antes de terminar su turno.`);
     }
-    this.queue.push(...fresh);
-    if (!this.view.busy) this.next();
   }
-
-  private next = () => {
-    this.clearTimer();
-    if (this.disposed) return;
-    const event = this.queue.shift();
-    if (!event) {
-      this.view = { ...this.view, positions: this.snapshot(), event: null, busy: false };
-      this.emit();
-      return;
-    }
-    this.view = { ...this.view, event, busy: true };
-    if (event.type === "roll") this.view.lastRoll = event;
-    if (event.type === "move" && event.player && event.path?.length) {
-      const player = event.player;
-      const path = event.path;
-      if (event.from !== undefined) this.view.positions[player] = event.from;
-      this.emit();
-      let step = 0;
-      const advance = () => {
-        this.view.positions[player] = path[step++];
-        this.emit();
-        this.timer = setTimeout(step < path.length ? advance : this.next, step < path.length ? MOVE_STEP_MS : MOVE_SETTLE_MS);
-      };
-      if (this.reduced || event.teleport) {
-        this.view.positions[player] = path[path.length - 1];
-        this.emit();
-        this.timer = setTimeout(this.next, this.reduced ? 0 : MOVE_SETTLE_MS);
-      } else this.timer = setTimeout(advance, MOVE_STEP_MS);
-      return;
-    }
-    this.emit();
-    const duration = this.reduced && event.type === "roll" ? 900 : eventDuration(event);
-    this.timer = setTimeout(this.next, duration);
-  };
-
-  setVisible(visible: boolean) {
-    this.visible = visible;
-    if (!visible) this.sync();
-  }
-
-  setReducedMotion(reduced: boolean) { this.reduced = reduced; }
-
-  dispose() {
-    this.disposed = true;
-    this.clearTimer();
-    this.queue = [];
-  }
+  s.motion = { serial: (s.motion?.serial ?? 0) + 1, player: p.id, path };
+  if (path.length)
+    addLog(
+      s,
+      `${p.name} avanza ${steps} casillas hasta ${BOARD[p.position].name}.`,
+      { type: "move", player: p.id, path, from },
+    );
 }
 ````
 
-## lib/game/presentation.ts
+## src/domain/game/presentation.ts
 
 ````typescript
 import type { GameEvent } from "./types";
@@ -13119,10 +11233,10 @@ export function eventDuration(event: GameEvent): number {
 }
 ````
 
-## lib/game/rules.ts
+## src/domain/game/rules.ts
 
 ````typescript
-import { BOARD, HOUSE_SUPPLY, HOTEL_SUPPLY, AUCTION_INCREMENT, AUCTION_PRICE_RATIO } from "./board";
+import { AUCTION_INCREMENT, AUCTION_PRICE_RATIO, BOARD, HOTEL_SUPPLY, HOUSE_SUPPLY } from "./board";
 import type { Game, Player } from "./types";
 export function auctionMinimum(square: number, previousBid = 0, building = false): number {
   const initial = building ? BOARD[square].buildCost : Math.ceil(BOARD[square].price * AUCTION_PRICE_RATIO / AUCTION_INCREMENT) * AUCTION_INCREMENT;
@@ -13272,7 +11386,36 @@ export function buildingBidders(s: Game, id: number): Record<string, number[]> {
 }
 ````
 
-## lib/game/shuffle.ts
+## src/domain/game/settlement.ts
+
+````typescript
+import { addLog } from "./events";
+import type { Game, Player } from "./types";
+
+export function winner(s: Game) {
+  const alive = s.players.filter((p) => !p.bankrupt);
+  if (alive.length <= 1 && !s.debt) {
+    s.status = "finished";
+    s.winner = alive.map((p) => p.id);
+    s.trades = [];
+    addLog(s, alive[0] ? `${alive[0].name} ganó la partida.` : "Todos los viajeros quedaron en quiebra.");
+  }
+}
+
+export function charge(s: Game, p: Player, amount: number, creditor: string | null) {
+  if (amount <= 0) return;
+  const debt = { amount, creditor, payer: p.id };
+  if (s.debt) s.debts = [...(s.debts ?? []), debt];
+  else s.debt = debt;
+  addLog(
+    s,
+    `${p.name} debe pagar $${amount} a ${s.players.find((x) => x.id === creditor)?.name ?? "el Banco"}.`,
+    { type: "payment", player: p.id },
+  );
+}
+````
+
+## src/domain/game/shuffle.ts
 
 ````typescript
 /** Fisher–Yates: randomness is supplied by the authoritative server. */
@@ -13291,7 +11434,215 @@ export function shuffleDeck(
 }
 ````
 
-## lib/game/types.ts
+## src/domain/game/timing.ts
+
+````typescript
+import { closeAuction } from "./auctions";
+import { addLog } from "./events";
+import { credit } from "./money";
+import { ROLL_LIMIT_MS, eventDuration } from "./presentation";
+import { netWorth } from "./rules";
+import { nextTurn, waitTurn } from "./turns";
+import type { Game, Player } from "./types";
+
+export function finishByTime(state: Game, now: number): Game {
+  if (state.status !== "playing") return state;
+  if (state.endsAt && now >= state.endsAt) {
+    const s = structuredClone(state), active = s.players.filter((p) => !p.bankrupt);
+    const score = (p: Player) => netWorth(s, p) - [s.debt, ...(s.debts ?? [])]
+      .reduce((sum, d) => sum + (d && (d.payer ?? s.players[s.turn].id) === p.id ? d.amount : 0), 0);
+    const best = Math.max(...active.map(score));
+    s.winner = active.filter((p) => score(p) === best).map((p) => p.id);
+    s.status = "finished"; s.trades = []; s.auction = null; s.choice = null;
+    addLog(s, "Terminó el tiempo. Se compara el patrimonio neto.");
+    return s;
+  }
+  if (state.auction && now >= state.auction.endsAt) {
+    const s = structuredClone(state); closeAuction(s, now); scheduleAutomatic(s, state, now); return s;
+  }
+  if (state.opening && now >= (state.rollDeadline ?? state.turnAt + ROLL_LIMIT_MS)) {
+    const s = structuredClone(state);
+    for (const id of s.opening!.candidates) {
+      if (s.opening!.rolls[id] === undefined) {
+        s.opening!.rolls[id] = 0;
+        addLog(s, `${s.players.find((p) => p.id === id)?.name} no tiró a tiempo y pierde la elección de salida.`);
+      }
+    }
+    resolveOpening(s, now);
+    scheduleAutomatic(s, state, now);
+    return s;
+  }
+  if (!state.opening && !state.auction && !state.debt && !state.choice && !state.detentionDecision) {
+    if (state.phase === "end" && state.autoEndAt === undefined) {
+      const s = structuredClone(state);
+      s.autoEndAt = Math.max(now, s.presentationUntil ?? 0) + 1000;
+      return s;
+    }
+    if (state.phase === "end" && state.autoEndAt !== undefined && now >= state.autoEndAt) {
+      const s = structuredClone(state), p = s.players[s.turn];
+      if (p.salary) {
+        credit(p, p.salary);
+        addLog(s, `${p.name} cobró automáticamente $${p.salary} de sueldo.`);
+        p.salary = 0;
+      }
+      if (s.extra) {
+        s.phase = "roll";s.extra = false;s.turnAt = now;s.rollDeadline = now + ROLL_LIMIT_MS;
+        delete s.autoEndAt;
+      } else nextTurn(s, now);
+      scheduleAutomatic(s, state, now);
+      return s;
+    }
+    if (state.phase === "roll" && now >= (state.rollDeadline ?? state.turnAt + ROLL_LIMIT_MS)) {
+      const s = structuredClone(state), p = s.players[s.turn];
+      addLog(s, `${p.name} agotó sus 20 segundos: se salta su turno.`);
+      if (p.jailed || p.skipTurns) waitTurn(s, p);
+      nextTurn(s, now);
+      // La siguiente cuenta empieza cuando acaba el aviso del turno vencido.
+      scheduleAutomatic(s, state, now);
+      return s;
+    }
+  }
+  return state;
+}
+
+export function presentationTime(next: Game, previous: Game) {
+  return (next.events ?? []).filter((event) => event.id > (previous.eventSerial ?? 0))
+    .reduce((total, event) => total + eventDuration(event), 0);
+}
+
+export function scheduleAutomatic(next: Game, previous: Game, now: number) {
+  if (next.status !== "playing") return;
+  const visualTime = presentationTime(next, previous);
+  const readyAt = Math.max(now, previous.presentationUntil ?? 0) + visualTime;
+  next.presentationUntil = readyAt;
+  if (next.opening && (!previous.opening || next.opening.round !== previous.opening.round)) {
+    next.rollDeadline = readyAt + ROLL_LIMIT_MS;
+  } else if (!next.opening && next.phase === "roll" &&
+    (previous.opening || previous.phase !== "roll" || next.turn !== previous.turn || !next.rollDeadline)) {
+    next.rollDeadline = readyAt + ROLL_LIMIT_MS;
+  } else if ((next.opening || next.phase === "roll") && visualTime) {
+    next.rollDeadline = Math.max(next.rollDeadline ?? 0, readyAt + ROLL_LIMIT_MS);
+  }
+  if (next.phase === "end" && !next.opening && !next.auction && !next.debt && !next.choice && !next.detentionDecision) {
+    next.autoEndAt = Math.max(next.autoEndAt ?? 0, readyAt);
+  } else delete next.autoEndAt;
+}
+
+export function resolveOpening(s: Game, now: number) {
+  const opening = s.opening;
+  if (!opening || !opening.candidates.every((id) => opening.rolls[id] !== undefined)) return;
+  const max = Math.max(...Object.values(opening.rolls));
+  const tied = opening.candidates.filter((id) => opening.rolls[id] === max);
+  if (tied.length === 1 || max === 0) {
+    s.turn = s.players.findIndex((p) => p.id === tied[0]);
+    s.opening = null;s.turnAt = now;
+    addLog(s, `${s.players[s.turn].name} inicia el viaje.`);
+  } else {
+    s.opening = { candidates: tied, rolls: {}, round: opening.round + 1 };
+    addLog(s, "Empate: vuelven a tirar los finalistas.");
+  }
+}
+````
+
+## src/domain/game/trading.ts
+
+````typescript
+import { requireRule } from "./assertions";
+import { group } from "./rules";
+import type { Game, Player } from "./types";
+
+export function validateTrade(
+  s: Game,
+  from: Player,
+  to: Player,
+  give: number[],
+  take: number[],
+  gm: number,
+  tm: number,
+) {
+  requireRule(!(from.jailed && from.detention === "prison") && !(to.jailed && to.detention === "prison"), "No se puede negociar con jugadores en la cárcel.");
+  requireRule(
+    Number.isSafeInteger(gm) &&
+      Number.isSafeInteger(tm) &&
+      gm >= 0 &&
+      tm >= 0 &&
+      from.money >= gm &&
+      to.money >= tm,
+    "Dinero del trato inválido.",
+  );
+  requireRule(give.length + take.length + gm + tm > 0, "El trato está vacío.");
+  requireRule(
+    new Set([...give, ...take]).size === give.length + take.length,
+    "Propiedad repetida.",
+  );
+  for (const [ids, owner] of [
+    [give, from.id],
+    [take, to.id],
+  ] as const)
+    for (const id of ids) {
+      const a = s.properties[id];
+      requireRule(
+        a &&
+          a.owner === owner &&
+          !a.buildings &&
+          !group(id).some((b) => s.properties[b.id].buildings),
+        "Las propiedades del trato deben pertenecer al jugador y tener todo su grupo sin edificios.",
+      );
+    }
+}
+````
+
+## src/domain/game/turns.ts
+
+````typescript
+import { addLog } from "./events";
+import { ROLL_LIMIT_MS } from "./presentation";
+import type { Game, Player } from "./types";
+
+export function nextTurn(s: Game, now: number) {
+  s.detentionDecision = null;
+  delete s.autoEndAt;
+  s.rollDeadline = now + ROLL_LIMIT_MS;
+  s.players[s.turn].salary = 0;
+  s.turnNumber = (s.turnNumber ?? 0) + 1;
+  s.debt = null;
+  s.doubles = 0;
+  s.extra = false;
+  s.phase = "roll";
+  s.turnAt = now;
+  for (let i = 0; i < s.players.length; i++) {
+    s.turn = (s.turn + 1) % s.players.length;
+    if (!s.players[s.turn].bankrupt) break;
+  }
+}
+
+export function release(s: Game, p: Player) {
+  if (s.detentionDecision === p.id) s.detentionDecision = null;
+  if (p.detention === "oceania") {
+    const from = p.position; p.position = 0;
+    addLog(s, `${p.name} regresa a Salida sin cobrar sueldo.`, { type: "move", player: p.id, from, path: [0], teleport: true });
+  }
+  p.jailed = 0; delete p.detention;
+}
+
+export function waitTurn(s: Game, p: Player) {
+  if (p.jailed) {
+    p.jailed--; addLog(s, `${p.name} cumple un turno de castigo; quedan ${p.jailed}.`);
+    if (!p.jailed) release(s, p);
+  } else { p.skipTurns = Math.max(0, (p.skipTurns ?? 0) - 1); addLog(s, `${p.name} descansa; quedan ${p.skipTurns} turnos.`); }
+  s.phase = "end"; s.extra = false; s.doubles = 0;
+}
+
+export function advanceAfterElimination(s: Game, now: number) {
+  const debt = s.debt; nextTurn(s, now); s.debt = debt;
+}
+
+export function waitingPlayer(s: Game): string {
+  return s.debt?.payer ?? s.choice?.player ?? s.opening?.candidates.find((id) => s.opening?.rolls[id] === undefined) ?? s.players[s.turn].id;
+}
+````
+
+## src/domain/game/types.ts
 
 ````typescript
 export type SquareKind =
@@ -13472,504 +11823,302 @@ export interface Auction {
 }
 ````
 
-## lib/http.ts
+## src/domain/shared/errors.ts
 
 ````typescript
-import { NextResponse } from "next/server";
-import { ZodError } from "zod";
-import { HttpError } from "./store";
-export async function body(req: Request): Promise<unknown> {
-  const text = await req.text();
-  if (text.length > 16000)
-    throw new HttpError(413, "Solicitud demasiado grande.");
-  try {
-    return JSON.parse(text);
-  } catch {
-    throw new HttpError(400, "JSON inválido.");
-  }
-}
-export async function respond(fn: () => Promise<unknown>) {
-  try {
-    return NextResponse.json(await fn(), {
-      headers: { "Cache-Control": "no-store" },
-    });
-  } catch (e) {
-    const status =
-      e instanceof HttpError ? e.status : e instanceof ZodError ? 400 : 500;
-    const message =
-      e instanceof HttpError
-        ? e.message
-        : e instanceof ZodError
-          ? "Revisa los datos enviados."
-          : "No pudimos conectar con Redis. Intenta nuevamente.";
-    if (status === 500)
-      console.error(
-        "Redis request failed",
-        e instanceof Error ? e.name : "unknown",
-      );
-    return NextResponse.json(
-      { error: message },
-      { status, headers: { "Cache-Control": "no-store" } },
-    );
-  }
+export type FailureCode = "invalid" | "unauthorized" | "forbidden" | "not_found" | "conflict" | "gone" | "unavailable";
+export class OperationError extends Error {
+  constructor(readonly code: FailureCode, message: string) { super(message); this.name = "OperationError"; }
 }
 ````
 
-## lib/site.ts
+## src/domain/voice/rules.ts
 
 ````typescript
-const configuredUrl = new URL(
-  process.env.SITE_URL || "https://rumbo-mundial-khaki.vercel.app",
-);
-if (!['https:', 'http:'].includes(configuredUrl.protocol)) {
-  throw new Error("SITE_URL debe ser una URL pública con https:// o http://.");
+import { OperationError } from "../shared/errors";
+import { VOICE_PRESENCE_MS, type VoiceCommand, type VoiceState } from "./types";
+export function cleanVoice(state: VoiceState, players: string[], now: number): VoiceState {
+  const next = structuredClone(state);
+  next.members = Object.fromEntries(Object.entries(next.members).filter(([id, member]) => players.includes(id) && member.seen > now - VOICE_PRESENCE_MS));
+  next.signals = next.signals.filter((signal) => signal.at > now - VOICE_PRESENCE_MS &&
+    next.members[signal.from]?.session === signal.fromSession && next.members[signal.to]?.session === signal.toSession);
+  return next;
 }
 
-export const siteUrl = new URL(configuredUrl.origin);
-export const indexable =
-  process.env.VERCEL_ENV !== "preview" &&
-  process.env.VERCEL_ENV !== "development" &&
-  process.env.NODE_ENV !== "development";
-export const siteTitle = "Rumbo mundial online con amigos | Rumbo Mundial";
-export const siteDescription =
-  "Juega turista mundial online con amigos en Rumbo Mundial: de 2 a 6 jugadores, países, casas, hoteles y tratos. Crea una sala y comparte el enlace, sin descargar nada.";
-````
-
-## lib/store.ts
-
-````typescript
-import { Redis } from "@upstash/redis";
-import { createHash, randomInt, randomUUID } from "node:crypto";
-import { z } from "zod";
-import { RULES_VERSION } from "./game/board";
-import { CARDS } from "./game/cards";
-import { shuffleDeck } from "./game/shuffle";
-import {
-  addLog,
-  engine,
-  finishByTime,
-  newGame,
-  newPlayer,
-  waitingPlayer,
-} from "./game/engine";
-import { COLORS, type Action, type Context, type Game } from "./game/types";
-interface Stored {
-  game: Game;
-  tokens: Record<string, string>;
-  receipts: Record<string, number>;
-}
-export class HttpError extends Error {
-  constructor(
-    public status: number,
-    message: string,
-  ) {
-    super(message);
-  }
-}
-export function redis() {
-  const url = process.env.UPSTASH_REDIS_REST_URL || process.env.KV_REST_API_URL;
-  const token =
-    process.env.UPSTASH_REDIS_REST_TOKEN || process.env.KV_REST_API_TOKEN;
-  if (!url || !token)
-    throw new HttpError(
-      503,
-      "Configura las variables de Upstash Redis para jugar.",
-    );
-  return new Redis({ url, token });
-}
-const key = (id: string) => `turista:room:${id}`;
-const digest = (token: string) =>
-  createHash("sha256").update(token).digest("hex");
-export const roomId = z
-  .string()
-  .regex(/^[A-HJ-NP-Z2-9]{6}$/, "ID de sala inválido.");
-export const identity = z.object({
-  name: z.string().trim().min(1).max(24),
-  color: z.enum(COLORS as [string, ...string[]]).optional(),
-});
-const square = z.number().int().min(0).max(39);
-const baseActionSchema = z.discriminatedUnion("type", [
-  z.object({
-    type: z.enum([
-      "start",
-      "roll",
-      "buy",
-      "decline",
-      "end",
-      "settle",
-      "bankrupt",
-      "pass",
-      "wait",
-      "stay",
-      "bail",
-      "skip",
-      "expel",
-      "salary",
-      "opening-roll",
-      "fold",
-      "auction-expire",
-    ]),
-  }),
-  z.object({
-    type: z.enum(["build", "sell", "sell-group", "mortgage", "redeem", "return"]),
-    square,
-  }),
-  z.object({
-    type: z.literal("color"),
-    color: z.enum(COLORS as [string, ...string[]]),
-  }),
-  z.object({
-    type: z.literal("trade"),
-    to: z.string().uuid(),
-    give: z.array(square).max(30),
-    take: z.array(square).max(30),
-    giveMoney: z.number().int().nonnegative().max(100000000),
-    takeMoney: z.number().int().nonnegative().max(100000000),
-  }),
-  z.object({ type: z.literal("bid"), amount: z.number().int().positive().max(100000000), square: square.optional() }),
-  z.object({ type: z.literal("collect"), target: z.string().uuid() }),
-  z.object({ type: z.literal("acquire"), square }),
-  z.object({ type: z.literal("accept"), trade: z.string().max(100) }),
-  z.object({ type: z.literal("reject"), trade: z.string().max(100) }),
-  z.object({
-    type: z.literal("change"),
-    denomination: z.number().int().positive(),
-  }),
-]);
-export const actionSchema: z.ZodType<Action> = baseActionSchema.and(
-  z.object({
-    bills: z.record(z.number().int().nonnegative().max(100000000)).optional(),
-  }),
-);
-const CAS = `local old=redis.call('GET',KEYS[1]); if not old then return -1 end; local parsed=cjson.decode(old); if parsed.game.version~=tonumber(ARGV[1]) then return 0 end; redis.call('SET',KEYS[1],ARGV[2],'EX',86400); return 1`;
-async function save(id: string, old: number, value: Stored) {
-  const result = await redis().eval(
-    CAS,
-    [key(id)],
-    [old, JSON.stringify(value)],
-  );
-  if (result === -1) throw new HttpError(404, "Sala no encontrada.");
-  if (result !== 1)
-    throw new HttpError(
-      409,
-      "La sala cambió. Actualiza el estado antes de intentar otra vez.",
-    );
-}
-async function read(id: string): Promise<Stored> {
-  roomId.parse(id);
-  const stored = await redis().get<Stored>(key(id));
-  if (!stored) throw new HttpError(404, "Sala no encontrada.");
-  if (stored.game.rulesVersion !== RULES_VERSION) throw new HttpError(410, "Esta sala usa el tablero anterior. Crea una sala nueva para jugar Rumbo Mundial.");
-  return stored;
-}
-function authorize(stored: Stored, token: string) {
-  const id = stored.tokens[digest(token)];
-  if (!id) throw new HttpError(401, "El token no pertenece a esta sala.");
-  return id;
-}
-export async function roomIdentity(id: string, token: string) {
-  z.string().uuid().parse(token);
-  const stored = await read(id);
-  return { playerId: authorize(stored, token), players: stored.game.players.map((player) => player.id) };
-}
-export function publicGame(s: Game): Game {
-  return { ...s, decks: { email: [], sms: [] } };
-}
-function context(): Context {
-  return {
-    now: Date.now(),
-    dice: [randomInt(1, 7), randomInt(1, 7)],
-    shuffled: {
-      email: shuffleDeck(CARDS.email.length, randomInt),
-      sms: shuffleDeck(CARDS.sms.length, randomInt),
-    },
-  };
-}
-export async function createRoom(input: unknown) {
-  const data = identity
-    .extend({
-      duration: z
-        .union([z.literal(0), z.literal(30), z.literal(60), z.literal(90)])
-        .default(0),
-    })
-    .parse(input);
-  const token = randomUUID(),
-    player = newPlayer(randomUUID(), data.name, data.color ?? COLORS[0]);
-  for (let attempt = 0; attempt < 8; attempt++) {
-    const alphabet = "ABCDEFGHJKLMNPQRSTUVWXYZ23456789";
-    const id = Array.from(
-      { length: 6 },
-      () => alphabet[randomInt(alphabet.length)],
-    ).join("");
-    const game = newGame(id, player, data.duration);
-    const stored: Stored = {
-      game,
-      tokens: { [digest(token)]: player.id },
-      receipts: {},
-    };
-    if (await redis().set(key(id), stored, { nx: true, ex: 86400 }))
-      return {
-        id,
-        playerToken: token,
-        playerId: player.id,
-        game: publicGame(game),
-      };
-  }
-  throw new HttpError(503, "No se pudo crear una sala. Intenta otra vez.");
-}
-export async function joinRoom(id: string, input: unknown) {
-  const data = identity
-    .extend({ token: z.string().uuid().optional() })
-    .parse(input);
-  const token = randomUUID();
-  for (let i = 0; i < 4; i++) {
-    const stored = await read(id);
-    if (data.token) {
-      const existing = stored.tokens[digest(data.token)];
-      if (!existing)
-        throw new HttpError(401, "El token no pertenece a esta sala.");
-      return {
-        playerToken: data.token,
-        playerId: existing,
-        game: publicGame(stored.game),
-      };
-    }
-    const s = stored.game;
-    if (s.status !== "lobby")
-      throw new HttpError(409, "La partida ya comenzó.");
-    if (s.players.length >= 6) throw new HttpError(409, "La sala está llena.");
-    const color =
-      data.color ?? COLORS.find((c) => !s.players.some((p) => p.color === c));
-    if (!color || s.players.some((p) => p.color === color))
-      throw new HttpError(409, "Este color ya está ocupado.");
-    const p = newPlayer(randomUUID(), data.name, color);
-    s.players.push(p);
-    stored.tokens[digest(token)] = p.id;
-    const old = s.version;
-    s.version++;
-    addLog(s, `${p.name} se unió al viaje.`);
-    try {
-      await save(id, old, stored);
-      return { playerToken: token, playerId: p.id, game: publicGame(s) };
-    } catch (e) {
-      if (!(e instanceof HttpError) || e.status !== 409 || i === 3) throw e;
-    }
-  }
-  throw new HttpError(409, "Intenta unirte nuevamente.");
-}
-export async function getRoom(
-  id: string,
-  token: string | null,
-  heartbeat: boolean,
-) {
-  let stored = await read(id);
-  let playerId: string | null = null;
-  if (token) {
-    playerId = authorize(stored, token);
-    if (heartbeat)
-      await redis().set(`turista:seen:${id}:${playerId}`, Date.now(), {
-        ex: 86400,
-      });
-  }
-  const expired = finishByTime(stored.game, Date.now());
-  if (expired !== stored.game) {
-    const old = stored.game.version;
-    expired.version = old + 1;
-    stored.game = expired;
-    try {
-      await save(id, old, stored);
-    } catch (e) {
-      if (!(e instanceof HttpError) || e.status !== 409) throw e;
-      stored = await read(id);
-    }
-  }
-  const active = stored.game.players.find((p) => p.id === waitingPlayer(stored.game))!;
-  const seen = await redis().get<number>(`turista:seen:${id}:${active.id}`);
-  return {
-    game: publicGame(stored.game),
-    playerId,
-    inactiveFor: Math.max(
-      0,
-      Date.now() - Math.max(stored.game.turnAt, seen ?? 0),
-    ),
-  };
-}
-export async function act(id: string, input: unknown) {
-  const data = z
-    .object({
-      token: z.string().uuid(),
-      action: actionSchema,
-      version: z.number().int().positive(),
-      requestId: z.string().uuid(),
-    })
-    .parse(input);
-  const stored = await read(id),
-    pid = authorize(stored, data.token);
-  const receipt = `${pid}:${data.requestId}`;
-  if (stored.receipts[receipt]) return { game: publicGame(stored.game) };
-  if (stored.game.version !== data.version)
-    throw new HttpError(409, "La sala cambió. Revisa el estado actualizado.");
-  const ctx = context();
-  if (data.action.type === "skip" || data.action.type === "expel") {
-    const active = stored.game.players.find((p) => p.id === waitingPlayer(stored.game))!;
-    const seen = await redis().get<number>(`turista:seen:${id}:${active.id}`);
-    ctx.inactive = ctx.now - Math.max(stored.game.turnAt, seen ?? 0) >= 90000;
-  }
-  let next: Game;
-  try {
-    next = engine(stored.game, data.action, pid, ctx);
-  } catch (e) {
-    throw new HttpError(
-      400,
-      e instanceof Error ? e.message : "Acción inválida.",
-    );
-  }
-  next.version = stored.game.version + 1;
-  const old = stored.game.version;
-  stored.game = next;
-  stored.receipts[receipt] = next.version;
-  stored.receipts = Object.fromEntries(
-    Object.entries(stored.receipts).slice(-100),
-  );
-  await save(id, old, stored);
-  await redis().set(`turista:seen:${id}:${pid}`, ctx.now, { ex: 86400 });
-  return { game: publicGame(next) };
-}
-````
-
-## lib/useGameAudio.ts
-
-````typescript
-"use client";
-
-import { useCallback, useEffect, useRef, useState } from "react";
-import { audioPreferences, DEFAULT_AUDIO, GameAudio, type AudioPreferences, type SoundCue } from "./audio";
-import type { Game, GameEvent } from "./game/types";
-
-const STORAGE_KEY = "rumbo:audio";
-
-export function useGameAudio(game: Game | null, playerId: string | null) {
-  const [preferences, setPreferences] = useState(DEFAULT_AUDIO);
-  const [error, setError] = useState("");
-  const current = useRef(DEFAULT_AUDIO);
-  const engine = useRef<GameAudio | null>(null);
-
-  const unlock = useCallback(() => {
-    if (current.current.muted || document.hidden) return;
-    try {
-      if (!engine.current) {
-        engine.current = new GameAudio(new AudioContext());
-        engine.current.configure(current.current);
+export function applyVoice(state: VoiceState, command: VoiceCommand, playerId: string, players: string[], now: number): VoiceState {
+  const next = cleanVoice(state, players, now);
+  if (!players.includes(playerId)) throw new OperationError("forbidden", "No perteneces a esta sala.");
+  if (command.type === "join") {
+    next.members[playerId] = { playerId, session: command.session, muted: command.muted, seen: now };
+  } else if (command.type === "leave") {
+    // Un cierre tardío de otra pestaña no puede expulsar la sesión nueva.
+    if (next.members[playerId]?.session === command.session) delete next.members[playerId];
+  } else {
+    if (next.members[playerId]?.session !== command.session) throw new OperationError("conflict", "La conexión de voz venció o se abrió en otra pestaña. Vuelve a conectarte.");
+    if (command.type === "heartbeat") {
+      next.members[playerId].seen = now;
+      next.members[playerId].muted = command.muted;
+    } else {
+      if (command.to === playerId || !players.includes(command.to) || next.members[command.to]?.session !== command.toSession) {
+        throw new OperationError("conflict", "Ese viajero ya no está conectado a la voz.");
       }
-      void engine.current.unlock().then(() => setError("")).catch(() => {
-        setError("Toca Activar audio para volver a intentarlo.");
-      });
-    } catch {
-      setError("Este navegador no pudo iniciar el audio. La partida puede continuar.");
+      const offer = command.description.type === "offer";
+      if ((offer && playerId > command.to) || (!offer && playerId < command.to)) throw new OperationError("invalid", "Orden de negociación inválido.");
+      const existingOffer = next.signals.find((signal) => signal.description.type === "offer" && signal.from === command.to && signal.to === playerId && signal.connection === command.connection);
+      if (!offer && !existingOffer) throw new OperationError("conflict", "La llamada cambió. Reconecta la voz.");
+      const duplicate = next.signals.some((signal) => signal.from === playerId && signal.to === command.to && signal.connection === command.connection && signal.description.type === command.description.type);
+      if (!duplicate) {
+        next.signals = next.signals.filter((signal) => offer
+          ? !((signal.from === playerId && signal.to === command.to) || (signal.to === playerId && signal.from === command.to))
+          : !(signal.from === playerId && signal.to === command.to));
+        next.signals.push({ from: playerId, fromSession: command.session, to: command.to, toSession: command.toSession, connection: command.connection, description: command.description, at: now });
+      }
     }
-  }, []);
+  }
+  const cleaned = cleanVoice(next, players, now);
+  cleaned.revision = state.revision + 1;
+  return cleaned;
+}
 
-  useEffect(() => {
-    try {
-      const stored = localStorage.getItem(STORAGE_KEY);
-      const saved = stored ? audioPreferences(JSON.parse(stored)) : DEFAULT_AUDIO;
-      current.current = saved;
-      setPreferences(saved);
-    } catch { /* El juego funciona aunque el navegador bloquee localStorage. */ }
-    const visibility = () => {
-      engine.current?.setVisible(!document.hidden);
-      if (!document.hidden) unlock();
+````
+
+## src/domain/voice/types.ts
+
+````typescript
+export interface IceServer { urls: string | string[]; username?: string; credential?: string; }
+export interface VoiceMember {
+  playerId: string;
+  session: string;
+  muted: boolean;
+  seen: number;
+}
+export interface VoiceSignal {
+  from: string;
+  fromSession: string;
+  to: string;
+  toSession: string;
+  connection: string;
+  description: { type: "offer" | "answer"; sdp: string };
+  at: number;
+}
+export interface VoiceState {
+  revision: number;
+  members: Record<string, VoiceMember>;
+  signals: VoiceSignal[];
+}
+export interface VoiceView {
+  members: VoiceMember[];
+  signals: VoiceSignal[];
+  replaced: boolean;
+  iceServers: IceServer[];
+}
+export type VoiceCommand =
+  | { type: "join"; session: string; muted: boolean }
+  | { type: "heartbeat"; session: string; muted: boolean }
+  | { type: "leave"; session: string }
+  | { type: "signal"; session: string; to: string; toSession: string; connection: string; description: VoiceSignal["description"] };
+
+export const VOICE_PRESENCE_MS = 45_000;
+````
+
+## src/infrastructure/browser/audio.ts
+
+````typescript
+export interface AudioPreferences {
+  muted: boolean;
+  music: number;
+  effects: number;
+}
+
+export const DEFAULT_AUDIO: AudioPreferences = { muted: true, music: 30, effects: 65 };
+export type SoundCue = "roll" | "purchase" | "payment" | "card" | "turn" | "trade" | "victory" | "travel";
+
+export function audioPreferences(value: unknown): AudioPreferences {
+  const input = value && typeof value === "object" ? value as Record<string, unknown> : {};
+  const volume = (v: unknown, fallback: number) =>
+    typeof v === "number" && Number.isFinite(v) ? Math.max(0, Math.min(100, v)) : fallback;
+  return {
+    muted: typeof input.muted === "boolean" ? input.muted : DEFAULT_AUDIO.muted,
+    music: volume(input.music, DEFAULT_AUDIO.music),
+    effects: volume(input.effects, DEFAULT_AUDIO.effects),
+  };
+}
+
+// Partitura original: marimba suave, acordes y bajo. No descarga pistas externas.
+const CHORDS = [[48, 55, 60, 64], [45, 52, 57, 60], [41, 48, 53, 57], [43, 50, 55, 59]];
+const MELODY = [
+  [76, 0, 79, 76, 74, 0, 72, 0, 0, 76, 79, 0, 81, 79, 76, 0],
+  [72, 0, 76, 0, 81, 79, 76, 0, 74, 0, 72, 0, 71, 72, 0, 0],
+  [69, 0, 72, 76, 77, 0, 76, 72, 0, 69, 72, 0, 76, 74, 72, 0],
+  [71, 0, 74, 79, 0, 77, 74, 0, 71, 74, 0, 72, 0, 0, 0, 0],
+];
+const frequency = (note: number) => 440 * 2 ** ((note - 69) / 12);
+
+export class GameAudio {
+  private readonly music: GainNode;
+  private readonly effects: GainNode;
+  private preferences = DEFAULT_AUDIO;
+  private timer: ReturnType<typeof setInterval> | null = null;
+  private notes = new Set<OscillatorNode>();
+  private step = 0;
+  private nextBeat = 0;
+  private visible = true;
+  private disposed = false;
+
+  constructor(private readonly context: AudioContext) {
+    this.music = context.createGain();
+    this.effects = context.createGain();
+    this.music.connect(context.destination);
+    this.effects.connect(context.destination);
+    this.music.gain.value = 0;
+    this.effects.gain.value = 0;
+  }
+
+  configure(preferences: AudioPreferences) {
+    this.preferences = audioPreferences(preferences);
+    const { muted, music, effects } = this.preferences;
+    this.music.gain.setTargetAtTime(muted ? 0 : (music / 100) ** 2, this.context.currentTime, 0.025);
+    this.effects.gain.setTargetAtTime(muted ? 0 : (effects / 100) ** 2, this.context.currentTime, 0.025);
+    if (muted) this.pause();
+    else if (this.context.state === "running" && this.visible) this.startMusic();
+  }
+
+  async unlock() {
+    if (this.disposed || this.preferences.muted || !this.visible) return;
+    await this.context.resume();
+    if (!this.disposed && !this.preferences.muted && this.visible) this.startMusic();
+    else if (!this.disposed) this.pause();
+  }
+
+  setVisible(visible: boolean) {
+    this.visible = visible;
+    if (!visible) this.pause();
+  }
+
+  private tone(note: number, at: number, duration: number, level: number, bus: GainNode, type: OscillatorType = "sine") {
+    const oscillator = this.context.createOscillator();
+    const envelope = this.context.createGain();
+    oscillator.type = type;
+    oscillator.frequency.value = frequency(note);
+    envelope.gain.setValueAtTime(0, at);
+    envelope.gain.linearRampToValueAtTime(level, at + 0.012);
+    envelope.gain.exponentialRampToValueAtTime(0.001, at + duration);
+    oscillator.connect(envelope);
+    envelope.connect(bus);
+    this.notes.add(oscillator);
+    oscillator.onended = () => {
+      oscillator.disconnect();
+      envelope.disconnect();
+      this.notes.delete(oscillator);
     };
-    document.addEventListener("pointerdown", unlock);
-    document.addEventListener("keydown", unlock);
-    document.addEventListener("visibilitychange", visibility);
-    return () => {
-      document.removeEventListener("pointerdown", unlock);
-      document.removeEventListener("keydown", unlock);
-      document.removeEventListener("visibilitychange", visibility);
-      engine.current?.dispose();
-      engine.current = null;
+    oscillator.start(at);
+    oscillator.stop(at + duration + 0.02);
+  }
+
+  private startMusic() {
+    if (this.timer || this.disposed) return;
+    this.nextBeat = this.context.currentTime + 0.05;
+    const schedule = () => {
+      if (this.context.state !== "running") return;
+      if (this.nextBeat < this.context.currentTime) this.nextBeat = this.context.currentTime + 0.03;
+      while (this.nextBeat < this.context.currentTime + 0.2) {
+        const beat = this.step % 16;
+        const bar = Math.floor(this.step / 16) % 4;
+        if (this.preferences.music > 0) {
+          if (beat % 4 === 0) {
+            this.tone(CHORDS[bar][beat === 8 ? 1 : 0], this.nextBeat, 0.5, 0.18, this.music);
+            CHORDS[bar].slice(1).forEach((note, i) => this.tone(note + 12, this.nextBeat + i * 0.018, 0.65, 0.035, this.music, "triangle"));
+          }
+          const melody = MELODY[bar][beat];
+          if (melody) this.tone(melody, this.nextBeat, 0.32, 0.13, this.music);
+          if (beat % 2) this.tone(90, this.nextBeat, 0.025, 0.025, this.music, "triangle");
+        }
+        this.step = (this.step + 1) % 64;
+        this.nextBeat += 60 / 104 / 2;
+      }
     };
-  }, [unlock]);
+    schedule();
+    this.timer = setInterval(schedule, 100);
+  }
 
-  const change = useCallback((patch: Partial<AudioPreferences>) => {
-    const next = audioPreferences({ ...current.current, ...patch });
-    current.current = next;
-    setPreferences(next);
-    try { localStorage.setItem(STORAGE_KEY, JSON.stringify(next)); } catch { /* Preferencias de esta sesión. */ }
-    engine.current?.configure(next);
-    if (!next.muted) unlock();
-  }, [unlock]);
+  play(cue: SoundCue) {
+    if (this.disposed || this.preferences.muted || !this.visible || !this.preferences.effects || this.context.state !== "running") return;
+    const scores: Record<SoundCue, number[]> = {
+      roll: [64, 53, 71, 57, 76, 60, 67],
+      purchase: [72, 76, 79, 84], payment: [79, 76, 72],
+      card: [76, 83, 88], turn: [72, 79], trade: [67, 74, 79, 74],
+      victory: [72, 76, 79, 84, 79, 84, 88], travel: [64, 67, 72],
+    };
+    const start = this.context.currentTime + 0.01;
+    scores[cue].forEach((note, i) => this.tone(
+      note, start + i * (cue === "roll" ? 0.075 : 0.13),
+      cue === "roll" ? 0.055 : 0.25, 0.15, this.effects,
+      cue === "roll" ? "triangle" : "sine",
+    ));
+  }
 
-  const play = useCallback((cue: SoundCue) => { engine.current?.play(cue); }, []);
-  const playEvent = useCallback((event: GameEvent) => {
-    if (["roll", "purchase", "payment", "card"].includes(event.type)) play(event.type as SoundCue);
-    else if (event.teleport || /cárcel|deportado|construyó/i.test(event.text)) play("travel");
-  }, [play]);
+  private pause() {
+    if (this.timer) clearInterval(this.timer);
+    this.timer = null;
+    for (const note of this.notes) note.stop();
+    this.notes.clear();
+    if (this.context.state !== "closed") void this.context.suspend().catch(() => {});
+  }
 
-  const previous = useRef<{ room: string; turn: string; trades: string[]; finished: boolean } | null>(null);
-  useEffect(() => {
-    if (!game) return;
-    const turn = `${game.turnNumber}:${game.players[game.turn]?.id}`;
-    const trades = game.trades.filter((trade) => trade.to === playerId).map((trade) => trade.id);
-    const finished = game.status === "finished";
-    const before = previous.current;
-    if (before?.room === game.id) {
-      if (finished && !before.finished) play("victory");
-      else if (trades.some((id) => !before.trades.includes(id))) play("trade");
-      else if (turn !== before.turn && game.players[game.turn]?.id === playerId && !game.opening) play("turn");
-    }
-    previous.current = { room: game.id, turn, trades, finished };
-  }, [game, playerId, play]);
-
-  return { preferences, change, playEvent, error, unlock };
+  dispose() {
+    this.disposed = true;
+    this.pause();
+    void this.context.close().catch(() => {});
+  }
 }
 ````
 
-## lib/useGamePlayback.ts
+## src/infrastructure/browser/room-api.ts
 
 ````typescript
-"use client";
+import type { CreateRoomInput, JoinRoomInput, RoomActionInput } from "@/application/rooms/contracts";
+import type { Game } from "@/domain/game/types";
 
-import { useEffect, useRef, useState } from "react";
-import { GamePlayback, type PlaybackView } from "./game/playback";
-import type { Game } from "./game/types";
-
-export function useGamePlayback(game: Game | null) {
-  const controller = useRef<GamePlayback | null>(null);
-  const [view, setView] = useState<PlaybackView>({ serial: 0, positions: {}, event: null, lastRoll: null, busy: false });
-
-  useEffect(() => {
-    if (!game) return;
-    if (!controller.current) {
-      controller.current = new GamePlayback(game, setView, window.matchMedia("(prefers-reduced-motion: reduce)").matches);
-      controller.current.setVisible(!document.hidden);
-    } else controller.current.update(game);
-  }, [game]);
-
-  useEffect(() => {
-    const motion = window.matchMedia("(prefers-reduced-motion: reduce)");
-    const reduced = () => controller.current?.setReducedMotion(motion.matches);
-    const visible = () => controller.current?.setVisible(!document.hidden);
-    motion.addEventListener("change", reduced);
-    document.addEventListener("visibilitychange", visible);
-    return () => {
-      controller.current?.dispose();
-      controller.current = null;
-      motion.removeEventListener("change", reduced);
-      document.removeEventListener("visibilitychange", visible);
-    };
-  }, []);
-
-  // Oculta decisiones desde el primer render de una actualización, antes del efecto.
-  return { ...view, busy: view.busy || (game?.eventSerial ?? 0) > view.serial };
+export class RoomApiError extends Error {
+  constructor(readonly status: number, message: string) { super(message); this.name = "RoomApiError"; }
 }
+interface RoomView { game?: Game; playerId: string | null; inactiveFor: number; changed?: false }
+interface EntryResponse { id?: string; playerToken: string; playerId: string; game: Game }
+async function request<T>(url: string, init: RequestInit): Promise<T> {
+  const response = await fetch(url, { ...init, cache: "no-store" });
+  const data = await response.json();
+  if (!response.ok) throw new RoomApiError(response.status, data.error ?? "No se pudo conectar con la sala.");
+  return data as T;
+}
+const post = <T>(url: string, body: unknown) => request<T>(url, {
+  method: "POST", headers: { "Content-Type": "application/json" },
+  body: JSON.stringify(body), signal: AbortSignal.timeout(15000),
+});
+export const roomApi = {
+  get: (id: string, version: number, token: string | null, heartbeat: boolean) => request<RoomView>(`/api/rooms/${encodeURIComponent(id)}?since=${version}`, {
+    headers: token ? { Authorization: `Bearer ${token}`, "x-heartbeat": heartbeat ? "1" : "0" } : {},
+    signal: AbortSignal.timeout(12000),
+  }),
+  act: (id: string, input: RoomActionInput) => post<{ game: Game }>(`/api/rooms/${encodeURIComponent(id)}/action`, input),
+  create: (input: CreateRoomInput) => post<EntryResponse>("/api/rooms", input),
+  join: (id: string, input: JoinRoomInput) => post<EntryResponse>(`/api/rooms/${encodeURIComponent(id)}/join`, input),
+};
 ````
 
-## lib/voice/client.ts
+## src/infrastructure/browser/room-storage.ts
 
 ````typescript
-import type { VoiceCommand, VoiceMember, VoiceSignal, VoiceView } from "./types";
+/** Preserve the existing key format so refreshing and upgrades retain the player's seat. */
+export const roomStorage = {
+  read: (id: string): string | null => localStorage.getItem(`turista:${id}`),
+  write: (id: string, token: string): void => localStorage.setItem(`turista:${id}`, token),
+};
+````
+
+## src/infrastructure/browser/voice-client.ts
+
+````typescript
+import type { VoiceCommand, VoiceMember, VoiceSignal, VoiceView } from "../../domain/voice/types";
 
 export interface VoiceClientView {
   phase: "off" | "joining" | "joined";
@@ -14223,13 +12372,2730 @@ export class VoiceClient {
 }
 ````
 
-## lib/voice/store.ts
+## src/infrastructure/config/voice.ts
+
+````typescript
+import type { IceServer } from "@/domain/voice/types";
+export function iceServers(): IceServer[] {
+  const servers: IceServer[] = [{ urls: "stun:stun.cloudflare.com:3478" }];
+  const urls = (process.env.VOICE_TURN_URLS ?? "").split(",").map((url) => url.trim()).filter((url) => /^turns?:[^\s]+$/.test(url));
+  if (urls.length && process.env.VOICE_TURN_USERNAME && process.env.VOICE_TURN_CREDENTIAL) {
+    servers.push({ urls, username: process.env.VOICE_TURN_USERNAME, credential: process.env.VOICE_TURN_CREDENTIAL });
+  }
+  return servers;
+}
+
+````
+
+## src/infrastructure/redis/client.ts
+
+````typescript
+import { OperationError } from "@/domain/shared/errors";
+import { Redis } from "@upstash/redis";
+export function redis() {
+  const url = process.env.UPSTASH_REDIS_REST_URL || process.env.KV_REST_API_URL;
+  const token = process.env.UPSTASH_REDIS_REST_TOKEN || process.env.KV_REST_API_TOKEN;
+  if (!url || !token) throw new OperationError("unavailable", "Configura las variables de Upstash Redis para jugar.");
+  return new Redis({ url, token });
+}
+````
+
+## src/infrastructure/redis/room-repository.ts
+
+````typescript
+import type { RoomRepository, StoredRoom } from "@/application/ports/room-repository";
+import { OperationError } from "@/domain/shared/errors";
+import { redis } from "./client";
+const key = (id: string) => `turista:room:${id}`;
+const CAS = `local old=redis.call('GET',KEYS[1]); if not old then return -1 end; local parsed=cjson.decode(old); if parsed.game.version~=tonumber(ARGV[1]) then return 0 end; redis.call('SET',KEYS[1],ARGV[2],'EX',86400); return 1`;
+
+export const roomRepository: RoomRepository = {
+  load: (id) => redis().get<StoredRoom>(key(id)),
+  create: async (id, room) => !!await redis().set(key(id), room, { nx: true, ex: 86400 }),
+  async save(id, expectedVersion, room) {
+    const result = await redis().eval(CAS, [key(id)], [expectedVersion, JSON.stringify(room)]);
+    if (result === -1) throw new OperationError("not_found", "Sala no encontrada.");
+    if (result !== 1) throw new OperationError("conflict", "La sala cambió. Actualiza el estado antes de intentar otra vez.");
+  },
+  markSeen: async (id, playerId, now) => { await redis().set(`turista:seen:${id}:${playerId}`, now, { ex: 86400 }); },
+  lastSeen: (id, playerId) => redis().get<number>(`turista:seen:${id}:${playerId}`),
+};
+````
+
+## src/infrastructure/redis/voice-repository.ts
+
+````typescript
+import type { VoiceRepository } from "@/application/ports/voice-repository";
+import type { VoiceState } from "@/domain/voice/types";
+import { redis } from "./client";
+const key = (room: string) => `turista:voice:${room}`;
+const CAS = `local old=redis.call('GET',KEYS[1]); local revision=0; if old then revision=cjson.decode(old).revision end; if revision~=tonumber(ARGV[1]) then return 0 end; redis.call('SET',KEYS[1],ARGV[2],'EX',120); return 1`;
+
+export const voiceRepository: VoiceRepository = {
+  load: (room) => redis().get<VoiceState>(key(room)),
+  save: async (room, revision, state) => await redis().eval(CAS, [key(room)], [revision, JSON.stringify(state)]) === 1,
+};
+````
+
+## src/infrastructure/security/platform.ts
+
+````typescript
+import type { Platform } from "@/application/ports/platform";
+import { createHash, randomInt, randomUUID } from "node:crypto";
+export const platform: Platform = {
+  now: () => Date.now(), uuid: () => randomUUID(),
+  digest: (token) => createHash("sha256").update(token).digest("hex"),
+  randomInt: (max) => randomInt(max),
+};
+````
+
+## src/presentation/assets/art.ts
+
+````typescript
+// Ilustraciones raster originales generadas para este proyecto; no son las fotos de referencia.
+export const COUNTRY_ART: Record<number, {name:string;src:string}> = {
+  1:{name:"Marruecos",src:"/art/countries/marruecos.webp"},
+  2:{name:"Egipto",src:"/art/countries/egipto.webp"},
+  4:{name:"Sudáfrica",src:"/art/countries/sudafrica.webp"},
+  6:{name:"Rusia",src:"/art/countries/rusia.webp"},
+  7:{name:"China",src:"/art/countries/china.webp"},
+  9:{name:"Japón",src:"/art/countries/japon.webp"},
+  11:{name:"Canadá",src:"/art/countries/canada.webp"},
+  12:{name:"Estados Unidos",src:"/art/countries/estados-unidos.webp"},
+  14:{name:"México",src:"/art/countries/mexico.webp"},
+  16:{name:"Guatemala",src:"/art/countries/guatemala.webp"},
+  17:{name:"Costa Rica",src:"/art/countries/costa-rica.webp"},
+  19:{name:"Panamá",src:"/art/countries/panama.webp"},
+  21:{name:"Colombia",src:"/art/countries/colombia.webp"},
+  23:{name:"Venezuela",src:"/art/countries/venezuela.webp"},
+  24:{name:"Perú",src:"/art/countries/peru.webp"},
+  26:{name:"Brasil",src:"/art/countries/brasil.webp"},
+  28:{name:"Chile",src:"/art/countries/chile.webp"},
+  29:{name:"Argentina",src:"/art/countries/argentina.webp"},
+  31:{name:"España",src:"/art/countries/espana.webp"},
+  32:{name:"Francia",src:"/art/countries/francia.webp"},
+  34:{name:"Inglaterra",src:"/art/countries/inglaterra.webp"},
+  36:{name:"Italia",src:"/art/countries/italia.webp"},
+  38:{name:"Suiza",src:"/art/countries/suiza.webp"},
+  39:{name:"Alemania",src:"/art/countries/alemania.webp"},
+};
+````
+
+## src/presentation/atoms/Banknote.tsx
+
+````tsx
+import type { CSSProperties } from "react";
+export function Banknote({ value, compact = false }: { value: number; compact?: boolean }) {
+  const palette: Record<number, string> = {50000:"#a883c7",10000:"#75a99d",5000:"#77a8c7",2000:"#d5a16a",1000:"#d58e99",500:"#afad71"};
+  return <span className={`note-art ${compact ? "compact" : ""}`} style={{ "--note-color": palette[value] ?? "#9aa7ab" } as CSSProperties}>
+    <span className="note-label">BANCO DEL VIAJERO</span><span className="note-orbit" aria-hidden="true">✈</span>
+    <strong>${value.toLocaleString("es-MX")}</strong><span className="note-serial">RM · CRÉDITOS DE VIAJE</span>
+  </span>;
+}
+
+````
+
+## src/presentation/atoms/Building.tsx
+
+````tsx
+export function Building({ hotel = false }: { hotel?: boolean }) {
+  return <svg className={`building-piece ${hotel ? "hotel" : "house"}`} viewBox="0 0 32 32" aria-label={hotel ? "Hotel" : "Casa"} role="img">
+    {hotel ? <><path d="M7 6h19v23H7z" fill="#c66646"/><path d="M3 10 7 6v23l-4-3z" fill="#91442e"/><path d="M5 4h23v4H5z" fill="#edab70"/><path d="M11 11h4v4h-4zm7 0h4v4h-4zm-7 7h4v4h-4zm7 0h4v4h-4z" fill="#ffedbc"/><path d="M14 24h5v5h-5z" fill="#723c37"/></> : <><path d="M5 15 17 5l12 10v14H5z" fill="#5db6a2"/><path d="M2 15 16 3l15 12-3 3L16 8 5 18z" fill="#216c68"/><path d="M10 20h6v9h-6zm10-3h5v6h-5z" fill="#fff0b8"/></>}
+  </svg>;
+}
+````
+
+## src/presentation/atoms/Button.tsx
+
+````tsx
+import type { ButtonHTMLAttributes } from "react";
+
+export interface ButtonProps extends ButtonHTMLAttributes<HTMLButtonElement> {
+  variant?: "primary" | "danger";
+  loading?: boolean;
+  disabledReason?: string;
+}
+/** A native button with consistent variants, busy state and disabled explanations. */
+export default function Button({ variant, loading = false, disabledReason, disabled, className = "", type = "button", children, ...props }: ButtonProps) {
+  return <button {...props} type={type} className={[variant, className].filter(Boolean).join(" ")} disabled={disabled || loading || !!disabledReason} aria-busy={loading || undefined} title={disabledReason || props.title}>{children}</button>;
+}
+````
+
+## src/presentation/atoms/CountryArt.tsx
+
+````tsx
+import { COUNTRY_ART } from "@/presentation/assets/art";
+import Image from "next/image";
+export function CountryArt({ id }: { id: number }) {
+  const art = COUNTRY_ART[id];
+  if (!art) return null;
+  return <Image className="country-art" src={art.src} alt={`Ilustración de ${art.name}`} width={960} height={640} sizes="(max-width: 780px) 90vw, 430px" />;
+}
+````
+
+## src/presentation/atoms/Globe.tsx
+
+````tsx
+export function Globe({ className = "" }: { className?: string }) {
+  return <svg className={className} viewBox="0 0 360 240" fill="none" aria-hidden="true">
+    <ellipse cx="180" cy="218" rx="94" ry="12" fill="currentColor" opacity=".08" />
+    <circle cx="180" cy="112" r="94" fill="#d7efeb" stroke="#217b7b" strokeWidth="2" />
+    <ellipse cx="180" cy="112" rx="48" ry="94" stroke="#8bc3b7" />
+    <ellipse cx="180" cy="112" rx="82" ry="94" stroke="#8bc3b7" />
+    <path d="M86 112h188M100 64h160M100 160h160M180 18v188" stroke="#8bc3b7" />
+    <path d="m115 46 22-10 15 8 9 23-8 12-13 2 3 17-10 13-18-7-3-14-13-9 4-18zm28 69 24 5 14 17-8 27-17 25-8-8-1-23-11-18zm51-71 18-9 25 13-3 12 20 13 8 21-14 10-23-6-9 12-10-8 4-19-18-10zm1 61 21 4 14 24-10 27-12 5-14-23-8-23zm43 54 22 4 8 15-18 8-19-8z" fill="#60a695" />
+    <path d="M54 151C16 185 53 210 151 183s180-95 153-119c-10-8-26-8-42-4" stroke="#e5914c" strokeWidth="3" strokeDasharray="6 6" />
+    <g transform="translate(290 65) rotate(-35)"><path d="m0-18 5 13 18 10v5L5 6l-1 13 7 6v4L0 25l-11 4v-4l7-6-1-13-18 4V5L-5-5z" fill="#203f59" stroke="#fff" strokeWidth="2" /></g>
+    <circle cx="130" cy="101" r="5" fill="#e77753" stroke="white" strokeWidth="2" />
+    <circle cx="227" cy="69" r="5" fill="#e77753" stroke="white" strokeWidth="2" />
+  </svg>;
+}
+````
+
+## src/presentation/atoms/Input.tsx
+
+````tsx
+import type { InputHTMLAttributes } from "react";
+
+export interface InputProps extends InputHTMLAttributes<HTMLInputElement> { invalid?: boolean }
+export default function Input({ invalid, ...props }: InputProps) {
+  return <input {...props} aria-invalid={invalid || props["aria-invalid"]} />;
+}
+````
+
+## src/presentation/atoms/PlayerMarker.tsx
+
+````tsx
+import type { HTMLAttributes } from "react";
+export default function PlayerMarker({ color, className = "player-dot", style, ...props }: HTMLAttributes<HTMLElement> & { color?: string }) {
+  return <i {...props} className={className} style={{ ...style, background: color }} aria-hidden="true" />;
+}
+````
+
+## src/presentation/hooks/useEntryForm.ts
+
+````typescript
+"use client";
+import { COLORS } from "@/domain/game/types";
+import { roomApi } from "@/infrastructure/browser/room-api";
+import { roomStorage } from "@/infrastructure/browser/room-storage";
+import { useRouter } from "next/navigation";
+import { useState } from "react";
+export function useEntryForm(room?: string) {
+  const router = useRouter();
+  const [mode, setMode] = useState<"create" | "join">(room ? "join" : "create");
+  const [name, setName] = useState("");
+  const [id, setId] = useState(room ?? "");
+  const [color, setColor] = useState(COLORS[0]);
+  const [duration, setDuration] = useState<0 | 30 | 60 | 90>(0);
+  const [error, setError] = useState("");
+  const [busy, setBusy] = useState(false);
+  async function submit(e: React.FormEvent) {
+    e.preventDefault();
+    setBusy(true);
+    setError("");
+    try {
+      const roomId = id.trim().toUpperCase();
+      const data = mode === "create"
+        ? await roomApi.create({ name, color, duration })
+        : await roomApi.join(roomId, { name, token: roomStorage.read(roomId) ?? undefined });
+      const target = data.id ?? roomId;
+      roomStorage.write(target, data.playerToken);
+      if (room) window.location.reload();
+      else router.push(`/sala/${target}`);
+    } catch (e) {
+      setError(e instanceof Error ? e.message : "No se pudo conectar.");
+    } finally {
+      setBusy(false);
+    }
+  }
+  return { mode, setMode, name, setName, id, setId, color, setColor, duration, setDuration, error, busy, submit };
+}
+````
+
+## src/presentation/hooks/useGameAudio.ts
+
+````typescript
+"use client";
+
+import { useCallback, useEffect, useRef, useState } from "react";
+import type { Game, GameEvent } from "../../domain/game/types";
+import { DEFAULT_AUDIO, GameAudio, audioPreferences, type AudioPreferences, type SoundCue } from "../../infrastructure/browser/audio";
+
+const STORAGE_KEY = "rumbo:audio";
+
+export function useGameAudio(game: Game | null, playerId: string | null) {
+  const [preferences, setPreferences] = useState(DEFAULT_AUDIO);
+  const [error, setError] = useState("");
+  const current = useRef(DEFAULT_AUDIO);
+  const engine = useRef<GameAudio | null>(null);
+
+  const unlock = useCallback(() => {
+    if (current.current.muted || document.hidden) return;
+    try {
+      if (!engine.current) {
+        engine.current = new GameAudio(new AudioContext());
+        engine.current.configure(current.current);
+      }
+      void engine.current.unlock().then(() => setError("")).catch(() => {
+        setError("Toca Activar audio para volver a intentarlo.");
+      });
+    } catch {
+      setError("Este navegador no pudo iniciar el audio. La partida puede continuar.");
+    }
+  }, []);
+
+  useEffect(() => {
+    try {
+      const stored = localStorage.getItem(STORAGE_KEY);
+      const saved = stored ? audioPreferences(JSON.parse(stored)) : DEFAULT_AUDIO;
+      current.current = saved;
+      setPreferences(saved);
+    } catch { /* El juego funciona aunque el navegador bloquee localStorage. */ }
+    const visibility = () => {
+      engine.current?.setVisible(!document.hidden);
+      if (!document.hidden) unlock();
+    };
+    document.addEventListener("pointerdown", unlock);
+    document.addEventListener("keydown", unlock);
+    document.addEventListener("visibilitychange", visibility);
+    return () => {
+      document.removeEventListener("pointerdown", unlock);
+      document.removeEventListener("keydown", unlock);
+      document.removeEventListener("visibilitychange", visibility);
+      engine.current?.dispose();
+      engine.current = null;
+    };
+  }, [unlock]);
+
+  const change = useCallback((patch: Partial<AudioPreferences>) => {
+    const next = audioPreferences({ ...current.current, ...patch });
+    current.current = next;
+    setPreferences(next);
+    try { localStorage.setItem(STORAGE_KEY, JSON.stringify(next)); } catch { /* Preferencias de esta sesión. */ }
+    engine.current?.configure(next);
+    if (!next.muted) unlock();
+  }, [unlock]);
+
+  const play = useCallback((cue: SoundCue) => { engine.current?.play(cue); }, []);
+  const playEvent = useCallback((event: GameEvent) => {
+    if (["roll", "purchase", "payment", "card"].includes(event.type)) play(event.type as SoundCue);
+    else if (event.teleport || /cárcel|deportado|construyó/i.test(event.text)) play("travel");
+  }, [play]);
+
+  const previous = useRef<{ room: string; turn: string; trades: string[]; finished: boolean } | null>(null);
+  useEffect(() => {
+    if (!game) return;
+    const turn = `${game.turnNumber}:${game.players[game.turn]?.id}`;
+    const trades = game.trades.filter((trade) => trade.to === playerId).map((trade) => trade.id);
+    const finished = game.status === "finished";
+    const before = previous.current;
+    if (before?.room === game.id) {
+      if (finished && !before.finished) play("victory");
+      else if (trades.some((id) => !before.trades.includes(id))) play("trade");
+      else if (turn !== before.turn && game.players[game.turn]?.id === playerId && !game.opening) play("turn");
+    }
+    previous.current = { room: game.id, turn, trades, finished };
+  }, [game, playerId, play]);
+
+  return { preferences, change, playEvent, error, unlock };
+}
+````
+
+## src/presentation/hooks/useGamePlayback.ts
+
+````typescript
+"use client";
+
+import { useEffect, useRef, useState } from "react";
+import type { Game } from "../../domain/game/types";
+import { GamePlayback, type PlaybackView } from "../services/playback";
+
+export function useGamePlayback(game: Game | null) {
+  const controller = useRef<GamePlayback | null>(null);
+  const [view, setView] = useState<PlaybackView>({ serial: 0, positions: {}, event: null, lastRoll: null, busy: false });
+
+  useEffect(() => {
+    if (!game) return;
+    if (!controller.current) {
+      controller.current = new GamePlayback(game, setView, window.matchMedia("(prefers-reduced-motion: reduce)").matches);
+      controller.current.setVisible(!document.hidden);
+    } else controller.current.update(game);
+  }, [game]);
+
+  useEffect(() => {
+    const motion = window.matchMedia("(prefers-reduced-motion: reduce)");
+    const reduced = () => controller.current?.setReducedMotion(motion.matches);
+    const visible = () => controller.current?.setVisible(!document.hidden);
+    motion.addEventListener("change", reduced);
+    document.addEventListener("visibilitychange", visible);
+    return () => {
+      controller.current?.dispose();
+      controller.current = null;
+      motion.removeEventListener("change", reduced);
+      document.removeEventListener("visibilitychange", visible);
+    };
+  }, []);
+
+  // Oculta decisiones desde el primer render de una actualización, antes del efecto.
+  return { ...view, busy: view.busy || (game?.eventSerial ?? 0) > view.serial };
+}
+````
+
+## src/presentation/hooks/useRoomActions.ts
+
+````typescript
+"use client";
+import type { Action, Game } from "@/domain/game/types";
+import { useState } from "react";
+import { paymentQuote } from "../services/payment-quote";
+
+export function useRoomActions(game: Game | null, playerId: string | null, animating: boolean, commit: (action: Action) => Promise<boolean>) {
+  const [payment, setPayment] = useState<{ action: Action; amount: number; label: string } | null>(null);
+  const send = async (action: Action): Promise<boolean> => {
+    if (animating || !game || !playerId) return false;
+    const quote = paymentQuote(game, playerId, action);
+    if (quote) { setPayment({ action, ...quote }); return false; }
+    return commit(action);
+  };
+  return { send, payment, closePayment: () => setPayment(null) };
+}
+````
+
+## src/presentation/hooks/useRoomSession.ts
+
+````typescript
+"use client";
+import type { Action, Game } from "@/domain/game/types";
+import { RoomApiError, roomApi } from "@/infrastructure/browser/room-api";
+import { roomStorage } from "@/infrastructure/browser/room-storage";
+import { useCallback, useEffect, useRef, useState } from "react";
+
+/** Synchronization owns transport state; game rules remain authoritative on the server. */
+export function useRoomSession(id: string) {
+  const [game, setGame] = useState<Game | null>(null);
+  const [token, setToken] = useState<string | null>(null);
+  const [playerId, setPlayerId] = useState<string | null>(null);
+  const [error, setError] = useState("");
+  const [connectionError, setConnectionError] = useState("");
+  const [busy, setBusy] = useState(false);
+  const [loaded, setLoaded] = useState(false);
+  const [missing, setMissing] = useState(false);
+  const [inactive, setInactive] = useState(0);
+  const [now, setNow] = useState(Date.now());
+  const state = useRef<Game | null>(null),
+    heartbeat = useRef(0),
+    inFlight = useRef(false),
+    actionFlight = useRef(false);
+  const apply = useCallback((next: Game) => {
+    if (!state.current || next.version >= state.current.version) {
+      state.current = next;
+      setGame(next);
+    }
+  }, []);
+  useEffect(() => {
+    setToken(roomStorage.read(id));
+    setLoaded(true);
+  }, [id]);
+  const refresh = useCallback(async () => {
+    if (document.hidden || inFlight.current || !loaded) return;
+    inFlight.current = true;
+    try {
+      const pulse = Date.now() - heartbeat.current > 20000;
+      const data = await roomApi.get(id, state.current?.version ?? 0, token, pulse);
+      if (pulse) heartbeat.current = Date.now();
+      if (data.game) apply(data.game);
+      setPlayerId(data.playerId);
+      setInactive(data.inactiveFor ?? 0);
+      setConnectionError("");
+    } catch (e) {
+      if (e instanceof RoomApiError && e.status === 404) setMissing(true);
+      setConnectionError(e instanceof Error ? e.message : "Reconectando…");
+    } finally {
+      inFlight.current = false;
+    }
+  }, [id, token, loaded, apply]);
+  useEffect(() => {
+    if (!loaded) return;
+    void refresh();
+    const timer = setInterval(() => {
+      setNow(Date.now());
+      void refresh();
+    }, 1000);
+    const visible = () => {
+      if (!document.hidden) void refresh();
+    };
+    document.addEventListener("visibilitychange", visible);
+    return () => {
+      clearInterval(timer);
+      document.removeEventListener("visibilitychange", visible);
+    };
+  }, [loaded, refresh]);
+  const commit = async (action: Action): Promise<boolean> => {
+    if (!token || !state.current || actionFlight.current) return false;
+    actionFlight.current = true;
+    setBusy(true);
+    setError("");
+    try {
+      const data = await roomApi.act(id, { token, action, version: state.current.version, requestId: crypto.randomUUID() });
+      apply(data.game);
+      return true;
+    } catch (e) {
+      void refresh();
+      setError(
+        e instanceof Error ? e.message : "No se pudo enviar. Reconectando…",
+      );
+      return false;
+    } finally {
+      setBusy(false);
+      actionFlight.current = false;
+    }
+  };
+  return { game, token, playerId, error, connectionError, busy, missing, inactive, now, commit };
+}
+````
+
+## src/presentation/hooks/useVoiceChat.ts
+
+````typescript
+"use client";
+import { EMPTY_VOICE, VoiceClient, type VoiceClientView } from "@/infrastructure/browser/voice-client";
+import { useEffect, useRef, useState } from "react";
+export function useVoiceChat({ room, token, playerId, masterMuted, onEnableAudio }: {
+  room: string; token: string; playerId: string; masterMuted: boolean; onEnableAudio: () => void;
+}) {
+  const client = useRef<VoiceClient | null>(null);
+  const [view, setView] = useState<VoiceClientView>(EMPTY_VOICE);
+  const [micMuted, setMicMuted] = useState(false);
+  const [volume, setVolume] = useState(80);
+  useEffect(() => {
+    try {
+      const stored = localStorage.getItem("rumbo:voice-volume");
+      const saved = stored === null ? 80 : Number(stored);
+      if (Number.isFinite(saved)) setVolume(Math.max(0, Math.min(100, saved)));
+    } catch { /* El volumen sigue disponible sin almacenamiento local. */ }
+  }, []);
+  useEffect(() => {
+    const leave = () => {
+      if (!client.current) return;
+      client.current.dispose();client.current = null;
+      setView({ ...EMPTY_VOICE, error: "Voz desconectada al salir de esta pestaña. Puedes volver a activarla." });
+    };
+    const visibility = () => { if (document.hidden) leave(); };
+    document.addEventListener("visibilitychange", visibility);
+    window.addEventListener("pagehide", leave);
+    return () => {
+      document.removeEventListener("visibilitychange", visibility);
+      window.removeEventListener("pagehide", leave);
+      client.current?.dispose();client.current = null;
+    };
+  }, [room, token, playerId]);
+  useEffect(() => { client.current?.setMasterMuted(masterMuted); }, [masterMuted]);
+  useEffect(() => { client.current?.setVolume(volume / 100); }, [volume]);
+
+  const join = () => {
+    client.current?.dispose();
+    onEnableAudio();setMicMuted(false);
+    const connection = new VoiceClient(room, token, playerId, setView, volume / 100);
+    client.current = connection;
+    void connection.join();
+  };
+  const leave = () => {
+    client.current?.dispose();client.current = null;
+    setView(EMPTY_VOICE);setMicMuted(false);
+  };
+  const silent = micMuted || masterMuted;
+  const failed = Object.values(view.connections).some((status) => status === "failed");
+  const toggleMicrophone = () => {
+    const next = !silent;
+    if (silent && masterMuted) onEnableAudio();
+    setMicMuted(next); client.current?.setMuted(next);
+  };
+  const changeVolume = (next: number) => {
+    setVolume(next);
+    try { localStorage.setItem("rumbo:voice-volume", String(next)); } catch { /* Session preference when storage is unavailable. */ }
+  };
+  return { view, volume, silent, failed, join, leave, toggleMicrophone, changeVolume, resumePlayback: () => void client.current?.resumePlayback() };
+}
+````
+
+## src/presentation/molecules/ActionButton.tsx
+
+````tsx
+import Button, { type ButtonProps } from "../atoms/Button";
+export default function ActionButton({ disabledReason, ...props }: ButtonProps) {
+  return <div><Button variant="primary" {...props} disabledReason={disabledReason} />{disabledReason && <small>{disabledReason}</small>}</div>;
+}
+````
+
+## src/presentation/molecules/BoardSquare.tsx
+
+````tsx
+import { cash } from "@/domain/game/board";
+import type { Game, Player, Square } from "@/domain/game/types";
+import { Building } from "../atoms/Building";
+import Button from "../atoms/Button";
+import { CountryArt } from "../atoms/CountryArt";
+import { coordinates } from "../services/board-geometry";
+export default function BoardSquare({ square: b, property: a, owner, active, onSelect }: {
+  square: Square; property?: Game["properties"][number]; owner?: Player; active: boolean; onSelect: (id: number) => void;
+}) {
+  const icons: Record<string, string> = {
+    start: "⚑",
+    oceania: "↩",
+    rest: "🏝",
+    "go-oceania": "▥",
+    email: "✉",
+    sms: "☏",
+    tax: "$",
+    airline: "✈",
+    utility: "⚖",
+  };
+  const [x, y] = coordinates(b.id);
+  return (
+              <Button
+                                onClick={() => onSelect(b.id)}
+                className={`square ${b.kind} ${active ? "current-square" : ""}`}
+                style={{
+                  gridColumn: x + 1,
+                  gridRow: y + 1,
+                  borderColor: owner?.color,
+                  boxShadow: owner ? `inset 0 -4px ${owner.color}` : undefined,
+                }}
+                aria-label={`${b.name}${b.group ? `, grupo ${b.group}` : ""}${a?.owner ? `, de ${owner?.name}` : ""}${a?.mortgaged ? ", hipotecada" : ""}`}
+              >
+                <span
+                  className="stripe"
+                  style={{ background: b.color ?? "transparent" }}
+                />
+                <span className="square-icon">{b.kind === "country" ? <CountryArt id={b.id} /> : icons[b.kind]}</span>
+                <strong>{b.color && <span className="group-marker" style={{ background: b.color }} aria-hidden="true" />}{b.name}</strong>
+                <small>
+                  {b.price ? cash(b.price) : b.tax ? cash(b.tax) : ""}
+                </small>
+                {a?.buildings ? (
+                  <span className="buildings">
+                    {a.buildings === 5 ? <Building hotel /> : Array.from({ length: a.buildings }, (_, i) => <Building key={i} />)}
+                  </span>
+                ) : null}
+                {a?.mortgaged && <span className="mortgage-badge">H</span>}
+              </Button>
+  );
+}
+````
+
+## src/presentation/molecules/Dialog.tsx
+
+````tsx
+"use client";
+import { useEffect, useRef, type ComponentPropsWithoutRef } from "react";
+
+type DialogProps = Omit<ComponentPropsWithoutRef<"dialog">, "open" | "onCancel" | "onClose"> & {
+  suspended?: boolean;
+  onDismiss: () => void;
+};
+/** Native focus trapping and Escape dismissal; playback can temporarily suspend it. */
+export default function Dialog({ suspended = false, onDismiss, children, ...props }: DialogProps) {
+  const ref = useRef<HTMLDialogElement>(null);
+  useEffect(() => {
+    const dialog = ref.current;
+    if (suspended) dialog?.close();
+    else if (!dialog?.open) dialog?.showModal();
+    return () => dialog?.close();
+  }, [suspended]);
+  return <dialog {...props} ref={ref} onCancel={(event) => { event.preventDefault(); onDismiss(); }}>{children}</dialog>;
+}
+````
+
+## src/presentation/molecules/Dice.tsx
+
+````tsx
+const positions: Record<number, number[]> = {1:[4],2:[0,8],3:[0,4,8],4:[0,2,6,8],5:[0,2,4,6,8],6:[0,2,3,5,6,8]};
+export default function Dice({ values, rollId = 0 }: { values: [number, number]; rollId?: number }) {
+  return <div className={`dice ${rollId ? "rolling" : ""}`} key={rollId} aria-label={`Dados: ${values.filter(Boolean).join(" y ")}`}>
+    {values.filter(Boolean).map((value,i) => <span className="die-face" key={i} aria-hidden="true">{Array.from({length:9},(_,dot) => <i key={dot} className={positions[value]?.includes(dot) ? "pip visible" : "pip"}/>)}</span>)}
+  </div>;
+}
+````
+
+## src/presentation/molecules/Log.tsx
+
+````tsx
+import type { GameEvent } from "@/domain/game/types";
+export default function Log({
+  events,
+  history = [],
+}: {
+  events: string[];
+  history?: GameEvent[];
+}) {
+  const entries = history.length
+    ? history.map((e) => ({ id: String(e.id), text: e.text }))
+    : events.map((text, i) => ({ id: `legacy-${i}`, text }));
+  return (
+    <section className="panel">
+      <h2>Bitácora de viaje</h2>
+      <ol className="log" aria-live="polite" aria-relevant="additions">
+        {entries
+          .slice(-50)
+          .reverse()
+          .map((event) => (
+            <li className="log-entry" key={event.id}>
+              {event.text}
+            </li>
+          ))}
+      </ol>
+    </section>
+  );
+}
+````
+
+## src/presentation/molecules/MobileTurnBar.tsx
+
+````tsx
+"use client";
+
+import { BOARD, DEPORTATION_FINE, cash } from "@/domain/game/board";
+import type { Action, Game, Player } from "@/domain/game/types";
+
+export default function MobileTurnBar({ game, me, busy, send, onOptions, animating = false, position }: {
+  game: Game;
+  me: Player;
+  busy: boolean;
+  send: (action: Action) => void;
+  onOptions: () => void;
+  animating?: boolean;
+  position?: number;
+}) {
+  const active = game.players[game.turn];
+  const mine = active.id === me.id;
+  let message = `Espera el turno de ${active.name}.`;
+  let label = "Tirar los dados";
+  let action: Action | null = null;
+  let showOptions = false;
+
+  if (me.bankrupt) {
+    message = "Terminó tu viaje. Puedes seguir viendo la partida.";
+  } else if (game.opening) {
+    label = "Tirar dado de salida";
+    if (!game.opening.candidates.includes(me.id)) {
+      message = "Espera el desempate de los finalistas.";
+    } else if (game.opening.rolls[me.id] !== undefined) {
+      message = `Sacaste ${game.opening.rolls[me.id]}. Esperando a los demás.`;
+    } else {
+      message = "Tira para decidir quién empieza.";
+      action = { type: "opening-roll" };
+    }
+  } else if (game.auction) {
+    const passed = game.auction.passed.includes(me.id);
+    message = passed ? "Ya rechazaste la subasta. Esperando a los demás." : "Subasta en curso. Puedes revisar las ofertas.";
+    label = passed ? "Subasta en curso" : "Ver subasta";
+    showOptions = !passed;
+  } else if (game.debt) {
+    const payer = game.debt.payer ?? active.id;
+    if (payer === me.id) {
+      message = `Pago pendiente: ${cash(game.debt.amount)}.`;
+      if (me.money >= game.debt.amount) {
+        label = "Seleccionar billetes";
+        action = { type: "settle" };
+      } else {
+        label = "Administrar bienes";
+        showOptions = true;
+      }
+    } else {
+      message = `Esperando el pago de ${game.players.find((p) => p.id === payer)?.name}.`;
+    }
+  } else if (game.choice) {
+    message = "Hay una elección pendiente antes de continuar.";
+    if (game.choice.player === me.id) {
+      label = "Elegir viajero";
+      showOptions = true;
+    }
+  } else if (mine && me.jailed > 0 && me.detention === "oceania") {
+    message = `Deportado: paga ${cash(DEPORTATION_FINE)} y vuelve a Salida sin sueldo, o espera. Quedan ${me.jailed} turnos.`;
+    label = game.detentionDecision === me.id ? "Quedarme · 3 turnos" : game.phase === "roll" ? "Cumplir un turno de espera" : "Cambio automático";
+    action = game.detentionDecision === me.id ? { type: "stay" } : game.phase === "roll" ? { type: "wait" } : null;
+  } else if (mine && game.phase === "roll") {
+    if (me.jailed || me.skipTurns) {
+      message = `${me.jailed ? me.detention === "prison" ? "Cárcel" : "Deportado" : "Estancia por carta"}: ${me.jailed || me.skipTurns} turnos pendientes.`;
+      label = "Cumplir turno de espera";
+      action = { type: "wait" };
+    } else {
+      message = "Es tu turno. ¡Tira los dados!";
+      action = { type: "roll" };
+    }
+  } else if (mine && game.phase === "buy") {
+    message = `Puedes comprar ${BOARD[me.position].name}.`;
+    label = "Decidir compra";
+    showOptions = true;
+  } else if (mine && game.phase === "end") {
+    message = game.extra ? "Sacaste dobles. Tu siguiente tiro se habilitará automáticamente." : "Tu turno termina automáticamente al completar la jugada.";
+    label = "Cambio automático";
+  }
+
+  const deported = mine && !me.bankrupt && me.jailed > 0 && me.detention === "oceania" &&
+    !game.opening && !game.auction && !game.debt && !game.choice;
+
+  return (
+    <section className={`mobile-turn-bar ${mine && !me.bankrupt ? "is-my-turn" : ""}`} aria-label="Tu turno y acciones">
+      <div className="mobile-turn-info">
+        <strong><i className="player-dot" style={{ background: me.color }} />{me.name} · {cash(me.money)}</strong>
+        <span>{BOARD[position ?? me.position].name}</span>
+        <p role="status">{animating ? "El viaje está en curso…" : message}</p>
+      </div>
+      <div className="mobile-turn-actions">
+        {deported && <>
+          <button disabled={busy || me.money < DEPORTATION_FINE} onClick={() => send({ type: "bail" })}>Pagar multa · {cash(DEPORTATION_FINE)}</button>
+          {me.money < DEPORTATION_FINE && <small>Saldo insuficiente para la multa.</small>}
+        </>}
+        {!me.bankrupt && (
+          <button
+            className="primary"
+            disabled={busy || (!action && !showOptions)}
+            title={!action && !showOptions ? message : undefined}
+            onClick={() => action ? send(action) : onOptions()}
+          >
+            {animating ? "Viajando…" : busy ? "Procesando…" : label}
+          </button>
+        )}
+      </div>
+    </section>
+  );
+}
+````
+
+## src/presentation/molecules/TextField.tsx
+
+````tsx
+"use client";
+import { useId } from "react";
+import Input, { type InputProps } from "../atoms/Input";
+export default function TextField({ label, error, id, ...props }: InputProps & { label: string; error?: string }) {
+  const generated = useId();
+  const fieldId = id ?? generated;
+  return <label htmlFor={fieldId}>{label}<Input {...props} id={fieldId} invalid={!!error} aria-describedby={error ? `${fieldId}-error` : props["aria-describedby"]} />{error && <small id={`${fieldId}-error`} role="alert">{error}</small>}</label>;
+}
+````
+
+## src/presentation/molecules/VolumeControl.tsx
+
+````tsx
+"use client";
+import { useId } from "react";
+import Input from "../atoms/Input";
+export default function VolumeControl({ label, value, onChange }: { label: string; value: number; onChange: (value: number) => void }) {
+  const id = useId();
+  return <><label htmlFor={id}>{label} <output>{value}%</output></label><Input id={id} type="range" min={0} max={100} step={1} value={value} onChange={(event) => onChange(Number(event.target.value))} /></>;
+}
+````
+
+## src/presentation/organisms/Activity.tsx
+
+````tsx
+"use client";
+import { BOARD } from "@/domain/game/board";
+import type { Game, GameEvent } from "@/domain/game/types";
+import { useEffect } from "react";
+import { Building } from "../atoms/Building";
+import { Globe } from "../atoms/Globe";
+import Dice from "../molecules/Dice";
+export default function Activity({ game, event, lastRoll, onEvent }: {
+  game: Game;
+  event: GameEvent | null;
+  lastRoll: GameEvent | null;
+  onEvent?: (event: GameEvent) => void;
+}) {
+  useEffect(() => {
+    if (event) onEvent?.(event);
+  }, [event, onEvent]);
+  const scene = event?.type === "move" ? null : event;
+  const property=event?.square===undefined?null:BOARD[event.square];
+  return <section className="activity" aria-label="Actividad compartida">
+    <div className="shared-dice"><strong>{lastRoll?.text??"Preparando el despegue"}</strong><Dice values={lastRoll?.dice??game.dice}/></div>
+    {scene&&<div className="table-scene" key={scene.id} role="status" aria-live="polite">
+      <div className={`scene-content scene-${scene.type}`}>
+        <span className="eyebrow">{scene.type==="roll"?"LOS DADOS DECIDEN":scene.type==="card"?scene.deck==="email"?"CORREO RECIBIDO":"NUEVO MENSAJE":scene.type==="purchase"?"NUEVA PROPIEDAD":"EN NUESTRA MESA"}</span>
+        {scene.dice?<Dice values={scene.dice} rollId={scene.id}/>:scene.type==="card"?<div className="scene-envelope" aria-hidden="true">{scene.deck==="email"?"✉":"☏"}</div>:scene.text.includes("construyó")?<div className="scene-building"><Building hotel={Object.values(game.properties).some((p)=>p.buildings===5)}/></div>:<Globe className="scene-globe"/>}
+        {property&&<div className="scene-flag">{property.flag??"✈"}</div>}
+        <h2>{scene.text}</h2>
+        <small className="scene-auto-close">El viaje continúa automáticamente</small>
+      </div>
+    </div>}
+  </section>;
+}
+````
+
+## src/presentation/organisms/AuctionPanel.tsx
+
+````tsx
+"use client";
+import { BOARD, cash } from "@/domain/game/board";
+import { auctionMinimum } from "@/domain/game/rules";
+import type { Action, Game, Player } from "@/domain/game/types";
+import { useState } from "react";
+import ActionButton from "../molecules/ActionButton";
+import TextField from "../molecules/TextField";
+export default function AuctionPanel({ game, me, busy, send }: { game: Game; me: Player; busy: boolean; send: (action: Action) => void }) {
+  const [offer, setOffer] = useState(500);
+  const [buildSquare, setBuildSquare] = useState<number | null>(null);
+  const options = game.auction?.buildingOptions?.[me.id];
+  const destination = options?.includes(buildSquare ?? -1) ? buildSquare! : options?.[0];
+  const minimumBid = game.auction ? auctionMinimum(destination ?? game.auction.square, game.auction.amount, !!game.auction.buildingOptions) : 500;
+  const imprisoned = me.jailed > 0 && me.detention === "prison";
+  const button = (label: string, action: Action, reason: string | null = null) => <ActionButton disabled={busy} disabledReason={reason ?? undefined} onClick={() => send(action)}>{label}</ActionButton>;
+  if (!game.auction) return null;
+  return <div className="auction-box">
+        <span className="eyebrow">SUBASTA EN VIVO</span><h3>{game.auction.buildingOptions ? "Último edificio disponible" : BOARD[game.auction.square].name}</h3>
+        <p>{game.auction.bidder ? `${game.players.find((p) => p.id === game.auction?.bidder)?.name} ofrece ${cash(game.auction.amount)}` : `Oferta inicial desde ${cash(minimumBid)}`}</p>
+        <small>Quedan {Math.max(0, Math.ceil((game.auction.endsAt - Date.now()) / 1000))} s. Cada oferta añade 20 s.</small>
+        {game.auction.passed.includes(me.id) ? <p className="notice">Ya rechazaste esta subasta. Tu ficha permanece en {BOARD[me.position].name}. Esperando a los demás viajeros.</p> : <>
+        {game.auction.buildingOptions && options?.length ? <label>Construir en<select value={destination} onChange={(e)=>setBuildSquare(Number(e.target.value))}>{options.map((id)=><option key={id} value={id}>{BOARD[id].name}</option>)}</select></label> : null}
+        <TextField label="Tu oferta" type="number" step="500" min={minimumBid} max={me.money} value={Math.max(offer,minimumBid)} onChange={(e) => setOffer(Number(e.target.value))}/>
+        {button("Ofertar", {type:"bid",amount:Math.max(offer,minimumBid),square:destination}, imprisoned ? "No puedes comprar desde la cárcel." : game.auction.buildingOptions && !options?.length ? "No tienes un país listo para construir." : game.auction.passed.includes(me.id) ? "Te retiraste de esta subasta." : Math.max(offer,minimumBid)>me.money ? "Saldo insuficiente." : null)}
+        {button("Pasar esta subasta", {type:"fold"}, imprisoned || game.auction.passed.includes(me.id) || game.auction.bidder === me.id ? "No disponible." : null)}
+        </>}
+        <small>La oferta ganadora se paga automáticamente al cerrar.</small>
+      </div>;
+}
+````
+
+## src/presentation/organisms/AudioControls.tsx
+
+````tsx
+"use client";
+import Button from "../atoms/Button";
+
+import type { useGameAudio } from "@/presentation/hooks/useGameAudio";
+import { useRef } from "react";
+import VolumeControl from "../molecules/VolumeControl";
+
+export default function AudioControls({ audio }: { audio: ReturnType<typeof useGameAudio> }) {
+  const details = useRef<HTMLDetailsElement>(null);
+  const { preferences, change, error } = audio;
+  return (
+    <details className="audio-settings" ref={details} onKeyDown={(event) => {
+      if (event.key === "Escape" && details.current) {
+        details.current.open = false;
+        details.current.querySelector("summary")?.focus();
+      }
+    }}>
+      <summary aria-label="Configurar música, efectos y silencio">{preferences.muted ? "♪ Audio apagado" : "♫ Audio"}</summary>
+      <div className="audio-popover">
+        <div className="row"><strong>Música y sonidos</strong><Button aria-label="Cerrar ajustes de audio" onClick={() => { if (details.current) details.current.open = false; }}>×</Button></div>
+        <Button className="primary" aria-pressed={preferences.muted} onClick={() => change({ muted: !preferences.muted })}>
+          {preferences.muted ? "Activar audio" : "Silenciar todo"}
+        </Button>
+        <VolumeControl label="Música de fondo" value={preferences.music} onChange={(value) => change({ music: value })} />
+        <VolumeControl label="Efectos del juego" value={preferences.effects} onChange={(value) => change({ effects: value })} />
+        <small>{preferences.muted ? "Música, efectos y chat de voz silenciados, incluido tu micrófono. Conservamos tus volúmenes." : "Se pausa al cambiar de pestaña. Tus ajustes se guardan en este navegador."}</small>
+        {error && <p role="status">{error}<Button onClick={audio.unlock}>Activar audio</Button></p>}
+      </div>
+    </details>
+  );
+}
+````
+
+## src/presentation/organisms/Board.tsx
+
+````tsx
+"use client";
+import { BOARD } from "@/domain/game/board";
+import type { Game } from "@/domain/game/types";
+import Image from "next/image";
+import { useEffect, useRef, useState } from "react";
+import BoardSquare from "../molecules/BoardSquare";
+import { coordinates } from "../services/board-geometry";
+export default function Board({
+  game,
+  onSelect,
+  positions,
+}: {
+  game: Game;
+  positions: Record<string, number>;
+  onSelect: (id: number) => void;
+}) {
+  const [zoom, setZoom] = useState(1);
+  const [deckInfo, setDeckInfo] = useState<"email" | "sms" | null>(null);
+  const scroll = useRef<HTMLDivElement>(null);
+  const fit = () => {
+    const container = scroll.current;
+    if (!container) return;
+    const available = Math.min(container.clientWidth - 8, container.clientHeight - 8);
+    if (available > 0) setZoom(available / 760);
+  };
+  useEffect(() => {
+    const container = scroll.current;
+    if (!container) return;
+    const observer = new ResizeObserver(fit);
+    observer.observe(container);
+    fit();
+    return () => observer.disconnect();
+  }, []);
+  return (
+    <section className="board-section">
+      <label className="board-zoom">
+        Escala del tablero
+        <input
+          aria-label="Escala del tablero"
+          type="range"
+          min="0.35"
+          max="1.25"
+          step="0.05"
+          value={zoom}
+          onChange={(e) => setZoom(Number(e.target.value))}
+        />
+        <span>{Math.round(zoom * 100)}%</span>
+      </label>
+      <button className="fit-board" onClick={fit}>Ver tablero completo</button>
+      <div className="board-scroll" ref={scroll}>
+        <div
+          className="board"
+          style={{ zoom }}
+          aria-label="Tablero de 40 casillas"
+        >
+          {BOARD.map((square) => <BoardSquare key={square.id} square={square} property={game.properties[square.id]} owner={game.players.find((player) => player.id === game.properties[square.id]?.owner)} active={(positions[game.players[game.turn]?.id] ?? game.players[game.turn]?.position) === square.id} onSelect={onSelect} />)}
+          <div className="board-center">
+            <Image className="world-board-art" src="/art/world-center.webp" alt="Mapa ilustrado de los continentes con monumentos y rutas de viaje" fill sizes="(max-width: 780px) 90vw, 650px" priority />
+            <div className="continent-labels" aria-label="Regiones del mundo">
+              <span className="region-north">Norteamérica</span><span className="region-central">Centroamérica</span><span className="region-south">Sudamérica</span><span className="region-europe">Europa</span><span className="region-africa">África</span><span className="region-asia">Asia</span><span className="region-oceania">Oceanía</span>
+            </div>
+            <h2 className="world-board-title">Rumbo Mundial ✦</h2>
+            <div className="deck-cards">
+              <button onClick={() => setDeckInfo(deckInfo === "email" ? null : "email")} aria-pressed={deckInfo === "email"}>
+                <span aria-hidden="true">✉</span><b>Correo</b><small>EL MUNDO TE ESCRIBE</small>
+              </button>
+              <button onClick={() => setDeckInfo(deckInfo === "sms" ? null : "sms")} aria-pressed={deckInfo === "sms"}>
+                <span aria-hidden="true">☏</span><b>Mensaje</b><small>UN NUEVO DESTINO</small>
+              </button>
+            </div>
+            <p className="deck-description">{deckInfo ? `El mazo de ${deckInfo === "email" ? "Correo" : "Mensaje"} se baraja en cada partida. La carta se revela al caer en su casilla y vuelve al fondo, salvo los permisos que conserves.` : ""}</p>
+            <small>SALIDA ↓ MARRUECOS · SUELDO $20,000</small>
+          </div>
+          {game.players
+            .filter((p) => !p.bankrupt)
+            .map((p, i) => {
+              const pos = positions[p.id] ?? p.position;
+              const [x, y] = coordinates(pos);
+              return (
+                <span
+                  key={p.id}
+                  className="token"
+                  title={p.name}
+                  aria-label={`${p.name} en ${BOARD[pos].name}`}
+                  style={{
+                    transform: `translate(${((x + 0.18 + (i % 3) * 0.27) * 10000) / (11 * 2.35)}%, ${((y + 0.57 + Math.floor(i / 3) * 0.2) * 10000) / (11 * 2.35)}%)`,
+                    background: p.color,
+                  }}
+                >
+                  ✈
+                </span>
+              );
+            })}
+        </div>
+      </div>
+    </section>
+  );
+}
+````
+
+## src/presentation/organisms/EntryForm.tsx
+
+````tsx
+"use client";
+import { COLORS } from "@/domain/game/types";
+import Button from "../atoms/Button";
+import { useEntryForm } from "../hooks/useEntryForm";
+import TextField from "../molecules/TextField";
+export default function EntryForm({ room }: { room?: string }) {
+  const { mode, setMode, name, setName, id, setId, color, setColor, duration, setDuration, error, busy, submit } = useEntryForm(room);
+  return (
+    <form onSubmit={submit} className="entry panel">
+      {!room && (
+        <div className="tabs">
+          <Button
+            type="button"
+            aria-pressed={mode === "create"}
+            onClick={() => setMode("create")}
+          >
+            Crear sala
+          </Button>
+          <Button
+            type="button"
+            aria-pressed={mode === "join"}
+            onClick={() => setMode("join")}
+          >
+            Unirse a sala
+          </Button>
+        </div>
+      )}
+      <h2>
+        {mode === "create" ? "Tu próxima gran aventura" : "Tu lugar en la mesa"}
+      </h2>
+      <TextField label="Tu nombre"
+          required
+          maxLength={24}
+          autoComplete="nickname"
+          value={name}
+          onChange={(e) => setName(e.target.value)}
+          placeholder="¿Cómo te llamas?" />
+      {mode === "join" ? (
+        <TextField label="ID de sala"
+            required
+            pattern="[A-HJ-NP-Z2-9]{6}"
+            maxLength={6}
+            value={id}
+            onChange={(e) => setId(e.target.value.toUpperCase())}
+            placeholder="ABC234" />
+      ) : (
+        <>
+          <fieldset>
+            <legend>Elige tu avión</legend>
+            <div className="colors">
+              {COLORS.map((c, i) => (
+                <Button
+                  type="button"
+                  key={c}
+                  style={{ background: c }}
+                  aria-label={`Color ${i + 1}`}
+                  aria-pressed={color === c}
+                  onClick={() => setColor(c)}
+                >
+                  ✈
+                </Button>
+              ))}
+            </div>
+          </fieldset>
+          <label>
+            Duración
+            <select
+              value={duration}
+              onChange={(e) => setDuration(Number(e.target.value) as 0 | 30 | 60 | 90)}
+            >
+              <option value={0}>Hasta el último viajero</option>
+              {[30, 60, 90].map((n) => (
+                <option key={n} value={n}>
+                  {n} minutos
+                </option>
+              ))}
+            </select>
+          </label>
+        </>
+      )}
+      {error && (
+        <p role="alert" className="error">
+          {error}
+        </p>
+      )}
+      <Button type="submit" className="primary" disabled={busy}>
+        {busy
+          ? "Preparando el viaje…"
+          : mode === "create"
+            ? "Crear mi sala ↗"
+            : "Entrar a la sala ↗"}
+      </Button>
+      <small>De 2 a 6 amigos. Una sala, todo el mundo.</small>
+    </form>
+  );
+}
+````
+
+## src/presentation/organisms/Lobby.tsx
+
+````tsx
+"use client";
+import { COLORS, type Action, type Game, type Player } from "@/domain/game/types";
+import Button from "../atoms/Button";
+import EntryForm from "./EntryForm";
+export default function Lobby({ id, game, me, token, busy, send }: { id: string; game: Game; me?: Player; token: string | null; busy: boolean; send: (action: Action) => Promise<boolean> }) {
+  const host = me?.id === game.host;
+  return (
+        <div className="lobby-grid">
+          <section className="panel lobby">
+            <p className="eyebrow">SALA DE ABORDAJE</p>
+            <h1>
+              El viaje empieza
+              <br />
+              con tus amigos.
+            </h1>
+            <p>
+              Comparte el ID <b>{id}</b>. Necesitan de 2 a 6 jugadores.
+            </p>
+            <p>
+              {game.duration
+                ? `Partida de ${game.duration} minutos.`
+                : "Gana el último jugador que siga en pie."}
+            </p>
+            <ul className="passengers">
+              {game.players.map((p) => (
+                <li key={p.id}>
+                  <span style={{ background: p.color }}>✈</span>
+                  <b>{p.name}</b>
+                  <small>
+                    {p.id === game.host ? "Anfitrión" : "Listo para viajar"}
+                  </small>
+                </li>
+              ))}
+            </ul>
+            {me && (
+              <>
+                <fieldset>
+                  <legend>Tu avión</legend>
+                  <div className="colors">
+                    {COLORS.map((c, i) => (
+                      <Button
+                        key={c}
+                        aria-label={`Color ${i + 1}`}
+                        aria-pressed={me.color === c}
+                        style={{ background: c }}
+                        disabled={
+                          busy ||
+                          game.players.some(
+                            (p) => p.id !== me.id && p.color === c,
+                          )
+                        }
+                        onClick={() => void send({ type: "color", color: c })}
+                      >
+                        ✈
+                      </Button>
+                    ))}
+                  </div>
+                </fieldset>
+                {host ? (
+                  <>
+                    <Button
+                      className="primary"
+                      disabled={busy || game.players.length < 2}
+                      onClick={() => void send({ type: "start" })}
+                    >
+                      Iniciar partida
+                    </Button>
+                    {game.players.length < 2 && (
+                      <small>Espera a que llegue al menos un amigo.</small>
+                    )}
+                  </>
+                ) : (
+                  <p>El anfitrión iniciará la partida.</p>
+                )}
+              </>
+            )}
+          </section>
+          {!me && !token ? (
+            <EntryForm room={id} />
+          ) : (
+            <section className="panel guide">
+              <h2>Antes de despegar</h2>
+              <p>Todos empiezan con $134,500. El Banco abona $20,000 al cerrar un turno en el que pasaste por Salida.</p>
+              <p>
+                Compra países y completa grupos para construir casas.
+                Cinco construcciones se convierten en un hotel.
+              </p>
+              <p>
+                Caer en Deportado: multa de $5,000 o tres turnos. Cárcel: fianza de $10,000 y tres turnos completos. Australia es descanso.
+              </p>
+              <p>Selecciona cualquier casilla para consultar su tarjeta.</p>
+            </section>
+          )}
+        </div>
+  );
+}
+````
+
+## src/presentation/organisms/PaymentModal.tsx
+
+````tsx
+"use client";
+import { DENOMINATIONS, totalBills, wallet } from "@/domain/game/money";
+import type { Action, Player } from "@/domain/game/types";
+import { useState } from "react";
+import { Banknote } from "../atoms/Banknote";
+import Button from "../atoms/Button";
+import Input from "../atoms/Input";
+import Dialog from "../molecules/Dialog";
+export default function PaymentModal({
+  player,
+  amount,
+  label,
+  action,
+  onClose,
+  commit,
+  error,
+  suspended = false,
+}: {
+  player: Player;
+  amount: number;
+  label: string;
+  action: Action;
+  error?: string;
+  suspended?: boolean;
+  onClose: () => void;
+  commit: (a: Action) => Promise<boolean>;
+}) {
+  const [selected, setSelected] = useState<Record<string, number>>({});
+  const [busy, setBusy] = useState(false);
+  const held = wallet(player);
+  const total = totalBills(selected);
+  return (
+    <Dialog aria-label="Selecciona tus billetes" suspended={suspended} onDismiss={onClose}
+      
+      
+      className="trade-modal payment-modal"
+    >
+      <form
+        onSubmit={async (e) => {
+          e.preventDefault();
+          setBusy(true);
+          if (await commit({ ...action, bills: selected })) onClose();
+          setBusy(false);
+        }}
+      >
+        <div className="row">
+          <h2>Selecciona tus billetes</h2>
+          <Button type="button" onClick={onClose} aria-label="Cerrar pago">
+            ×
+          </Button>
+        </div>
+        <p>{label}</p>
+        {error && <p className="error" role="alert">{error}</p>}
+        <p className="balance">Por pagar: ${amount.toLocaleString("es-MX")}</p>
+        <small>
+          Tu saldo: ${player.money.toLocaleString("es-MX")}. El Banco entrega el
+          cambio automáticamente.
+        </small>
+        <div className="banknotes">
+          {DENOMINATIONS.filter((value) => held[value]).map((value) => (
+            <div
+              key={value}
+              className="banknote"
+            >
+              <Button type="button" className="pick-note" disabled={busy || (selected[value] ?? 0) >= (held[value] ?? 0)} aria-label={`Añadir billete de $${value}`} onClick={() => setSelected({...selected, [value]: Math.min(held[value] ?? 0, (selected[value] ?? 0) + 1)})}><Banknote value={value} /></Button>
+              <small>Tienes {held[value] ?? 0}</small>
+              <label>
+                Cantidad
+                <Input
+                  type="number"
+                  disabled={busy}
+                  min="0"
+                  max={held[value] ?? 0}
+                  value={selected[value] ?? 0}
+                  onChange={(e) =>
+                    setSelected({
+                      ...selected,
+                      [value]: Number(e.target.value),
+                    })
+                  }
+                />
+              </label>
+              {value > 1 && (
+                <Button
+                  type="button"
+                  disabled={busy || !held[value]}
+                  onClick={async () => {
+                    setBusy(true);
+                    if (await commit({ type: "change", denomination: value }))
+                      setSelected({});
+                    setBusy(false);
+                  }}
+                >
+                  Cambiar billete
+                </Button>
+              )}
+            </div>
+          ))}
+        </div>
+        <div className="row">
+          <span>Entregas: ${total.toLocaleString("es-MX")}</span>
+          <span>Cambio: ${Math.max(0, total - amount)}</span>
+        </div>
+        <Button
+          type="button"
+          onClick={() => {
+            let remaining = amount;
+            const next: Record<string, number> = {};
+            for (const value of DENOMINATIONS) {
+              next[value] = Math.min(
+                held[value] ?? 0,
+                Math.ceil(Math.max(0, remaining) / value),
+              );
+              remaining -= next[value] * value;
+            }
+            setSelected(next);
+          }}
+        >
+          Seleccionar por mí
+        </Button>
+        <Button
+          type="submit"
+          className="primary"
+          disabled={busy || total < amount || player.money < amount}
+        >
+          {busy ? "Procesando…" : `Pagar $${amount}`}
+        </Button>
+      </form>
+    </Dialog>
+  );
+}
+````
+
+## src/presentation/organisms/PlayerPanel.tsx
+
+````tsx
+"use client";
+import { BOARD, cash } from "@/domain/game/board";
+import { liquidationValue, netWorth } from "@/domain/game/rules";
+import type { Action, Game, Player } from "@/domain/game/types";
+import { useEffect, useState } from "react";
+
+import { CountryArt } from "../atoms/CountryArt";
+import PlayerMarker from "../atoms/PlayerMarker";
+import ActionButton from "../molecules/ActionButton";
+import AuctionPanel from "./AuctionPanel";
+import PropertyInventory from "./PropertyInventory";
+export default function PlayerPanel({ game, me, busy, send, onTrade, onSelect }: {
+  game: Game; me: Player; busy: boolean; send: (a: Action) => void;
+  onTrade: () => void; onSelect: (id: number) => void;
+}) {
+  const [panelTab, setPanelTab] = useState<"turn" | "assets">("turn");
+  const auctionSquare = game.auction?.square;
+  useEffect(() => {
+    if (me.jailed || auctionSquare !== undefined) setPanelTab("turn");
+  }, [me.jailed, auctionSquare]);
+  const active = game.players[game.turn], mine = active.id === me.id && !me.bankrupt;
+  const debt = game.debt && (game.debt.payer ?? active.id) === me.id ? game.debt : null;
+  const imprisoned = me.jailed > 0 && me.detention === "prison";
+  const button = (label: string, action: Action, reason: string | null = null) => <ActionButton disabled={busy} disabledReason={reason ?? undefined} onClick={() => send(action)}>{label}</ActionButton>;
+  const properties = BOARD.filter((b) => game.properties[b.id]?.owner === me.id);
+  return <section className={`panel player-panel ${mine ? "my-turn" : ""}`}>
+    <p className="eyebrow">{game.opening ? "ELIGE QUIÉN DESPEGA" : mine ? "ES TU TURNO" : `VIAJA ${active.name}`}</p>
+    <div className="row"><h2><PlayerMarker color={me.color} />{me.name}</h2><span className="balance">{cash(me.money)}</span></div>
+    <small>Patrimonio neto: {cash(netWorth(game, me))} · {properties.length} propiedades</small>
+    <div className="tabs player-tabs"><button aria-pressed={panelTab === "turn"} onClick={()=>setPanelTab("turn")}>Mi turno</button><button aria-pressed={panelTab === "assets"} onClick={()=>setPanelTab("assets")}>Propiedades ({properties.length})</button></div>
+    <div hidden={panelTab !== "turn"}>
+    {me.acquisitionCard && <p className="notice">Tienes un permiso de adquisición. Selecciona el último país que te falte para completar un bloque.</p>}
+    {me.rentBonus && <p className="notice">La próxima renta de un país sin edificios se duplica.</p>}
+    {me.jailed > 0 && <div className="detention"><strong>{imprisoned ? "Cárcel" : "Deportado"}</strong><p>Quedan {me.jailed} turnos completos. Los dobles no reducen la estancia.</p><div className="detention-steps" aria-label={`${me.jailed} turnos pendientes`}>{[1,2,3].map((i) => <span key={i} className={i <= me.jailed ? "pending" : ""}>{i <= me.jailed ? "▥" : "✓"}</span>)}</div></div>}
+    {!!me.skipTurns && <p>Estancia por carta: {me.skipTurns} turnos pendientes.</p>}
+    {me.jailed > 0 && me.passes.length > 0 && !game.auction && button("Usar pase diplomático", {type:"pass"})}
+    {mine && !!me.salary && <small>El Banco cobrará tu sueldo de {cash(me.salary)} automáticamente al cerrar el turno.</small>}
+    {me.bankrupt ? <p>Terminó tu viaje. Puedes seguir viendo la partida.</p> : <div className="actions">
+      {game.opening ? <>
+        <p>El número más alto inicia. En caso de empate vuelven a tirar los finalistas.</p>
+        {game.opening.candidates.map((id) => <div className="row" key={id}><span>{game.players.find((p) => p.id === id)?.name}</span><b>{game.opening?.rolls[id] ?? "Por tirar"}</b></div>)}
+        {button("Tirar dado de salida", {type:"opening-roll"}, !game.opening.candidates.includes(me.id) ? "Espera el desempate." : game.opening.rolls[me.id] !== undefined ? "Esperando a los demás." : null)}
+      </> : game.auction ? <AuctionPanel game={game} me={me} busy={busy} send={send} /> : debt ? <>
+        <p className="error">Pago pendiente: {cash(debt.amount)}. Puedes seleccionar billetes o reunir dinero administrando tus propiedades.</p>
+        {button("Seleccionar billetes y pagar", {type:"settle"}, me.money < debt.amount ? "Primero reúne el importe completo." : null)}
+        {button("Declarar quiebra", {type:"bankrupt"}, liquidationValue(game, me) >= debt.amount ? "Tus activos todavía pueden cubrir el pago." : null)}
+      </> : game.debt ? <p className="notice">Esperando el pago de {game.players.find((p) => p.id === (game.debt?.payer ?? active.id))?.name}.</p> : game.choice ? <>
+        <p>Elige al viajero que te pagará {cash(game.choice.amount)}.</p>
+        {game.choice.player === me.id ? game.players.filter((p) => p.id !== me.id && !p.bankrupt).map((p) => <button key={p.id} onClick={() => send({type:"collect",target:p.id})} disabled={busy}>{p.name}</button>) : <small>Esperando la elección de {active.name}.</small>}
+      </> : <>
+        {game.phase === "roll" && (me.jailed || me.skipTurns) && mine ? button("Cumplir un turno de espera", {type:"wait"}) : game.phase === "roll" && button("✦ Tirar los dados", {type:"roll"}, mine ? null : "Espera tu turno.")}
+        {mine && me.jailed > 0 && !imprisoned && button("Pagar $5,000 y volver a Salida", {type:"bail"}, me.money < 5000 ? "Saldo insuficiente." : null)}
+        {mine && game.phase === "buy" && <div className="buy-scene"><div className="scene-country"><CountryArt id={me.position} /><span>{BOARD[me.position].flag ?? "✈"}</span><h2>{BOARD[me.position].name}</h2><p>¿Agregamos este destino a tu viaje?</p></div>
+          {button(`Comprar ${BOARD[me.position].name} · ${cash(BOARD[me.position].price)}`, {type:"buy"}, me.money < BOARD[me.position].price ? "Saldo insuficiente." : null)}
+          {button("Rechazar y subastar para los demás", {type:"decline"})}
+        </div>}
+        {mine && game.detentionDecision === me.id && button("Quedarme · esperar 3 turnos", {type:"stay"})}
+        {mine && game.phase === "end" && !game.detentionDecision && <p role="status">{game.extra ? "Tu tiro extra se habilitará automáticamente." : "El turno terminará automáticamente."}</p>}
+      </>}
+    </div>}
+    {!me.bankrupt && <button className="trade-trigger" onClick={onTrade} disabled={busy || !!game.debt || !!game.auction || !!game.opening || imprisoned} title={imprisoned ? "En la cárcel no puedes negociar." : "Ofrece dinero y propiedades, incluso fuera de tu turno."}>⇄ Proponer trato</button>}
+    </div><div hidden={panelTab !== "assets"}>
+    <PropertyInventory game={game} me={me} onSelect={onSelect} />
+    </div>
+  </section>;
+}
+````
+
+## src/presentation/organisms/PlayerRoster.tsx
+
+````tsx
+"use client";
+import { BOARD } from "@/domain/game/board";
+import type { Game } from "@/domain/game/types";
+import { useState } from "react";
+import Button from "../atoms/Button";
+export default function PlayerRoster({ game, selectProperty, onClose }: { game: Game; selectProperty: (id: number) => void; onClose: () => void }) {
+  const [rosterIndex, setRosterIndex] = useState(0);
+  const [rosterPage, setRosterPage] = useState(0);
+  return (
+              <div className="players-strip" aria-label="Propiedades de los viajeros"><Button className="panel-close" onClick={()=>onClose()}>Cerrar ×</Button><label>Viajero<select value={rosterIndex} onChange={(e)=>{setRosterIndex(Number(e.target.value));setRosterPage(0);}}>{game.players.map((p,i)=><option value={i} key={p.id}>{p.name}</option>)}</select></label>
+                {game.players.filter((_, i)=>i===rosterIndex).map((p) => (
+                  <div
+                    key={p.id}
+                    style={{
+                      borderColor: p.color,
+                      opacity: p.bankrupt ? 0.5 : 1,
+                    }}
+                  >
+                    <b>{p.name}</b>
+                    <span>
+                      {p.bankrupt
+                        ? "En quiebra"
+                        : `$${p.money.toLocaleString("es-MX")}`}
+                    </span>
+                    <details open>
+                      <summary>
+                        {
+                          Object.values(game.properties).filter(
+                            (a) => a.owner === p.id,
+                          ).length
+                        }{" "}
+                        propiedades
+                      </summary>
+                      <div className="owned">
+                        {BOARD.filter(
+                          (b) => game.properties[b.id]?.owner === p.id,
+                        ).slice(rosterPage*4,rosterPage*4+4).map((b) => (
+                          <Button key={b.id} onClick={() => selectProperty(b.id)}>
+                            {b.name}
+                            {game.properties[b.id].mortgaged ? " · H" : ""}
+                          </Button>
+                        ))}
+                      </div>
+                      <div className="row"><Button disabled={!rosterPage} onClick={()=>setRosterPage(rosterPage-1)}>←</Button><span>Página {rosterPage+1}</span><Button disabled={(rosterPage+1)*4>=Object.values(game.properties).filter((a)=>a.owner===p.id).length} onClick={()=>setRosterPage(rosterPage+1)}>→</Button></div>
+                    </details>
+                  </div>
+                ))}
+              </div>
+  );
+}
+````
+
+## src/presentation/organisms/PropertyCard.tsx
+
+````tsx
+import { BOARD } from "@/domain/game/board";
+import { assetError, group } from "@/domain/game/rules";
+import type { Action, Game, Player } from "@/domain/game/types";
+import { Building } from "../atoms/Building";
+import { CountryArt } from "../atoms/CountryArt";
+export default function PropertyCard({
+  id,
+  game,
+  me,
+  send,
+  busy,
+}: {
+  id: number;
+  game: Game;
+  me: Player | undefined;
+  send: (a: Action) => void;
+  busy: boolean;
+}) {
+  const b = BOARD[id],
+    a = game.properties[id],
+    owner = game.players.find((p) => p.id === a?.owner);
+  return (
+    <section
+      className="panel property"
+      style={{ borderTopColor: b.color ?? "#175344" }}
+    >
+      <p className="eyebrow">{b.group ?? "ESCALA DEL VIAJE"}</p>
+      {b.kind === "country" && <CountryArt id={b.id} />}
+      <h2>{b.flag} {b.name}</h2>
+      {!!a?.buildings && <div className="property-buildings">{a.buildings === 5 ? <Building hotel /> : Array.from({length: a.buildings}, (_, i) => <Building key={i} />)}</div>}
+      {me?.acquisitionCard && b.kind === "country" && a?.owner !== me.id && group(id).every((x) => x.id === id || game.properties[x.id].owner === me.id) && <button className="primary" disabled={busy || !!game.debt || !!game.auction} onClick={() => send({type:"acquire", square:id})}>Usar permiso para completar bloque</button>}
+      {b.price ? (
+        <>
+          <p>
+            {owner ? `Propiedad de ${owner.name}` : "Disponible en el Banco"}
+            {a?.mortgaged ? " · Hipotecada" : ""}
+          </p>
+          <dl>
+            <div>
+              <dt>Compra</dt>
+              <dd>${b.price}</dd>
+            </div>
+            <div>
+              <dt>Hipoteca</dt>
+              <dd>${b.mortgage}</dd>
+            </div>
+            {b.buildCost > 0 && (
+              <div>
+                <dt>Por edificio</dt>
+                <dd>${b.buildCost}</dd>
+              </div>
+            )}
+          </dl>
+          <div className="rent-list">
+            {b.rents.map((r, i) => (
+              <span key={i}>
+                {b.kind === "country"
+                  ? [
+                      "Base",
+                      "1 casa",
+                      "2 casas",
+                      "3 casas",
+                      "4 casas",
+                      "Hotel",
+                    ][i]
+                  : b.kind === "airline"
+                    ? `${i + 1} aerolínea(s)`
+                    : `${i + 1} servicio(s)`}
+                <b>{b.kind === "utility" ? `${r} × dados` : `$${r}`}</b>
+              </span>
+            ))}
+          </div>
+          {b.kind === "country" && (
+            <small>
+              Renta base doble con el grupo completo. Edificios vendidos al
+              Banco a mitad de precio.
+            </small>
+          )}
+          {me && a?.owner === me.id && game.status === "playing" && (
+            <div className="asset-actions">
+              {(["build", "sell", "sell-group", "mortgage", "redeem", "return"] as const).map(
+                (type) => {
+                  const reason =
+                    assetError(game, me, id, type);
+                  return (
+                    <div key={type}>
+                      <button
+                        disabled={busy || !!reason}
+                        title={reason ?? ""}
+                        onClick={() => send({ type, square: id })}
+                      >
+                        {
+                          {
+                            build: "Construir",
+                            sell: "Vender edificio",
+                            "sell-group": "Vender edificios del bloque",
+                            mortgage: "Hipotecar",
+                            redeem: "Deshipotecar",
+                            return: "Devolver al Banco",
+                          }[type]
+                        }
+                      </button>
+                      {reason && <small>{reason}</small>}
+                    </div>
+                  );
+                },
+              )}
+            </div>
+          )}
+        </>
+      ) : (
+        <p>
+          {b.kind === "oceania"
+            ? "De visita al caer con dados. Si te envían aquí: paga $5,000 o cumple tres turnos completos; después regresas a Salida sin sueldo. Puedes administrar tus propiedades."
+            : b.kind === "start"
+              ? "Reclama $20,000 al pasar o caer aquí, antes de ceder el turno."
+              : b.kind === "tax"
+                ? `Paga $${b.tax} al Banco.`
+                : b.kind === "go-oceania"
+                  ? "Paga $10,000 de fianza y cumple tres turnos completos. No cobras rentas ni administras propiedades. Los dobles no te liberan."
+                  : b.kind === "rest"
+                    ? "Australia es descanso: no hay castigo al caer con dados. Algunas cartas pueden indicar una estancia especial."
+                    : "Roba una carta y sigue sus instrucciones."}
+        </p>
+      )}
+    </section>
+  );
+}
+````
+
+## src/presentation/organisms/PropertyDialog.tsx
+
+````tsx
+"use client";
+import Button from "../atoms/Button";
+import Dialog from "../molecules/Dialog";
+
+import type { Action, Game, Player } from "@/domain/game/types";
+import PropertyCard from "./PropertyCard";
+export default function PropertyDialog({ id, game, me, busy, send, onClose, suspended = false }: {
+  id:number; game:Game; me:Player|undefined; busy:boolean;
+  send:(a:Action)=>void; onClose:()=>void;
+  suspended?: boolean;
+}) {
+  return <Dialog suspended={suspended} onDismiss={onClose} className="property-dialog"   aria-label={`Tarjeta de propiedad`}>
+    <Button aria-label="Cerrar tarjeta" onClick={onClose}>Cerrar ×</Button>
+    <PropertyCard id={id} game={game} me={me} busy={busy} send={(a)=>{onClose();send(a);}}/>
+  </Dialog>;
+}
+````
+
+## src/presentation/organisms/PropertyInventory.tsx
+
+````tsx
+"use client";
+import { BOARD } from "@/domain/game/board";
+import { bankStock } from "@/domain/game/rules";
+import type { Game, Player } from "@/domain/game/types";
+import { useState } from "react";
+export default function PropertyInventory({ game, me, onSelect }: { game: Game; me: Player; onSelect: (id: number) => void }) {
+  const properties = BOARD.filter((square) => game.properties[square.id]?.owner === me.id);
+  const stock = bankStock(game);
+  const [propertyPage, setPropertyPage] = useState(0);
+  const visiblePage = Math.min(propertyPage, Math.max(0, Math.ceil(properties.length / 4) - 1));
+  return <>
+    <h3>Mi pasaporte de propiedades</h3>
+    <div className="owned">{properties.slice(visiblePage*4,visiblePage*4+4).map((b) => <button key={b.id} style={{borderLeftColor:b.color ?? "#777"}} onClick={() => onSelect(b.id)}>{b.flag} {b.name}<span>{game.properties[b.id].mortgaged ? "Hipotecada" : game.properties[b.id].buildings === 5 ? "Hotel" : game.properties[b.id].buildings ? `${game.properties[b.id].buildings} casas` : ""}</span></button>)}
+      {!properties.length && <small>Tu primera escala te espera.</small>}
+    </div>
+    {properties.length>4 && <div className="row"><button disabled={!visiblePage} onClick={()=>setPropertyPage(visiblePage-1)}>←</button><small>{visiblePage+1} / {Math.ceil(properties.length/4)}</small><button disabled={(visiblePage+1)*4>=properties.length} onClick={()=>setPropertyPage(visiblePage+1)}>→</button></div>}
+    <small className="bank-stock">Banco · {stock.houses} casas · {stock.hotels} hoteles disponibles</small>
+  </>;
+}
+````
+
+## src/presentation/organisms/RoomHeader.tsx
+
+````tsx
+"use client";
+import Link from "next/link";
+import { useState, type ReactNode } from "react";
+import Button from "../atoms/Button";
+export default function RoomHeader({ id, controls }: { id: string; controls: ReactNode }) {
+  const [notice, setNotice] = useState("");
+  const copy = async (value: string) => {
+    try {
+      await navigator.clipboard.writeText(value);
+      setNotice("Copiado. Ya puedes invitar a tus amigos.");
+    } catch {
+      setNotice(`Copia este dato: ${value}`);
+    }
+  };
+  return <>
+      <header className="room-header">
+        <Link href="/" className="brand">
+          ✈ RUMBO MUNDIAL
+        </Link>
+        <div className="room-code">
+          <span>
+            SALA <b>{id}</b>
+          </span>
+          <Button onClick={() => void copy(id)}>Copiar ID</Button>
+          <Button
+            onClick={() => void copy(`${window.location.origin}/sala/${id}`)}
+          >
+            Copiar link
+          </Button>
+        </div>
+        <div className="room-audio-controls">
+          {controls}
+        </div>
+      </header>
+      {notice && (
+        <p role="status" className="notice">
+          {notice}
+        </p>
+      )}
+  </>;
+}
+````
+
+## src/presentation/organisms/TradeModal.tsx
+
+````tsx
+"use client";
+import { BOARD } from "@/domain/game/board";
+import { group } from "@/domain/game/rules";
+import type { Action, Game, Player } from "@/domain/game/types";
+import { useState } from "react";
+import Button from "../atoms/Button";
+import Input from "../atoms/Input";
+import Dialog from "../molecules/Dialog";
+export default function TradeModal({
+  game,
+  me,
+  onClose,
+  send,
+  error,
+  suspended = false,
+}: {
+  game: Game;
+  me: Player;
+  error?: string;
+  suspended?: boolean;
+  onClose: () => void;
+  send: (a: Action) => Promise<boolean>;
+}) {
+  const others = game.players.filter((p) => p.id !== me.id && !p.bankrupt && !(p.jailed && p.detention === "prison"));
+  const [to, setTo] = useState(others[0]?.id ?? "");
+  const [give, setGive] = useState<number[]>([]);
+  const [take, setTake] = useState<number[]>([]);
+  const [gm, setGm] = useState(0);
+  const [tm, setTm] = useState(0);
+  const [busy, setBusy] = useState(false);
+  const properties = (owner: string) =>
+    BOARD.filter(
+      (b) =>
+        game.properties[b.id]?.owner === owner &&
+        !game.properties[b.id].buildings &&
+        !group(b.id).some((x) => game.properties[x.id].buildings),
+    );
+  return (
+    <Dialog aria-label="Hagamos un trato" suspended={suspended} onDismiss={onClose}   className="trade-modal">
+      <form
+        onSubmit={async (e) => {
+          e.preventDefault();
+          setBusy(true);
+          if (
+            await send({
+              type: "trade",
+              to,
+              give,
+              take,
+              giveMoney: gm,
+              takeMoney: tm,
+            })
+          )
+            onClose();
+          setBusy(false);
+        }}
+      >
+        <div className="row">
+          <h2>Hagamos un trato</h2>
+          <Button type="button" onClick={onClose} aria-label="Cerrar">
+            ×
+          </Button>
+        </div>
+        {error && <p className="error" role="alert">{error}</p>}
+        <label>
+          Negociar con
+          <select
+            value={to}
+            onChange={(e) => {
+              setTo(e.target.value);
+              setTake([]);
+            }}
+          >
+            {others.map((p) => (
+              <option key={p.id} value={p.id}>
+                {p.name}
+              </option>
+            ))}
+          </select>
+        </label>
+        <div className="trade-columns">
+          {[
+            {
+              title: "Tú ofreces",
+              owner: me.id,
+              selected: give,
+              set: setGive,
+              money: gm,
+              setMoney: setGm,
+            },
+            {
+              title: "Tú pides",
+              owner: to,
+              selected: take,
+              set: setTake,
+              money: tm,
+              setMoney: setTm,
+            },
+          ].map((side) => (
+            <fieldset key={side.title}>
+              <legend>{side.title}</legend>
+              <label>
+                Dinero
+                <Input
+                  type="number"
+                  min={0}
+                  max={
+                    game.players.find((p) => p.id === side.owner)?.money ?? 0
+                  }
+                  value={side.money}
+                  onChange={(e) => side.setMoney(Number(e.target.value))}
+                />
+              </label>
+              {properties(side.owner).map((b) => (
+                <label key={b.id} className="checkbox">
+                  <Input
+                    type="checkbox"
+                    checked={side.selected.includes(b.id)}
+                    onChange={(e) =>
+                      side.set(
+                        e.target.checked
+                          ? [...side.selected, b.id]
+                          : side.selected.filter((id) => id !== b.id),
+                      )
+                    }
+                  />
+                  {b.name}
+                  {game.properties[b.id].mortgaged ? " (hipotecada)" : ""}
+                </label>
+              ))}
+            </fieldset>
+          ))}
+        </div>
+        <p>
+          Solo propiedades de grupos sin edificios. Las hipotecas se transfieren
+          y conservan su costo de liberación.
+        </p>
+        <Button type="submit" className="primary" disabled={busy || !to}>
+          Enviar propuesta
+        </Button>
+      </form>
+    </Dialog>
+  );
+}
+````
+
+## src/presentation/organisms/TradeOffers.tsx
+
+````tsx
+import { BOARD } from "@/domain/game/board";
+import type { Action, Game } from "@/domain/game/types";
+import Button from "../atoms/Button";
+export default function TradeOffers({ game, playerId, busy, send }: { game: Game; playerId: string | null; busy: boolean; send: (action: Action) => Promise<boolean> }) {
+  return <>
+              {game.trades
+                .filter((t) => t.to === playerId || t.from === playerId)
+                .map((t) => (
+                  <section className="panel trade-scene" key={t.id}>
+                    <h2>Propuesta de trato</h2>
+                    <p>
+                      {game.players.find((p) => p.id === t.from)?.name} ofrece $
+                      {t.giveMoney} y{" "}
+                      {t.give.map((i) => BOARD[i].name).join(", ") ||
+                        "ninguna propiedad"}
+                      .
+                    </p>
+                    <p>
+                      Pide ${t.takeMoney} y{" "}
+                      {t.take.map((i) => BOARD[i].name).join(", ") ||
+                        "ninguna propiedad"}
+                      .
+                    </p>
+                    {t.to === playerId && (
+                      <Button
+                        className="primary"
+                        disabled={busy || !!game.debt}
+                        onClick={() =>
+                          void send({ type: "accept", trade: t.id })
+                        }
+                      >
+                        Aceptar trato
+                      </Button>
+                    )}
+                    <Button
+                      disabled={busy}
+                      onClick={() => void send({ type: "reject", trade: t.id })}
+                    >
+                      {t.from === playerId ? "Cancelar" : "Rechazar"}
+                    </Button>
+                  </section>
+                ))}
+  </>;
+}
+````
+
+## src/presentation/organisms/TurnStatus.tsx
+
+````tsx
+import type { Game } from "@/domain/game/types";
+import PlayerMarker from "../atoms/PlayerMarker";
+export default function TurnStatus({ game, now }: { game: Game; now: number }) {
+  const seconds = game.endsAt
+    ? Math.max(0, Math.ceil((game.endsAt - now) / 1000))
+    : null;
+  const rollSeconds = game.status === "playing" && (game.opening || game.phase === "roll") && !game.debt && !game.auction && !game.choice && !game.detentionDecision
+    ? Math.min(20, Math.max(0, Math.ceil(((game.rollDeadline ?? game.turnAt + 20000) - now) / 1000))) : null;
+  return (
+          <div className="status-strip">
+            <span>
+              <PlayerMarker color={game.players[game.turn].color} className="" />
+              Turno de <b>{game.players[game.turn].name}</b>
+            </span>
+            {seconds !== null && (
+              <span>
+                Tiempo: {Math.floor(seconds / 60)}:
+                {String(seconds % 60).padStart(2, "0")}
+              </span>
+            )}
+            {rollSeconds !== null && <span className={`roll-countdown ${rollSeconds <= 5 ? "urgent" : ""}`} role="timer">{rollSeconds ? `${rollSeconds} s para tirar` : "Cambiando turno…"}</span>}
+            <span>Viaje compartido · {game.players.filter((p) => !p.bankrupt).length} en juego</span>
+          </div>
+  );
+}
+````
+
+## src/presentation/organisms/Victory.tsx
+
+````tsx
+"use client";
+
+import { cash } from "@/domain/game/board";
+import { ranking } from "@/domain/game/rules";
+import type { Game } from "@/domain/game/types";
+import Link from "next/link";
+import { useEffect, useRef, type CSSProperties } from "react";
+
+const CONFETTI_COLORS = ["#f6c85b", "#eb8267", "#63cebd", "#83b8ff", "#d9a1ee"];
+
+export default function Victory({ game, onClose, muted, onMute }: {
+  game: Game;
+  onClose: () => void;
+  muted: boolean;
+  onMute: () => void;
+}) {
+  const dialog = useRef<HTMLDialogElement>(null);
+  const results = ranking(game);
+  const winners = game.players.filter((player) => game.winner.includes(player.id));
+  useEffect(() => { dialog.current?.showModal(); }, []);
+  return (
+    <dialog ref={dialog} className="victory-celebration" onCancel={onClose} aria-labelledby="victory-title">
+      <div className="victory-confetti" aria-hidden="true">
+        {Array.from({ length: 42 }, (_, i) => <span key={i} style={{
+          left: `${(i * 29) % 100}%`, background: CONFETTI_COLORS[i % CONFETTI_COLORS.length],
+          animationDelay: `${(i % 9) * 0.11}s`, animationDuration: `${3.5 + (i % 5) * 0.3}s`,
+          "--confetti-drift": `${((i * 37) % 150) - 75}px`,
+          borderRadius: i % 3 ? "2px" : "50%",
+        } as CSSProperties} />)}
+      </div>
+      <header className="victory-heading">
+        <span className="victory-trophy" aria-hidden="true">🏆</span>
+        <p className="eyebrow">{winners.length ? `EL MUNDO TIENE ${winners.length > 1 ? "CAMPEONES" : "CAMPEÓN"}` : "VIAJE COMPLETADO"}</p>
+        <h1 id="victory-title">{winners.length ? winners.map((player) => player.name).join(" y ") : "Un viaje inolvidable"}</h1>
+        <p>{winners.length > 1 ? "¡Victoria compartida!" : winners.length ? "¡La victoria es tuya!" : "La partida ha terminado."}</p>
+      </header>
+      <div className="victory-podium" aria-label="Podio de la partida">
+        {[2, 1, 3].map((place) => {
+          const occupants = results.filter((entry) => entry.place === place);
+          return <div key={place} className={`podium-group podium-rank-${place}`}>
+            {!!occupants.length && <>
+              <div className="podium-travelers">
+                {occupants.map(({ player }) => <div key={player.id}>
+                  <span className="podium-avatar" style={{ background: player.color }} aria-hidden="true">✈</span>
+                  <strong>{player.name}</strong>
+                </div>)}
+              </div>
+              <div className="podium-step"><span aria-hidden="true">{place === 1 ? "🥇" : place === 2 ? "🥈" : "🥉"}</span><b>{place}º</b></div>
+            </>}
+          </div>;
+        })}
+      </div>
+      <ol className="victory-results" aria-label="Clasificación final por patrimonio y eliminación">
+        {results.map(({ player, place, score }) => <li key={player.id} className={game.winner.includes(player.id) ? "champion" : ""}>
+          <b className="result-place">{place}º</b>
+          <i className="player-dot" style={{ background: player.color }} aria-hidden="true" />
+          <div><strong>{player.name}</strong><small>{player.bankrupt ? "Eliminado" : "Patrimonio neto"}</small></div>
+          <span>{cash(score)}</span>
+        </li>)}
+      </ol>
+      <footer className="victory-actions">
+        <button onClick={onClose} autoFocus>Ver tablero</button>
+        <Link href="/">Organizar revancha ↗</Link>
+        <button onClick={onMute}>{muted ? "Activar audio" : "Silenciar todo"}</button>
+      </footer>
+    </dialog>
+  );
+}
+````
+
+## src/presentation/organisms/VoiceChat.tsx
+
+````tsx
+"use client";
+import Button from "../atoms/Button";
+
+import type { Player } from "@/domain/game/types";
+import { useRef } from "react";
+import PlayerMarker from "../atoms/PlayerMarker";
+import { useVoiceChat } from "../hooks/useVoiceChat";
+import VolumeControl from "../molecules/VolumeControl";
+
+export default function VoiceChat({ room, token, playerId, players, masterMuted, onEnableAudio }: {
+  room: string; token: string; playerId: string; players: Player[];
+  masterMuted: boolean; onEnableAudio: () => void;
+}) {
+  const details = useRef<HTMLDetailsElement>(null);
+  const { view, volume, silent, failed, join, leave, toggleMicrophone, changeVolume, resumePlayback } = useVoiceChat({ room, token, playerId, masterMuted, onEnableAudio });
+  return (
+    <details className="voice-controls" ref={details} onKeyDown={(event) => {
+      if (event.key === "Escape" && details.current) {
+        details.current.open = false;details.current.querySelector("summary")?.focus();
+      }
+    }}>
+      <summary className={view.phase === "joined" && !silent ? "mic-live" : ""}>
+        <span aria-hidden="true">🎙</span> {view.phase === "joining" ? "Conectando…" : view.phase === "joined" ? silent ? "Mic. silenciado" : "Mic. encendido" : "Chat de voz"}
+      </summary>
+      <section className="voice-popover" aria-label="Voz de la sala">
+        <div className="row"><strong>Habla con tus amigos</strong><Button aria-label="Cerrar controles de voz" onClick={() => { if (details.current) details.current.open = false; }}>×</Button></div>
+        {view.phase === "off" ? <>
+          <p>Activa el micrófono para entrar a la conversación. No se graba el audio.</p>
+          <Button className="primary" onClick={join}>Activar micrófono y entrar</Button>
+        </> : view.phase === "joining" ? <>
+          <p role="status">Esperando permiso del micrófono y conectando…</p>
+          <Button onClick={leave}>Cancelar</Button>
+        </> : <>
+          <Button className={silent ? "primary" : "voice-mute"} onClick={toggleMicrophone}>{silent ? "Encender mi micrófono" : "Silenciar mi micrófono"}</Button>
+          <VolumeControl label="Volumen de voces" value={volume} onChange={changeVolume} />
+          {masterMuted && <p>«Silenciar todo» está activo: no envías ni escuchas voz. <Button onClick={onEnableAudio}>Activar sonido</Button></p>}
+          <ul className="voice-members" aria-label="Participantes en la conversación">
+            {view.members.map((member) => {
+              const player = players.find((p) => p.id === member.playerId);
+              const own = member.playerId === playerId;
+              const status = view.connections[member.playerId];
+              return <li key={member.playerId}>
+                <PlayerMarker color={player?.color} />
+                <span>{player?.name ?? "Viajero"}{own ? " (tú)" : ""}</span>
+                <small>{own ? silent ? "Silenciado" : "Micrófono activo" : status === "failed" ? "Sin conexión" : status === "connected" ? member.muted ? "Silenciado" : "En línea" : "Conectando…"}</small>
+              </li>;
+            })}
+          </ul>
+          {view.members.length < 2 && <p>Ya estás dentro. Esperando a que tus amigos activen el chat de voz.</p>}
+          {view.playbackBlocked && <Button className="primary" onClick={resumePlayback}>Tocar para escuchar voces</Button>}
+          {failed && <p role="status">No se pudo conectar con algún viajero. Prueba otra red o reconecta. Algunas redes necesitan el respaldo TURN.</p>}
+          <div className="voice-buttons"><Button onClick={join}>Reconectar</Button><Button onClick={leave}>Salir de la voz</Button></div>
+        </>}
+        {view.error && <p role="status" className="voice-error">{view.error}</p>}
+        <small>Usa audífonos para evitar eco. La voz se desconecta al ocultar la pestaña y nunca activa el micrófono sola al refrescar.</small>
+      </section>
+    </details>
+  );
+}
+````
+
+## src/presentation/organisms/Wallet.tsx
+
+````tsx
+import { DENOMINATIONS, wallet } from "@/domain/game/money";
+import type { Player } from "@/domain/game/types";
+import { Banknote } from "../atoms/Banknote";
+export default function Wallet({ player }: { player: Player }) {
+  const bills = wallet(player);
+  return <div className="wallet" aria-label="Mi mano de billetes"><div className="wallet-summary">{DENOMINATIONS.filter((value) => bills[value]).map((value) => <span key={value}><Banknote value={value} compact /><b>× {bills[value]}</b></span>)}</div></div>;
+}
+````
+
+## src/presentation/pages/Home.tsx
+
+````tsx
+import { Globe } from "@/presentation/atoms/Globe";
+import EntryForm from "@/presentation/organisms/EntryForm";
+
+
+export default function Home() {
+  return (
+    <main className="home">
+      <header className="brand">
+        ✈ RUMBO MUNDIAL <span>EDICIÓN ENTRE AMIGOS</span>
+      </header>
+      <div className="home-grid">
+        <section className="hero">
+          <p className="eyebrow">PASE DE ABORDAR / SIN SALIR DE CASA</p>
+          <h1 className="home-title">
+            Rumbo mundial
+            <br />
+            online<span>.</span>
+          </h1>
+          <p>
+            Juega con tus amigos en Rumbo Mundial, un juego de mesa multijugador
+            para 2 a 6 personas. Compra países, construye casas y hoteles y negocia
+            desde tu celular o computadora, sin descargar nada.
+          </p>
+          <Globe className="hero-globe" />
+          <div className="route-art" aria-hidden="true">
+            <span>MEX</span>
+            <i>✈</i>
+            <span>EL MUNDO</span>
+          </div>
+          <div className="facts">
+            <div>
+              <b>40</b>
+              <small>destinos y sorpresas</small>
+            </div>
+            <div>
+              <b>2–6</b>
+              <small>viajeros por sala</small>
+            </div>
+            <div>
+              <b>∞</b>
+              <small>ganas de revancha</small>
+            </div>
+          </div>
+        </section>
+        <EntryForm />
+      </div>
+      <section className="home-help" aria-label="Cómo jugar con amigos">
+        <details>
+          <summary>¿Cómo jugar turista mundial online con amigos?</summary>
+          <p>
+            Crea una sala con tu nombre y color de ficha, y comparte el ID o el
+            enlace. Tus amigos pueden entrar desde su navegador. Cuando haya de
+            2 a 6 jugadores, el anfitrión inicia la partida. El banco automático
+            administra compras, rentas y pagos.
+          </p>
+        </details>
+        <details>
+          <summary>¿Necesito una cuenta o instalar una aplicación?</summary>
+          <p>
+            No necesitas registrarte ni instalar una aplicación. Solo una conexión
+            a internet y un navegador en tu celular, tableta o computadora. Puedes
+            refrescar la página y recuperar tu lugar desde el mismo navegador,
+            mientras conserves sus datos y la sala siga disponible.
+          </p>
+        </details>
+        <details>
+          <summary>¿Es la versión oficial de Fotorama?</summary>
+          <p>
+            No. Rumbo Mundial es una adaptación independiente con ilustraciones y
+            textos propios; no está afiliada a Fotorama. Incluye países, aerolíneas,
+            casas, hoteles, cartas E-Mail y SMS, subastas y tratos entre jugadores.
+          </p>
+        </details>
+      </section>
+      <footer>
+        Rumbo Mundial · Un viaje entre amigos. Ilustraciones y textos originales.
+      </footer>
+    </main>
+  );
+}
+````
+
+## src/presentation/pages/Room.tsx
+
+````tsx
+"use client";
+import { BOARD } from "@/domain/game/board";
+import type { Action } from "@/domain/game/types";
+import { useGameAudio } from "@/presentation/hooks/useGameAudio";
+import { useGamePlayback } from "@/presentation/hooks/useGamePlayback";
+import Link from "next/link";
+import { useEffect, useState } from "react";
+import MobileTurnBar from "../molecules/MobileTurnBar";
+import AudioControls from "../organisms/AudioControls";
+import Board from "../organisms/Board";
+import PlayerPanel from "../organisms/PlayerPanel";
+import PropertyDialog from "../organisms/PropertyDialog";
+import TradeModal from "../organisms/TradeModal";
+import Victory from "../organisms/Victory";
+import VoiceChat from "../organisms/VoiceChat";
+
+import { useRoomActions } from "../hooks/useRoomActions";
+import { useRoomSession } from "../hooks/useRoomSession";
+import Activity from "../organisms/Activity";
+import Lobby from "../organisms/Lobby";
+import PaymentModal from "../organisms/PaymentModal";
+import PlayerRoster from "../organisms/PlayerRoster";
+import RoomHeader from "../organisms/RoomHeader";
+import TradeOffers from "../organisms/TradeOffers";
+import TurnStatus from "../organisms/TurnStatus";
+import Wallet from "../organisms/Wallet";
+import RoomLayout from "../templates/RoomLayout";
+
+export default function Room({ id }: { id: string }) {
+  const { game, token, playerId, error, connectionError, busy, missing, inactive, now, commit: submit } = useRoomSession(id);
+  const [selected, setSelected] = useState(0);
+  const [propertyOpen, setPropertyOpen] = useState(false);
+  const [sideOpen, setSideOpen] = useState(false);
+  const [rosterOpen, setRosterOpen] = useState(false);
+  const [resultsDismissed, setResultsDismissed] = useState(false);
+  const [tradeOpen, setTradeOpen] = useState(false);
+  const audio = useGameAudio(game, playerId);
+  const playback = useGamePlayback(game);
+  const commit = async (action: Action) => {
+    const accepted = await submit(action);
+    if (accepted && (action.type === "decline" || action.type === "fold")) setSideOpen(false);
+    return accepted;
+  };
+  const { payment, closePayment, send } = useRoomActions(game, playerId, playback.busy, commit);
+  const selectProperty = (square: number) => { setSelected(square); setPropertyOpen(true); };
+  useEffect(() => {
+    if (!game || !playerId) return;
+    if ((game.phase === "buy" && game.players[game.turn].id === playerId) ||
+        game.debt?.payer === playerId || game.trades.some((t) => t.to === playerId)) setSideOpen(true);
+  }, [game?.phase, game?.debt?.payer, game?.trades, game?.turn, playerId, game]);
+  if (missing)
+    return (
+      <main className="empty panel">
+        <h1>Sala no encontrada</h1>
+        <p>Revisa el ID. Las salas vencen después de 24 horas sin acciones.</p>
+        <Link href="/">Volver al inicio</Link>
+      </main>
+    );
+  if (!game)
+    return (
+      <main className="empty panel">
+        <h1>Preparando tu viaje…</h1>
+        <p role="status">{error || connectionError || "Conectando con la sala."}</p>
+        <Link href="/">Volver al inicio</Link>
+      </main>
+    );
+  const me = game.players.find((p) => p.id === playerId),
+    host = playerId === game.host;
+  return (
+    <RoomLayout playing={game.status !== "lobby"} sideOpen={sideOpen} rosterOpen={rosterOpen} presenting={playback.busy}>
+      <RoomHeader id={id} controls={<><AudioControls audio={audio} />{me && token && <VoiceChat room={id} token={token} playerId={me.id} players={game.players} masterMuted={audio.preferences.muted} onEnableAudio={() => audio.change({ muted: false })} />}</>} />
+      {(error || connectionError) && (
+        <p role="alert" className="error">
+          {error || connectionError}
+        </p>
+      )}
+      {game.status === "finished" && !playback.busy && !resultsDismissed && (
+        <Victory game={game} onClose={() => setResultsDismissed(true)} muted={audio.preferences.muted} onMute={() => audio.change({ muted: !audio.preferences.muted })} />
+      )}
+      {game.status === "lobby" ? (
+        <Lobby id={id} game={game} me={me} token={token} busy={busy} send={send} />
+      ) : (
+        <>
+          <TurnStatus game={game} now={now} />
+          {me && game.status === "playing" && (
+            <MobileTurnBar
+              animating={playback.busy}
+              position={playback.positions[me.id]}
+              game={game}
+              me={me}
+              busy={busy || playback.busy}
+              send={(action) => void send(action)}
+              onOptions={() => { setSideOpen(true); setRosterOpen(false); }}
+            />
+          )}
+          {game.status === "playing" && game.phase === "buy" && !game.auction && !game.debt && me?.id !== game.players[game.turn].id && <div className="buy-scene spectator-decision"><p className="eyebrow">DECISIÓN EN CURSO</p><h2>{game.players[game.turn].name} llegó a {BOARD[game.players[game.turn].position].name}</h2><p>Está decidiendo si compra la propiedad o la envía a subasta.</p></div>}
+          <div className="table-toolbar">
+            <nav className="table-tools" aria-label="Paneles de la mesa">
+              {game.status === "finished" && <button onClick={() => setResultsDismissed(false)}>🏆 Resultados</button>}
+              <button aria-expanded={sideOpen} onClick={()=>{setSideOpen(!sideOpen);setRosterOpen(false);}}>✈ Mis opciones</button>
+              <button aria-expanded={rosterOpen} onClick={()=>{setRosterOpen(!rosterOpen);setSideOpen(false);}}>♟ Propiedades</button>
+            </nav>
+            <Activity game={game} event={playback.event} lastRoll={playback.lastRoll} onEvent={audio.playEvent} />
+          </div>
+          <div className="game-layout">
+            <section>
+              <Board game={game} positions={playback.positions} onSelect={selectProperty} />
+              <PlayerRoster game={game} selectProperty={selectProperty} onClose={() => setRosterOpen(false)} />
+
+            </section>
+            <aside aria-label="Panel de jugador"><button className="panel-close" onClick={()=>setSideOpen(false)}>Volver al tablero ×</button>
+              {me && game.status === "playing" && (
+                <PlayerPanel
+                  game={game}
+                  me={me}
+                  busy={busy || playback.busy}
+                  send={(a) => void send(a)}
+                  onTrade={() => setTradeOpen(true)}
+                  onSelect={selectProperty}
+                />
+              )}
+              <TradeOffers game={game} playerId={playerId} busy={busy} send={send} />
+              {host && game.status === "playing" && inactive >= 90000 && (
+                <section className="panel">
+                  <h2>Jugador sin conexión</h2>
+                  <p>Sin responder por más de 90 segundos.</p>
+                  <button
+                    disabled={busy || !!game.debt}
+                    onClick={() => void send({ type: "skip" })}
+                  >
+                    Saltar turno
+                  </button>
+                  <button
+                    disabled={busy}
+                    onClick={() => {
+                      if (
+                        window.confirm(
+                          "¿Declarar en quiebra al jugador inactivo?",
+                        )
+                      )
+                        void send({ type: "expel" });
+                    }}
+                  >
+                    Declarar quiebra
+                  </button>
+                </section>
+              )}
+            </aside>
+          </div>
+        </>
+      )}
+      {me && game.status !== "lobby" && <Wallet player={me} />}
+      {propertyOpen && <PropertyDialog id={selected} game={game} me={me} busy={busy || playback.busy} suspended={playback.busy} send={(a)=>void send(a)} onClose={()=>setPropertyOpen(false)} />}
+      {payment && me && game.status === "playing" && (
+
+        <PaymentModal
+          suspended={playback.busy}
+          player={me}
+          {...payment}
+          error={error}
+          onClose={closePayment}
+          commit={commit}
+        />
+      )}
+      {tradeOpen && me && (
+        <TradeModal
+          suspended={playback.busy}
+          game={game}
+          me={me}
+          error={error}
+          send={send}
+          onClose={() => setTradeOpen(false)}
+        />
+      )}
+    </RoomLayout>
+  );
+}
+````
+
+## src/presentation/services/board-geometry.ts
+
+````typescript
+export function coordinates(id: number): [number, number] {
+  if (id <= 10) return [0, id];
+  if (id <= 20) return [id - 10, 10];
+  if (id <= 30) return [10, 30 - id];
+  return [40 - id, 0];
+}
+````
+
+## src/presentation/services/payment-quote.ts
+
+````typescript
+import { BOARD } from "@/domain/game/board";
+import { buildingBidders, redemptionCost } from "@/domain/game/rules";
+import type { Action, Game } from "@/domain/game/types";
+
+/** UI estimate only. The server validates and charges the submitted action again. */
+export function paymentQuote(s: Game, playerId: string, action: Action): { amount: number; label: string } | null {
+  const p = s.players.find((player) => player.id === playerId);
+  if (!p) return null;
+    let amount = 0,
+      label = "";
+    if (action.type === "buy") {
+      amount = BOARD[p.position].price;
+      label = `Comprar ${BOARD[p.position].name}`;
+    }
+    if (action.type === "settle" && s.debt) {
+      amount = s.debt.amount;
+      label = `Pago a ${s.players.find((x) => x.id === s.debt?.creditor)?.name ?? "el Banco"}`;
+    }
+    if (action.type === "bail") {
+      amount = 5000;
+      label = "Multa para salir de Deportado";
+    }
+    if (action.type === "build") {
+      if (Object.keys(buildingBidders(s, action.square)).length > 1) return null;
+      amount = BOARD[action.square].buildCost;
+      label = `Construir en ${BOARD[action.square].name}`;
+    }
+    if (action.type === "redeem") {
+      amount = redemptionCost(s, action.square);
+      label = `Deshipotecar ${BOARD[action.square].name}`;
+    }
+    if (action.type === "acquire") {
+      const b = BOARD[action.square]; amount = s.properties[b.id].owner ? b.rents[0] : b.price - 1000;
+      label = `Completar bloque con ${b.name}`;
+    }
+  return amount > 0 ? { amount, label } : null;
+}
+````
+
+## src/presentation/services/playback.ts
+
+````typescript
+import { MOVE_SETTLE_MS, MOVE_STEP_MS, eventDuration } from "../../domain/game/presentation";
+import type { Game, GameEvent } from "../../domain/game/types";
+
+export interface PlaybackView {
+  serial: number;
+  positions: Record<string, number>;
+  event: GameEvent | null;
+  lastRoll: GameEvent | null;
+  busy: boolean;
+}
+
+// Una sola cola dirige dados, recorridos y avisos; las reglas siguen en el servidor.
+export class GamePlayback {
+  private latest: Game;
+  private seen: number;
+  private queue: GameEvent[] = [];
+  private timer: ReturnType<typeof setTimeout> | null = null;
+  private visible = true;
+  private disposed = false;
+  private view: PlaybackView;
+
+  constructor(game: Game, private readonly publish: (view: PlaybackView) => void, private reduced = false) {
+    this.latest = game;
+    this.seen = game.eventSerial ?? 0;
+    this.view = { serial: this.seen, positions: this.snapshot(), event: null, lastRoll: this.findLastRoll(), busy: false };
+    this.emit();
+  }
+
+  private snapshot() {
+    return Object.fromEntries(this.latest.players.map((player) => [player.id, player.position]));
+  }
+
+  private findLastRoll() {
+    return [...(this.latest.events ?? [])].reverse().find((event) => event.type === "roll") ?? null;
+  }
+
+  private emit() {
+    if (!this.disposed) this.publish({ ...this.view, positions: { ...this.view.positions } });
+  }
+
+  private clearTimer() {
+    if (this.timer !== null) clearTimeout(this.timer);
+    this.timer = null;
+  }
+
+  private sync() {
+    this.clearTimer();
+    this.queue = [];
+    this.view = { serial: this.seen, positions: this.snapshot(), event: null, lastRoll: this.findLastRoll(), busy: false };
+    this.emit();
+  }
+
+  update(game: Game) {
+    if (this.disposed) return;
+    if (game.id === this.latest.id && game.version < this.latest.version) return;
+    const newRoom = game.id !== this.latest.id;
+    this.latest = game;
+    const events = game.events ?? [];
+    const gap = events.length > 0 && events[0].id > this.seen + 1;
+    const fresh = events.filter((event) => event.id > this.seen);
+    this.seen = game.eventSerial ?? this.seen;
+    this.view.serial = this.seen;
+    if (newRoom || gap || !this.visible || game.status === "lobby") {
+      this.sync();
+      return;
+    }
+    this.queue.push(...fresh);
+    if (!this.view.busy) this.next();
+  }
+
+  private next = () => {
+    this.clearTimer();
+    if (this.disposed) return;
+    const event = this.queue.shift();
+    if (!event) {
+      this.view = { ...this.view, positions: this.snapshot(), event: null, busy: false };
+      this.emit();
+      return;
+    }
+    this.view = { ...this.view, event, busy: true };
+    if (event.type === "roll") this.view.lastRoll = event;
+    if (event.type === "move" && event.player && event.path?.length) {
+      const player = event.player;
+      const path = event.path;
+      if (event.from !== undefined) this.view.positions[player] = event.from;
+      this.emit();
+      let step = 0;
+      const advance = () => {
+        this.view.positions[player] = path[step++];
+        this.emit();
+        this.timer = setTimeout(step < path.length ? advance : this.next, step < path.length ? MOVE_STEP_MS : MOVE_SETTLE_MS);
+      };
+      if (this.reduced || event.teleport) {
+        this.view.positions[player] = path[path.length - 1];
+        this.emit();
+        this.timer = setTimeout(this.next, this.reduced ? 0 : MOVE_SETTLE_MS);
+      } else this.timer = setTimeout(advance, MOVE_STEP_MS);
+      return;
+    }
+    this.emit();
+    const duration = this.reduced && event.type === "roll" ? 900 : eventDuration(event);
+    this.timer = setTimeout(this.next, duration);
+  };
+
+  setVisible(visible: boolean) {
+    this.visible = visible;
+    if (!visible) this.sync();
+  }
+
+  setReducedMotion(reduced: boolean) { this.reduced = reduced; }
+
+  dispose() {
+    this.disposed = true;
+    this.clearTimer();
+    this.queue = [];
+  }
+}
+````
+
+## src/presentation/templates/RoomLayout.tsx
+
+````tsx
+import type { ReactNode } from "react";
+export default function RoomLayout({ playing, sideOpen, rosterOpen, presenting, children }: { playing: boolean; sideOpen: boolean; rosterOpen: boolean; presenting: boolean; children: ReactNode }) {
+  return <main className={`room ${playing ? "table-viewport" : ""} ${sideOpen ? "side-open" : ""} ${rosterOpen ? "roster-open" : ""} ${presenting ? "presentation-playing" : ""}`}>{children}<footer>Reglas y valores adaptados · Selecciona una casilla para conocer sus detalles.</footer></main>;
+}
+````
+
+## src/server/composition.ts
+
+````typescript
+import type { RoomDependencies } from "@/application/rooms/contracts";
+import type { VoiceDependencies } from "@/application/voice/contracts";
+import { iceServers } from "@/infrastructure/config/voice";
+import { roomRepository } from "@/infrastructure/redis/room-repository";
+import { voiceRepository } from "@/infrastructure/redis/voice-repository";
+import { platform } from "@/infrastructure/security/platform";
+// Solo adaptadores sin estado: cada operación lee/escribe Redis.
+export const roomDependencies: RoomDependencies = { rooms: roomRepository, platform };
+export const voiceDependencies: VoiceDependencies = {
+  rooms: roomDependencies, voice: voiceRepository, iceServers,
+  retry: () => new Promise((resolve) => setTimeout(resolve, 15 + platform.randomInt(45))),
+};
+````
+
+## src/server/http/errors.ts
+
+````typescript
+import { OperationError, type FailureCode } from "@/domain/shared/errors";
+const status: Record<FailureCode, number> = { invalid: 400, unauthorized: 401, forbidden: 403, not_found: 404, conflict: 409, gone: 410, unavailable: 503 };
+export class HttpError extends Error { constructor(readonly status: number, message: string) { super(message); } }
+export async function httpCall<T>(operation: () => Promise<T>): Promise<T> {
+  try { return await operation(); } catch (error) {
+    if (error instanceof OperationError) throw new HttpError(status[error.code], error.message);
+    throw error;
+  }
+}
+````
+
+## src/server/http/responses.ts
+
+````typescript
+import { NextResponse } from "next/server";
+import { ZodError } from "zod";
+import { HttpError } from "./errors";
+export async function body(req: Request): Promise<unknown> {
+  const text = await req.text();
+  if (text.length > 16000)
+    throw new HttpError(413, "Solicitud demasiado grande.");
+  try {
+    return JSON.parse(text);
+  } catch {
+    throw new HttpError(400, "JSON inválido.");
+  }
+}
+export async function respond(fn: () => Promise<unknown>) {
+  try {
+    return NextResponse.json(await fn(), {
+      headers: { "Cache-Control": "no-store" },
+    });
+  } catch (e) {
+    const status =
+      e instanceof HttpError ? e.status : e instanceof ZodError ? 400 : 500;
+    const message =
+      e instanceof HttpError
+        ? e.message
+        : e instanceof ZodError
+          ? "Revisa los datos enviados."
+          : "No pudimos conectar con Redis. Intenta nuevamente.";
+    if (status === 500)
+      console.error(
+        "Redis request failed",
+        e instanceof Error ? e.name : "unknown",
+      );
+    return NextResponse.json(
+      { error: message },
+      { status, headers: { "Cache-Control": "no-store" } },
+    );
+  }
+}
+````
+
+## src/server/http/room-controller.ts
+
+````typescript
+import { act as execute } from "@/application/rooms/act";
+import { createRoom as create } from "@/application/rooms/create-room";
+import { getRoom as get } from "@/application/rooms/get-room";
+import { roomIdentity as identify } from "@/application/rooms/identity";
+import { joinRoom as join } from "@/application/rooms/join-room";
+import { roomDependencies } from "../composition";
+import { httpCall } from "./errors";
+import { actionRequestSchema, createRoomSchema, joinRoomSchema, roomId, tokenSchema } from "./room-schemas";
+export const createRoom = (input: unknown) => httpCall(() => create(roomDependencies, createRoomSchema.parse(input)));
+export const joinRoom = (id: string, input: unknown) => httpCall(() => join(roomDependencies, roomId.parse(id), joinRoomSchema.parse(input)));
+export const getRoom = (id: string, token: string | null, heartbeat: boolean) => httpCall(() => get(roomDependencies, roomId.parse(id), token, heartbeat));
+export const act = (id: string, input: unknown) => httpCall(() => execute(roomDependencies, roomId.parse(id), actionRequestSchema.parse(input)));
+export const roomIdentity = (id: string, token: string) => httpCall(() => identify(roomDependencies, roomId.parse(id), tokenSchema.parse(token)));
+````
+
+## src/server/http/room-schemas.ts
+
+````typescript
+import { COLORS, type Action } from "@/domain/game/types";
+import { z } from "zod";
+export const roomId = z
+  .string()
+  .regex(/^[A-HJ-NP-Z2-9]{6}$/, "ID de sala inválido.");
+export const identity = z.object({
+  name: z.string().trim().min(1).max(24),
+  color: z.enum(COLORS as [string, ...string[]]).optional(),
+});
+const square = z.number().int().min(0).max(39);
+const baseActionSchema = z.discriminatedUnion("type", [
+  z.object({
+    type: z.enum([
+      "start",
+      "roll",
+      "buy",
+      "decline",
+      "end",
+      "settle",
+      "bankrupt",
+      "pass",
+      "wait",
+      "stay",
+      "bail",
+      "skip",
+      "expel",
+      "salary",
+      "opening-roll",
+      "fold",
+      "auction-expire",
+    ]),
+  }),
+  z.object({
+    type: z.enum(["build", "sell", "sell-group", "mortgage", "redeem", "return"]),
+    square,
+  }),
+  z.object({
+    type: z.literal("color"),
+    color: z.enum(COLORS as [string, ...string[]]),
+  }),
+  z.object({
+    type: z.literal("trade"),
+    to: z.string().uuid(),
+    give: z.array(square).max(30),
+    take: z.array(square).max(30),
+    giveMoney: z.number().int().nonnegative().max(100000000),
+    takeMoney: z.number().int().nonnegative().max(100000000),
+  }),
+  z.object({ type: z.literal("bid"), amount: z.number().int().positive().max(100000000), square: square.optional() }),
+  z.object({ type: z.literal("collect"), target: z.string().uuid() }),
+  z.object({ type: z.literal("acquire"), square }),
+  z.object({ type: z.literal("accept"), trade: z.string().max(100) }),
+  z.object({ type: z.literal("reject"), trade: z.string().max(100) }),
+  z.object({
+    type: z.literal("change"),
+    denomination: z.number().int().positive(),
+  }),
+]);
+export const actionSchema: z.ZodType<Action> = baseActionSchema.and(
+  z.object({
+    bills: z.record(z.number().int().nonnegative().max(100000000)).optional(),
+  }),
+);
+
+export const createRoomSchema = identity.extend({ duration: z.union([z.literal(0), z.literal(30), z.literal(60), z.literal(90)]).default(0) });
+export const joinRoomSchema = identity.extend({ token: z.string().uuid().optional() });
+export const tokenSchema = z.string().uuid();
+export const actionRequestSchema = z.object({ token: tokenSchema, action: actionSchema, version: z.number().int().positive(), requestId: z.string().uuid() });
+````
+
+## src/server/http/voice-controller.ts
+
+````typescript
+import { getVoice as get } from "@/application/voice/get-voice";
+import { updateVoice as update } from "@/application/voice/update-voice";
+import { voiceDependencies } from "../composition";
+import { httpCall } from "./errors";
+import { roomId, tokenSchema } from "./room-schemas";
+import { voiceCommand } from "./voice-schemas";
+export const getVoice = (room: string, token: string, session: string) => httpCall(() => get(voiceDependencies, roomId.parse(room), tokenSchema.parse(token), tokenSchema.parse(session)));
+export const updateVoice = (room: string, token: string, input: unknown) => httpCall(() => update(voiceDependencies, roomId.parse(room), tokenSchema.parse(token), voiceCommand.parse(input)));
+````
+
+## src/server/http/voice-schemas.ts
 
 ````typescript
 import { z } from "zod";
-import { HttpError, redis, roomIdentity } from "../store";
-import { VOICE_PRESENCE_MS, type VoiceCommand, type VoiceState, type VoiceView } from "./types";
-
 const session = z.string().uuid();
 export const voiceCommand = z.discriminatedUnion("type", [
   z.object({ type: z.literal("join"), session, muted: z.boolean() }),
@@ -14241,125 +15107,26 @@ export const voiceCommand = z.discriminatedUnion("type", [
   }),
 ]);
 
-const key = (room: string) => `turista:voice:${room}`;
-// CAS independiente del juego: las señales nunca cambian dinero, turnos o version.
-const CAS = `local old=redis.call('GET',KEYS[1]); local revision=0; if old then revision=cjson.decode(old).revision end; if revision~=tonumber(ARGV[1]) then return 0 end; redis.call('SET',KEYS[1],ARGV[2],'EX',120); return 1`;
-
-export function cleanVoice(state: VoiceState, players: string[], now: number): VoiceState {
-  const next = structuredClone(state);
-  next.members = Object.fromEntries(Object.entries(next.members).filter(([id, member]) => players.includes(id) && member.seen > now - VOICE_PRESENCE_MS));
-  next.signals = next.signals.filter((signal) => signal.at > now - VOICE_PRESENCE_MS &&
-    next.members[signal.from]?.session === signal.fromSession && next.members[signal.to]?.session === signal.toSession);
-  return next;
-}
-
-export function applyVoice(state: VoiceState, command: VoiceCommand, playerId: string, players: string[], now: number): VoiceState {
-  const next = cleanVoice(state, players, now);
-  if (!players.includes(playerId)) throw new HttpError(403, "No perteneces a esta sala.");
-  if (command.type === "join") {
-    next.members[playerId] = { playerId, session: command.session, muted: command.muted, seen: now };
-  } else if (command.type === "leave") {
-    // Un cierre tardío de otra pestaña no puede expulsar la sesión nueva.
-    if (next.members[playerId]?.session === command.session) delete next.members[playerId];
-  } else {
-    if (next.members[playerId]?.session !== command.session) throw new HttpError(409, "La conexión de voz venció o se abrió en otra pestaña. Vuelve a conectarte.");
-    if (command.type === "heartbeat") {
-      next.members[playerId].seen = now;
-      next.members[playerId].muted = command.muted;
-    } else {
-      if (command.to === playerId || !players.includes(command.to) || next.members[command.to]?.session !== command.toSession) {
-        throw new HttpError(409, "Ese viajero ya no está conectado a la voz.");
-      }
-      const offer = command.description.type === "offer";
-      if ((offer && playerId > command.to) || (!offer && playerId < command.to)) throw new HttpError(400, "Orden de negociación inválido.");
-      const existingOffer = next.signals.find((signal) => signal.description.type === "offer" && signal.from === command.to && signal.to === playerId && signal.connection === command.connection);
-      if (!offer && !existingOffer) throw new HttpError(409, "La llamada cambió. Reconecta la voz.");
-      const duplicate = next.signals.some((signal) => signal.from === playerId && signal.to === command.to && signal.connection === command.connection && signal.description.type === command.description.type);
-      if (!duplicate) {
-        next.signals = next.signals.filter((signal) => offer
-          ? !((signal.from === playerId && signal.to === command.to) || (signal.to === playerId && signal.from === command.to))
-          : !(signal.from === playerId && signal.to === command.to));
-        next.signals.push({ from: playerId, fromSession: command.session, to: command.to, toSession: command.toSession, connection: command.connection, description: command.description, at: now });
-      }
-    }
-  }
-  const cleaned = cleanVoice(next, players, now);
-  cleaned.revision = state.revision + 1;
-  return cleaned;
-}
-
-function iceServers(): RTCIceServer[] {
-  const servers: RTCIceServer[] = [{ urls: "stun:stun.cloudflare.com:3478" }];
-  const urls = (process.env.VOICE_TURN_URLS ?? "").split(",").map((url) => url.trim()).filter((url) => /^turns?:[^\s]+$/.test(url));
-  if (urls.length && process.env.VOICE_TURN_USERNAME && process.env.VOICE_TURN_CREDENTIAL) {
-    servers.push({ urls, username: process.env.VOICE_TURN_USERNAME, credential: process.env.VOICE_TURN_CREDENTIAL });
-  }
-  return servers;
-}
-
-function view(state: VoiceState, playerId: string, ownSession: string): VoiceView {
-  return { members: Object.values(state.members), replaced: state.members[playerId]?.session !== ownSession,
-    signals: state.signals.filter((signal) => signal.to === playerId && signal.toSession === ownSession), iceServers: iceServers() };
-}
-
-export async function getVoice(room: string, token: string, ownSession: string) {
-  session.parse(ownSession);
-  const identity = await roomIdentity(room, token);
-  const state = await redis().get<VoiceState>(key(room)) ?? { revision: 0, members: {}, signals: [] };
-  return view(cleanVoice(state, identity.players, Date.now()), identity.playerId, ownSession);
-}
-
-export async function updateVoice(room: string, token: string, input: unknown) {
-  const command = voiceCommand.parse(input);
-  const identity = await roomIdentity(room, token);
-  for (let attempt = 0; attempt < 12; attempt++) {
-    const old = await redis().get<VoiceState>(key(room)) ?? { revision: 0, members: {}, signals: [] };
-    const next = applyVoice(old, command, identity.playerId, identity.players, Date.now());
-    const saved = await redis().eval(CAS, [key(room)], [old.revision, JSON.stringify(next)]);
-    if (saved === 1) return view(next, identity.playerId, command.session);
-    // Evita que los quince enlaces de una sala de seis entren en la misma carrera.
-    await new Promise((resolve) => setTimeout(resolve, 15 + Math.floor(Math.random() * 45)));
-  }
-  throw new HttpError(409, "La voz está conectando a otros viajeros. Intenta de nuevo.");
-}
 ````
 
-## lib/voice/types.ts
+## src/server/site.ts
 
 ````typescript
-export interface VoiceMember {
-  playerId: string;
-  session: string;
-  muted: boolean;
-  seen: number;
+const configuredUrl = new URL(
+  process.env.SITE_URL || "https://rumbo-mundial-khaki.vercel.app",
+);
+if (!['https:', 'http:'].includes(configuredUrl.protocol)) {
+  throw new Error("SITE_URL debe ser una URL pública con https:// o http://.");
 }
-export interface VoiceSignal {
-  from: string;
-  fromSession: string;
-  to: string;
-  toSession: string;
-  connection: string;
-  description: { type: "offer" | "answer"; sdp: string };
-  at: number;
-}
-export interface VoiceState {
-  revision: number;
-  members: Record<string, VoiceMember>;
-  signals: VoiceSignal[];
-}
-export interface VoiceView {
-  members: VoiceMember[];
-  signals: VoiceSignal[];
-  replaced: boolean;
-  iceServers: RTCIceServer[];
-}
-export type VoiceCommand =
-  | { type: "join"; session: string; muted: boolean }
-  | { type: "heartbeat"; session: string; muted: boolean }
-  | { type: "leave"; session: string }
-  | { type: "signal"; session: string; to: string; toSession: string; connection: string; description: VoiceSignal["description"] };
 
-export const VOICE_PRESENCE_MS = 45_000;
+export const siteUrl = new URL(configuredUrl.origin);
+export const indexable =
+  process.env.VERCEL_ENV !== "preview" &&
+  process.env.VERCEL_ENV !== "development" &&
+  process.env.NODE_ENV !== "development";
+export const siteTitle = "Rumbo mundial online con amigos | Rumbo Mundial";
+export const siteDescription =
+  "Juega turista mundial online con amigos en Rumbo Mundial: de 2 a 6 jugadores, países, casas, hoteles y tratos. Crea una sala y comparte el enlace, sin descargar nada.";
 ````
 
 ## tests/api-smoke.mjs
@@ -14423,11 +15190,47 @@ console.log(
 );
 ````
 
+## tests/architecture.test.mjs
+
+````javascript
+import { expect, it } from "vitest";
+import { mkdtempSync, mkdirSync, writeFileSync, rmSync } from "node:fs";
+import { tmpdir } from "node:os";
+import path from "node:path";
+import { checkArchitecture } from "../scripts/check-architecture.mjs";
+
+it("mantiene las capas, la jerarquía atómica y un grafo sin ciclos", () => {
+  expect(checkArchitecture().errors).toEqual([]);
+});
+it("detecta fugas de Redis, efectos externos y dependencias inversas", () => {
+  const dir = mkdtempSync(path.join(tmpdir(), "rumbo-boundaries-"));
+  const files = {
+    "domain/rules.ts": 'import { Redis } from "@upstash/redis"; export const now = Date.now();',
+    "application/example.ts": 'import "@/infrastructure/redis/client";',
+    "infrastructure/redis/client.ts": 'export const client = {};',
+    "presentation/atoms/Button.tsx": 'import "../organisms/Board";',
+    "presentation/organisms/Board.tsx": 'import "../atoms/Button";',
+  };
+  try {
+    for (const [file, content] of Object.entries(files)) {
+      const target = path.join(dir, "src", file);
+      mkdirSync(path.dirname(target), { recursive: true }); writeFileSync(target, content);
+    }
+    const errors = checkArchitecture(dir).errors.join("\n");
+    expect(errors).toContain("dependencia externa @upstash/redis");
+    expect(errors).toContain("el reloj y la aleatoriedad deben inyectarse");
+    expect(errors).toContain("application → infrastructure");
+    expect(errors).toContain("jerarquía atómica invertida atoms → organisms");
+    expect(errors).toContain("ciclo");
+  } finally { rmSync(dir, { recursive: true, force: true }); }
+});
+````
+
 ## tests/audio.test.ts
 
 ````typescript
 import { afterEach, expect, it, vi } from "vitest";
-import { audioPreferences, DEFAULT_AUDIO, GameAudio } from "../lib/audio";
+import { audioPreferences, DEFAULT_AUDIO, GameAudio } from "../src/infrastructure/browser/audio";
 
 function audioContext() {
   const parameter = () => ({ value: 0, setTargetAtTime: vi.fn(), setValueAtTime: vi.fn(), linearRampToValueAtTime: vi.fn(), exponentialRampToValueAtTime: vi.fn() });
@@ -14511,8 +15314,11 @@ it("ocultar la pestaña suspende audio y limpiar el componente cancela los recur
 
 ````typescript
 import { expect, it } from "vitest";
-import { engine, finishByTime, newGame, newPlayer } from "../lib/game/engine";
-import { auctionMinimum } from "../lib/game/rules";
+import { engine } from "../src/domain/game/engine";
+import { finishByTime } from "../src/domain/game/timing";
+import { newGame } from "../src/domain/game/factory";
+import { newPlayer } from "../src/domain/game/factory";
+import { auctionMinimum } from "../src/domain/game/rules";
 import { game, go, ctx } from "./helpers";
 
 it("el servidor salta la tirada vencida a los 20 segundos, sin mover la ficha", () => {
@@ -14600,11 +15406,12 @@ it("subastas empiezan cerca del valor impreso y el servidor rechaza ofertas baja
 
 ````typescript
 import { describe, expect, it } from "vitest";
-import { engine, finishByTime } from "../lib/game/engine";
-import { BOARD, INITIAL_MONEY, SALARY } from "../lib/game/board";
-import { CARDS } from "../lib/game/cards";
-import { assetError, bankStock, rent, redemptionCost } from "../lib/game/rules";
-import { totalBills, wallet } from "../lib/game/money";
+import { engine } from "../src/domain/game/engine";
+import { finishByTime } from "../src/domain/game/timing";
+import { BOARD, INITIAL_MONEY, SALARY } from "../src/domain/game/board";
+import { CARDS } from "../src/domain/game/cards";
+import { assetError, bankStock, rent, redemptionCost } from "../src/domain/game/rules";
+import { totalBills, wallet } from "../src/domain/game/money";
 import { game, go, ctx } from "./helpers";
 
 describe("Tablero de referencia y reglas", () => {
@@ -14777,12 +15584,44 @@ describe("Tablero de referencia y reglas", () => {
 });
 ````
 
+## tests/forms.test.tsx
+
+````tsx
+import { expect, it, vi } from "vitest";
+import { renderToStaticMarkup } from "react-dom/server";
+import EntryForm from "../src/presentation/organisms/EntryForm";
+import PaymentModal from "../src/presentation/organisms/PaymentModal";
+import TradeModal from "../src/presentation/organisms/TradeModal";
+import { game } from "./helpers";
+
+vi.mock("next/navigation", () => ({ useRouter: () => ({ push: vi.fn() }) }));
+const commit = async () => true;
+const close = () => {};
+
+it("conserva un envío explícito por formulario al reutilizar Button", () => {
+  const state = game();
+  const forms = [
+    <EntryForm key="entry" />,
+    <PaymentModal key="payment" player={state.players[0]} amount={5000} label="Pago" action={{ type: "settle" }} onClose={close} commit={commit} />,
+    <TradeModal key="trade" game={state} me={state.players[0]} onClose={close} send={commit} />,
+  ];
+  for (const form of forms) {
+    const html = renderToStaticMarkup(form);
+    const buttons = html.match(/<button\b[^>]*>/g) ?? [];
+    expect(buttons.filter((button) => button.includes('type="submit"'))).toHaveLength(1);
+    expect(buttons.every((button) => /type="(button|submit)"/.test(button))).toBe(true);
+  }
+});
+````
+
 ## tests/helpers.ts
 
 ````typescript
-import { engine, newGame, newPlayer } from "../lib/game/engine";
-import { CARDS } from "../lib/game/cards";
-import type { Action, Context, Game } from "../lib/game/types";
+import { engine } from "../src/domain/game/engine";
+import { newGame } from "../src/domain/game/factory";
+import { newPlayer } from "../src/domain/game/factory";
+import { CARDS } from "../src/domain/game/cards";
+import type { Action, Context, Game } from "../src/domain/game/types";
 export const ctx: Context = {now:1000,dice:[1,2],shuffled:{email:CARDS.email.map((_,i)=>i),sms:CARDS.sms.map((_,i)=>i)}};
 export const go = (s:Game,a:Action,dice:[number,number]=[1,2],who="a")=>engine(s,a,who,{...ctx,dice});
 export function game(count=2) {
@@ -14798,8 +15637,8 @@ export function game(count=2) {
 
 ````typescript
 import { afterEach, expect, it, vi } from "vitest";
-import { GamePlayback, type PlaybackView } from "../lib/game/playback";
-import { eventDuration } from "../lib/game/presentation";
+import { GamePlayback, type PlaybackView } from "../src/presentation/services/playback";
+import { eventDuration } from "../src/domain/game/presentation";
 import { game, go } from "./helpers";
 
 afterEach(() => vi.useRealTimers());
@@ -14892,12 +15731,15 @@ it("movimiento reducido omite pasos pero conserva el orden y limpia temporizador
 ````typescript
 import { expect, it } from "vitest";
 import { game, go, ctx } from "./helpers";
-import { engine, newGame, newPlayer, finishByTime } from "../lib/game/engine";
-import { BOARD } from "../lib/game/board";
-import { assetError, ranking } from "../lib/game/rules";
-import { exchange, pay, totalBills, wallet } from "../lib/game/money";
-import { shuffleDeck } from "../lib/game/shuffle";
-import type { Action } from "../lib/game/types";
+import { engine } from "../src/domain/game/engine";
+import { newGame } from "../src/domain/game/factory";
+import { newPlayer } from "../src/domain/game/factory";
+import { finishByTime } from "../src/domain/game/timing";
+import { BOARD } from "../src/domain/game/board";
+import { assetError, ranking } from "../src/domain/game/rules";
+import { exchange, pay, totalBills, wallet } from "../src/domain/game/money";
+import { shuffleDeck } from "../src/domain/game/shuffle";
+import type { Action } from "../src/domain/game/types";
 
 it("pasar una subasta conserva la casilla de cada jugador y no genera movimientos", () => {
   let s = game(3);
@@ -15067,8 +15909,8 @@ vi.mock("@upstash/redis", () => ({
     }
   },
 }));
-import { act, createRoom, getRoom, joinRoom, roomIdentity } from "../lib/store";
-import type { Action } from "../lib/game/types";
+import { act, createRoom, getRoom, joinRoom, roomIdentity } from "../src/server/http/room-controller";
+import type { Action } from "../src/domain/game/types";
 async function setup() {
   const a = await createRoom({ name: "Ana" });
   const b = await joinRoom(a.id, { name: "Luis" });
@@ -15257,8 +16099,8 @@ it("una sala antigua no puede reinterpretarse con precios e índices nuevos",asy
 
 ````typescript
 import { afterEach, expect, it, vi } from "vitest";
-import { gatherIce, microphoneError, VoiceClient, type VoiceClientView } from "../lib/voice/client";
-import type { VoiceCommand, VoiceMember, VoiceSignal } from "../lib/voice/types";
+import { gatherIce, microphoneError, VoiceClient, type VoiceClientView } from "../src/infrastructure/browser/voice-client";
+import type { VoiceCommand, VoiceMember, VoiceSignal } from "../src/domain/voice/types";
 
 afterEach(() => { vi.unstubAllGlobals();vi.useRealTimers(); });
 
@@ -15375,23 +16217,15 @@ it("dos clientes negocian una sola oferta/respuesta y no renegocian por cada pol
 ## tests/voice.test.ts
 
 ````typescript
-import { beforeEach, expect, it, vi } from "vitest";
-import { applyVoice, cleanVoice, getVoice, updateVoice, voiceCommand } from "../lib/voice/store";
-import type { VoiceState } from "../lib/voice/types";
-
-const mock = vi.hoisted(() => ({ values: new Map<string, string>(), identity: vi.fn() }));
-vi.mock("../lib/store", () => ({
-  HttpError: class extends Error { constructor(readonly status: number, message: string) { super(message); } },
-  roomIdentity: mock.identity,
-  redis: () => ({
-    get: async (key: string) => mock.values.has(key) ? JSON.parse(mock.values.get(key)!) : null,
-    eval: async (_script: string, keys: string[], args: (number | string)[]) => {
-      const old = mock.values.has(keys[0]) ? JSON.parse(mock.values.get(keys[0])!) : { revision: 0 };
-      if (old.revision !== args[0]) return 0;
-      mock.values.set(keys[0], String(args[1]));return 1;
-    },
-  }),
-}));
+import { beforeEach, expect, it } from "vitest";
+import { applyVoice, cleanVoice } from "../src/domain/voice/rules";
+import { voiceCommand } from "../src/server/http/voice-schemas";
+import { getVoice as get } from "../src/application/voice/get-voice";
+import { updateVoice as update } from "../src/application/voice/update-voice";
+import type { VoiceDependencies } from "../src/application/voice/contracts";
+import type { VoiceCommand } from "../src/domain/voice/types";
+import { newGame, newPlayer } from "../src/domain/game/factory";
+import type { VoiceState } from "../src/domain/voice/types";
 
 const a = "00000000-0000-4000-8000-000000000001";
 const b = "00000000-0000-4000-8000-000000000002";
@@ -15405,13 +16239,33 @@ function joined() {
   return applyVoice(applyVoice(blank(), { type: "join", session: sa, muted: false }, a, [a, b, c], 1000), { type: "join", session: sb, muted: false }, b, [a, b, c], 1000);
 }
 const offer = { type: "signal" as const, session: sa, to: b, toSession: sb, connection, description: { type: "offer" as const, sdp } };
-beforeEach(() => {
-  mock.values.clear();mock.identity.mockReset();
-  mock.identity.mockImplementation(async (_room: string, token: string) => {
-    if (![a, b, c].includes(token)) throw new Error("Token inválido");
-    return { playerId: token, players: [a, b, c] };
-  });
-});
+// Injected repository and clock: no environment variables, network or module mocks.
+const values = new Map<string, VoiceState>();
+const roomGame = newGame("ABC234", newPlayer(a, "Ana", "#a00"), 0);
+roomGame.players.push(newPlayer(b, "Luis", "#0a0"), newPlayer(c, "Sol", "#00a"));
+const deps: VoiceDependencies = {
+  rooms: {
+    platform: { now: () => 1000, uuid: () => connection, digest: (token) => token, randomInt: () => 0 },
+    rooms: {
+      load: async () => ({ game: structuredClone(roomGame), tokens: { [a]: a, [b]: b, [c]: c }, receipts: {} }),
+      create: async () => { throw new Error("Unexpected create"); },
+      save: async () => { throw new Error("Unexpected game mutation"); },
+      markSeen: async () => {}, lastSeen: async () => null,
+    },
+  },
+  voice: {
+    load: async (room) => structuredClone(values.get(room) ?? null),
+    save: async (room, version, state) => {
+      if ((values.get(room)?.revision ?? 0) !== version) return false;
+      values.set(room, structuredClone(state)); return true;
+    },
+  },
+  iceServers: () => [{ urls: "stun:stun.cloudflare.com:3478" }],
+  retry: async () => {},
+};
+const getVoice = (room: string, token: string, session: string) => get(deps, room, token, session);
+const updateVoice = (room: string, token: string, command: VoiceCommand) => update(deps, room, token, command);
+beforeEach(() => values.clear());
 
 it("admite solo audio y rechaza video, datos y SDP excesivo", () => {
   expect(voiceCommand.safeParse(offer).success).toBe(true);
@@ -15463,14 +16317,101 @@ it("altas concurrentes no pierden participantes y solo el destinatario recibe SD
   expect((await getVoice("ABC234", a, sa)).signals).toHaveLength(0);
   expect((await getVoice("ABC234", c, connection)).signals).toHaveLength(0);
   expect(receiver.iceServers[0].urls).toBe("stun:stun.cloudflare.com:3478");
-  expect([...mock.values.keys()]).toEqual(["turista:voice:ABC234"]);
+  expect(values.get("ABC234")?.revision).toBe(3);
 });
 
 it("tokens inválidos no pueden leer ni modificar voz", async () => {
-  await expect(getVoice("ABC234", "inventado", sa)).rejects.toThrow(/Token/);
-  await expect(updateVoice("ABC234", "inventado", { type: "join", session: sa, muted: false })).rejects.toThrow(/Token/);
-  expect(mock.values.size).toBe(0);
+  await expect(getVoice("ABC234", "inventado", sa)).rejects.toThrow(/token/);
+  await expect(updateVoice("ABC234", "inventado", { type: "join", session: sa, muted: false })).rejects.toThrow(/token/);
+  expect(values.size).toBe(0);
 });
+````
+
+## scripts/check-architecture.mjs
+
+````javascript
+import { readdirSync, readFileSync, existsSync } from "node:fs";
+import path from "node:path";
+import { fileURLToPath } from "node:url";
+import ts from "typescript";
+
+const allowed = {
+  domain: ["domain"],
+  application: ["application", "domain"],
+  infrastructure: ["infrastructure", "application", "domain"],
+  presentation: ["presentation", "domain", "application", "infrastructure"],
+  server: ["server", "application", "domain", "infrastructure"],
+  app: ["app", "server", "presentation"],
+};
+const atomic = { atoms: 0, molecules: 1, organisms: 2, templates: 3, pages: 4 };
+
+/** Architecture constraints are checked on imports, exports and dynamic imports alike. */
+export function checkArchitecture(project = process.cwd()) {
+  const src = path.resolve(project, "src");
+  const files = [];
+  function walk(dir) {
+    for (const entry of readdirSync(dir, { withFileTypes: true })) {
+      const file = path.join(dir, entry.name);
+      if (entry.isDirectory()) walk(file);
+      else if (/\.tsx?$/.test(entry.name)) files.push(file);
+    }
+  }
+  walk(src);
+  const errors = [], graph = new Map();
+  const relative = (file) => path.relative(src, file).split(path.sep).join("/");
+  const issue = (file, text) => errors.push(`${relative(file)}: ${text}`);
+  for (const file of files) {
+    const name = relative(file), [layer, section] = name.split("/");
+    if (!allowed[layer]) { issue(file, "capa no reconocida"); continue; }
+    const source = ts.createSourceFile(file, readFileSync(file, "utf8"), ts.ScriptTarget.Latest, true);
+    const imports = [];
+    const visit = (node) => {
+      if ((ts.isImportDeclaration(node) || ts.isExportDeclaration(node)) && node.moduleSpecifier && ts.isStringLiteral(node.moduleSpecifier)) imports.push(node.moduleSpecifier.text);
+      if (ts.isCallExpression(node) && (node.expression.kind === ts.SyntaxKind.ImportKeyword || node.expression.getText(source) === "require")) {
+        if (node.arguments[0] && ts.isStringLiteral(node.arguments[0])) imports.push(node.arguments[0].text);
+        else issue(file, "import dinámico no verificable");
+      }
+      if (["domain", "application"].includes(layer) && ts.isIdentifier(node) && ["window", "document", "localStorage", "fetch", "process", "setTimeout", "setInterval"].includes(node.text)) issue(file, `efecto externo ${node.text} en una capa pura`);
+      if (["domain", "application"].includes(layer) && ts.isCallExpression(node) && ["Date.now", "Math.random", "crypto.randomUUID"].includes(node.expression.getText(source))) issue(file, "el reloj y la aleatoriedad deben inyectarse");
+      ts.forEachChild(node, visit);
+    };
+    visit(source);
+    const edges = [];
+    for (const specifier of imports) {
+      if (!(specifier.startsWith("@/") || specifier.startsWith("."))) {
+        if (["domain", "application"].includes(layer)) issue(file, `dependencia externa ${specifier}`);
+        if (layer === "presentation" && (specifier.startsWith("node:") || specifier === "@upstash/redis" || specifier === "next/server")) issue(file, `dependencia de servidor ${specifier}`);
+        continue;
+      }
+      const target = specifier.startsWith("@/") ? path.resolve(src, specifier.slice(2)) : path.resolve(path.dirname(file), specifier);
+      const targetName = relative(target), [targetLayer, targetSection] = targetName.split("/");
+      if (!allowed[layer].includes(targetLayer)) issue(file, `dependencia prohibida ${layer} → ${targetLayer} (${specifier})`);
+      if (layer === "presentation" && targetLayer === "infrastructure" && (section !== "hooks" || targetSection !== "browser")) issue(file, "solo los hooks pueden conectar adaptadores del navegador");
+      if (layer === "presentation" && targetLayer === "presentation" && section in atomic && targetSection in atomic && atomic[section] < atomic[targetSection]) issue(file, `jerarquía atómica invertida ${section} → ${targetSection}`);
+      if (layer === "presentation" && section === "atoms" && (targetLayer !== "presentation" || !["atoms", "assets"].includes(targetSection))) issue(file, "los átomos no conocen reglas, casos de uso ni hooks del juego");
+      if (layer === "infrastructure" && section === "browser" && targetLayer === "infrastructure" && targetSection !== "browser") issue(file, "el navegador no puede importar adaptadores de servidor");
+      const resolved = [target, `${target}.ts`, `${target}.tsx`, path.join(target, "index.ts"), path.join(target, "index.tsx")].find((candidate) => files.includes(candidate));
+      if (resolved) edges.push(resolved);
+      else if (!target.endsWith(".css") || !existsSync(target)) issue(file, `import local no resuelto ${specifier}`);
+    }
+    graph.set(file, edges);
+  }
+  const visited = new Set(), active = new Set();
+  function findCycles(file, trail) {
+    if (active.has(file)) { issue(file, `ciclo ${[...trail, file].map(relative).join(" → ")}`); return; }
+    if (visited.has(file)) return;
+    active.add(file);
+    for (const target of graph.get(file) ?? []) findCycles(target, [...trail, file]);
+    active.delete(file); visited.add(file);
+  }
+  for (const file of files) findCycles(file, []);
+  return { files: files.length, errors: [...new Set(errors)] };
+}
+if (process.argv[1] && path.resolve(process.argv[1]) === fileURLToPath(import.meta.url)) {
+  const result = checkArchitecture();
+  if (result.errors.length) { console.error(result.errors.join("\n")); process.exitCode = 1; }
+  else console.log(`Arquitectura verificada: ${result.files} módulos, capas y jerarquía atómica sin ciclos.`);
+}
 ````
 
 ## scripts/entrega.mjs
@@ -15478,7 +16419,7 @@ it("tokens inválidos no pueden leer ni modificar voz", async () => {
 ````javascript
 import { readdir, readFile, writeFile } from "node:fs/promises";
 import path from "node:path";
-const directories = ["app", "components", "lib", "tests", "scripts", "public/art"];
+const directories = ["src", "tests", "scripts", "docs", "public/art"];
 const files = [
   ".env.example",
   ".gitignore",
@@ -15491,6 +16432,7 @@ const files = [
   "tailwind.config.ts",
   "postcss.config.mjs",
   "eslint.config.mjs",
+  "vitest.config.ts",
 ];
 async function walk(dir) {
   const entries = await readdir(dir, { withFileTypes: true });
@@ -15537,6 +16479,153 @@ await writeFile("ENTREGA.md", markdown);
 console.log(
   `ENTREGA.md: árbol y ${files.length} archivos completos; README al final.`,
 );
+````
+
+## docs/ARQUITECTURA.md
+
+````markdown
+# Arquitectura de Rumbo Mundial
+
+El proyecto conserva Next.js App Router, TypeScript estricto, Tailwind, Redis y los contratos HTTP existentes. Todo el código de la aplicación vive en `src/`; `public/`, pruebas, scripts y configuración permanecen en la raíz. No se agregaron servicios ni dependencias de producción.
+
+## Estructura y dirección de dependencias
+
+```text
+src/
+├── app/                     Rutas, metadata, layout y Route Handlers de Next
+├── domain/
+│   ├── game/                Estado, tablero, reglas y transiciones deterministas
+│   ├── voice/               Reglas de presencia y señalización de voz
+│   └── shared/              Errores independientes del transporte
+├── application/
+│   ├── ports/               Contratos de persistencia, identidad, reloj y azar
+│   ├── rooms/               Crear, entrar, consultar y ejecutar acciones
+│   └── voice/               Consultar y actualizar la sesión de voz
+├── infrastructure/
+│   ├── redis/               Implementaciones de los repositorios, CAS y TTL
+│   ├── security/            UUID, hash y generador aleatorio de Node
+│   ├── config/              Configuración de STUN y TURN
+│   └── browser/             HTTP, localStorage, WebAudio y WebRTC
+├── server/
+│   ├── composition.ts       Conecta casos de uso y adaptadores
+│   ├── http/                Validación Zod, controladores y traducción de errores
+│   └── site.ts              URL pública y configuración SEO del servidor
+└── presentation/
+    ├── atoms/               Button, Input, PlayerMarker e ilustraciones
+    ├── molecules/           TextField, Dialog, VolumeControl, BoardSquare, Dice
+    ├── organisms/           Board, Lobby, PlayerPanel, AuctionPanel, Wallet, voz
+    ├── templates/           RoomLayout: estructura visual sin reglas del juego
+    ├── pages/               Home y Room: composición de pantallas
+    ├── hooks/               Sesión, pagos, formularios, audio, voz y reproducción
+    ├── services/            Cola de escenas, geometría y estimaciones de pago
+    └── assets/              Mapeo de las ilustraciones de países
+```
+
+```mermaid
+flowchart TD
+    Routes[App Router] --> Screens[Presentation]
+    Routes --> HTTP[Server: validación y controladores]
+    HTTP --> Composition[Composition root]
+    Composition --> UseCases[Application: casos de uso y puertos]
+    Composition --> Adapters[Infrastructure: Redis y plataforma]
+    Adapters --> Ports[Application: contratos]
+    UseCases --> Domain[Domain: reglas puras]
+    Ports --> Domain
+    Screens --> Hooks[Hooks de presentación]
+    Hooks --> Browser[Adaptadores del navegador]
+    Browser --> API[HTTP hacia Route Handlers]
+```
+
+`domain` no importa React, Next, Redis, Zod ni código de otras capas. `application` depende exclusivamente del dominio y de sus propios contratos. Los adaptadores implementan esos contratos; los casos de uso reciben sus dependencias como argumentos. No hay contenedor de inyección ni localizador global de servicios.
+
+`server/composition.ts` crea objetos sin estado de partida y los entrega a los controladores HTTP. Las salas siguen almacenándose exclusivamente en Redis. La presentación puede consultar funciones puras del dominio para explicar acciones y mostrar estimaciones; el servidor siempre vuelve a validar y ejecutar las reglas.
+
+Los hooks conectan las pantallas con `infrastructure/browser`. Los componentes visuales no importan Redis, módulos de servidor ni adaptadores directamente. Las importaciones de tipos también respetan las fronteras. El alias `@/` apunta a `src/` en TypeScript, Next y Vitest.
+
+## Responsabilidad única
+
+| Módulo | Responsabilidad |
+| --- | --- |
+| `domain/game/engine.ts` | Validar y coordinar una acción sobre una copia del estado |
+| `domain/game/factory.ts` | Crear jugadores y estado inicial |
+| `domain/game/movement.ts`, `landing.ts` | Recorrido/detención y resolución de casillas/cartas, respectivamente |
+| `domain/game/turns.ts`, `timing.ts` | Cambio de turno y vencimientos usando una hora inyectada |
+| `domain/game/auctions.ts`, `trading.ts`, `bankruptcy.ts` | Adjudicación de subastas, validez de tratos y liquidación por quiebra |
+| `domain/game/money.ts`, `rules.ts` | Billetes y operaciones monetarias; cálculos y elegibilidad de propiedades |
+| `domain/game/events.ts`, `settlement.ts` | Registro de hechos; deudas y condición de victoria |
+| `application/rooms/*.ts` | Un caso de uso por archivo, independiente de HTTP y Redis |
+| `infrastructure/redis/room-repository.ts` | Lectura y escritura atómica del estado con TTL |
+| `server/http/*-schemas.ts` | Validación de datos no confiables de las solicitudes |
+| `server/http/errors.ts` | Convertir errores de aplicación a códigos HTTP |
+| `presentation/hooks/useRoomSession.ts` | Polling, reconexión, heartbeat, versión y envío de acciones |
+| `presentation/hooks/useRoomActions.ts` | Abrir la selección de billetes antes de enviar un pago |
+| `presentation/services/payment-quote.ts` | Estimar el importe visible; no mueve dinero |
+| `presentation/hooks/useVoiceChat.ts` | Ciclo de vida del micrófono y preferencias de voz |
+| `presentation/organisms/VoiceChat.tsx` | Mostrar participantes y controles de la conversación |
+| `presentation/organisms/PlayerRoster.tsx` | Consultar y paginar propiedades de otros jugadores |
+| `presentation/pages/Room.tsx` | Componer la sala y coordinar la apertura de paneles |
+
+Las funciones auxiliares del motor modifican únicamente la copia de trabajo recibida. La entrada pública `engine(state, action, playerId, context)` conserva su comportamiento determinista: no consulta servicios, reloj ni azar global. La política de duración de eventos en `domain/game/presentation.ts` se comparte con el cliente para que el servidor reserve tiempo de animación antes de iniciar la cuenta de la siguiente tirada.
+
+## Diseño atómico y reutilización
+
+Los niveles se definen por responsabilidad, no por el número de líneas:
+
+- **Átomos:** elementos visuales independientes. `Button` centraliza variante, tipo, estado ocupado y motivo de deshabilitación; `Input` centraliza el estado de validez. Las ilustraciones se importan individualmente.
+- **Moléculas:** pequeñas composiciones reutilizables. `TextField` asocia etiqueta y error a un ID único. `VolumeControl` se usa para música, efectos y voces. `Dialog` concentra apertura modal, foco nativo, Escape y suspensión durante las escenas. `ActionButton` muestra el motivo por el que una acción está bloqueada.
+- **Organismos:** bloques completos con significado en la pantalla, como el tablero, las ofertas de trato o la cartera. Pueden componer organismos menores. `PlayerPanel` delega subastas e inventario; `Board` reutiliza `BoardSquare` para cada casilla.
+- **Templates:** estructura y distribución visual. Reciben contenido y banderas de presentación; no ejecutan reglas ni solicitudes.
+- **Pages:** conectan hooks y organismos. `src/app` compone estas páginas con las convenciones de Next y sus metadatos.
+
+Se evitan componentes que importen niveles superiores: un átomo no conoce una pantalla y una molécula no conoce un organismo. Los átomos no importan reglas, casos de uso ni hooks del juego. Los organismos reciben datos y callbacks explícitos; no se añadió un estado global paralelo al servidor.
+
+Ejemplo de uso de piezas existentes:
+
+```tsx
+import Button from "@/presentation/atoms/Button";
+import TextField from "@/presentation/molecules/TextField";
+import VolumeControl from "@/presentation/molecules/VolumeControl";
+
+// Dentro de un componente de cliente con estado recibido por props o un hook:
+<TextField label="Nombre" value={name} onChange={(event) => setName(event.target.value)} />
+<VolumeControl label="Música" value={volume} onChange={setVolume} />
+<Button type="submit" variant="primary" loading={saving}>Guardar</Button>
+```
+
+`Button` usa `type="button"` por defecto para que un control secundario no envíe un formulario. Los botones que envían formularios declaran `type="submit"`. Los diálogos de pago, trato y propiedad conservan sus clases CSS, formularios y comportamiento de suspensión; el componente compartido solo administra su contenedor modal.
+
+## Agregar una función
+
+1. Define la regla y sus datos en `domain`; prueba el resultado con contexto explícito.
+2. Si requiere coordinación o persistencia, agrega el caso de uso en `application`. Reutiliza los puertos; extiéndelos solo cuando una operación real lo necesite.
+3. Implementa cualquier acceso externo en `infrastructure` y conéctalo en `server/composition.ts`.
+4. Valida la solicitud en `server/http`, y conserva un Route Handler pequeño en `src/app/api`.
+5. Conecta el frontend mediante un hook. Reutiliza átomos y moléculas antes de crear una pieza nueva.
+6. Ejecuta las comprobaciones descritas abajo. Evita clases base, repositorios genéricos y archivos de reexportación que oculten el módulo responsable.
+
+## Compatibilidad de esta migración
+
+No cambian las rutas públicas, los cuerpos HTTP, la versión del reglamento, el formato del estado, los hashes de tokens ni las claves `turista:` de Redis/localStorage. Tampoco cambian las credenciales necesarias. El contador y las claves de voz siguen separados del juego. No hay migración de Redis ni motivo para invalidar salas compatibles solo por reorganizar el código.
+
+El CAS sigue comparando la versión y escribiendo en una sola ejecución Lua, con TTL de 24 horas para salas y 120 segundos para voz. Los recibos de acciones evitan duplicar efectos; una carrera devuelve 409. Los mazos y tokens permanecen fuera de las respuestas públicas. Los vencimientos se resuelven durante solicitudes, sin procesos residentes.
+
+Al actualizar una copia existente, elimina las antiguas carpetas raíz `app/`, `components/` y `lib/` (ya eliminadas en este proyecto). No deben convivir `app/` y `src/app/`: Next prioriza la carpeta de la raíz. Si tu compilación local conserva tipos de las rutas viejas, elimina solo la caché `.next/` y vuelve a compilar. `public/` y la configuración permanecen en la raíz; el Root Directory de Vercel sigue siendo el proyecto, no `src`.
+
+## Verificación
+
+```sh
+npm run check:architecture
+npm test
+npm run typecheck
+npm run lint
+npm run build
+```
+
+El comprobador analiza importaciones, reexportaciones e importaciones dinámicas con el AST de TypeScript. Rechaza dependencias de capas inversas, referencias al servidor desde la UI, efectos externos en dominio/aplicación, ciclos y jerarquía atómica invertida. `prebuild` lo ejecuta automáticamente. Los tests incluyen ejemplos deliberadamente incorrectos para comprobar que detecta las infracciones.
+
+Las pruebas de reglas, temporizadores, partidas completas, concurrencia, tokens, voz y animaciones se mantienen. Las pruebas de voz usan repositorios y reloj inyectados; los tests de integración de salas ejercitan la composición y el adaptador Redis mediante un doble del cliente. Los dobles en memoria son exclusivos de pruebas.
+
+Después del despliegue, verifica visualmente dos navegadores: crear/unirse, refrescar, dados y movimiento, comprar con billetes, subastas, tratos y voz. El build y las pruebas automatizadas no sustituyen la comprobación visual ni una llamada de micrófono entre redes reales.
 ````
 
 ## public/art/countries/alemania.webp
@@ -15802,7 +16891,7 @@ Ilustración original incluida en el proyecto y en el ZIP.
 ````markdown
 # Rumbo Mundial
 
-Juego de mesa multijugador en español de México, con Next.js App Router, TypeScript estricto, Tailwind y Upstash Redis. Conserva los nombres y posiciones de los países del tablero de referencia aportado por el usuario, con ilustraciones SVG, billetes, casas, hoteles y textos de cartas creados en código. No muestra las fotografías ni utiliza logotipos o personajes del producto de referencia.
+Juego de mesa multijugador en español de México, con Next.js App Router, TypeScript estricto, Tailwind y Upstash Redis. Conserva los nombres y posiciones de los países del tablero de referencia aportado por el usuario, con ilustraciones originales de países y mapa, billetes y edificios en SVG/CSS y textos de cartas propios. No muestra las fotografías ni utiliza logotipos o personajes del producto de referencia.
 
 ## Ejecutar el proyecto
 
@@ -15943,7 +17032,7 @@ Las pruebas automatizadas validan permisos por token, aislamiento entre salas y 
 
 ## Criterios de adaptación y referencias contradictorias
 
-Los datos numéricos y nombres están centralizados en `lib/game/board.ts`. El documento de referencia original del usuario permanece en `reglas_turista_mundial.md` sin modificaciones. Para obtener un reglamento consistente:
+Los datos numéricos y nombres están centralizados en `src/domain/game/board.ts`. El documento de referencia original del usuario permanece en `reglas_turista_mundial.md` sin modificaciones. Para obtener un reglamento consistente:
 
 - La sección general del instructivo dice que caer con dados en Deportado es visita; la sección dedicada dice “por algún motivo”. Por decisión del usuario, se aplica deportación también al caer con dados: multa de $5,000 o tres turnos completos, con regreso a Salida sin sueldo. La elección aparece en la franja superior móvil y en el panel del jugador; quedarse no descuenta el turno de llegada.
 - La automatización de turnos, el plazo de 20 s para tirar y el abono automático del sueldo son reglas de esta adaptación solicitadas por el usuario. El servidor reserva el tiempo de las animaciones antes de iniciar el contador.
@@ -15961,7 +17050,9 @@ El nombre nuevo y el arte propio no constituyen una comprobación de disponibili
 ## Comprobar el código
 
 ```sh
+npm run check:architecture
 npm test
+npm run typecheck
 npm run lint
 npm run build
 ```
@@ -15986,19 +17077,31 @@ En el entorno de esta entrega se ejecutaron las pruebas, lint y compilación. La
 
 ## Arquitectura
 
-- `lib/game/engine.ts`: reducer determinista. Recibe dados, mazos y hora del servidor; nunca usa reloj o aleatoriedad propios.
-- `lib/game/board.ts`, `cards.ts`, `rules.ts`, `money.ts`: datos y reglas centralizados.
-- `lib/store.ts`: Redis REST, tokens UUID almacenados como hashes, control de versiones, recibos de idempotencia y presencia.
-- `app/api/rooms/**`: Route Handlers dinámicos, runtime Node.js, respuestas sin caché.
-- `components/Room.tsx`: polling secuencial cada segundo, pausa al ocultar pestaña, heartbeat cada 20 s y reconexión por token.
-- `components/TravelArt.tsx`: ilustraciones originales de globo, billetes y edificios en SVG/CSS. No descarga imágenes ni fuentes externas.
-- `components/Board.tsx`: posiciones visuales de fichas y colores de grupo reforzados, separados del indicador de dueño.
-- `lib/game/playback.ts`, `lib/useGamePlayback.ts`, `lib/game/presentation.ts`: cola compartida para dados, movimiento y avisos; reconexión sin repetir historia, preferencias de movimiento y duraciones coordinadas con los plazos del servidor.
-- `components/Victory.tsx`: podio con escalones, fichas, clasificación completa y confeti finito; empates y orden de eliminación conservan los puestos del motor. El confeti se omite con movimiento reducido.
-- `components/MobileTurnBar.tsx`: información y acciones inmediatas sobre el tablero en móvil y tableta.
-- `components/VoiceChat.tsx`, `lib/voice/client.ts`, `lib/voice/store.ts`: controles y conexiones WebRTC, SDP temporal autorizado por token y persistencia independiente del tablero.
-- `components/AudioControls.tsx`, `lib/useGameAudio.ts`, `lib/audio.ts`: preferencias locales, música original sintetizada, efectos de las escenas, pausa por visibilidad y limpieza de recursos.
-- `components/Activity.tsx`: escenas centrales compartidas, dados animados y fondo desenfocado. La bitácora no se muestra; el servidor conserva eventos para sincronizar las escenas. La cartera se presenta como una mano de billetes en la parte inferior.
+El código vive en `src/`, con arquitectura limpia, diseño atómico en la interfaz y módulos separados por responsabilidad. La guía completa, el diagrama de dependencias y ejemplos para extender el juego están en [docs/ARQUITECTURA.md](docs/ARQUITECTURA.md).
+
+```text
+src/
+├── app/                     Rutas de Next, metadata y Route Handlers
+├── domain/                  Reglas puras, estado, tablero y voz
+├── application/             Casos de uso y contratos de persistencia/plataforma
+├── infrastructure/          Redis, seguridad, HTTP del navegador, audio y WebRTC
+├── server/                  Composición, validación HTTP y configuración SEO
+└── presentation/
+    ├── atoms/               Botones, inputs, marcadores e ilustraciones
+    ├── molecules/           Campos, diálogos, volumen, dados y casillas
+    ├── organisms/           Tablero, lobby, paneles, cartera, tratos y voz
+    ├── templates/           Estructura de las pantallas
+    ├── pages/               Composición de Home y Room
+    ├── hooks/               Sesión, pagos, formularios, animaciones y audio
+    ├── services/            Reproducción de escenas y estimaciones de pago
+    └── assets/              Mapeo de ilustraciones
+```
+
+El dominio no depende de frameworks ni de infraestructura. Los casos de uso reciben repositorios, reloj y azar mediante contratos. `server/composition.ts` conecta las implementaciones reales. Los componentes visuales reciben datos y acciones; los hooks gestionan los efectos del navegador. Botones, campos, diálogos y controles de volumen se reutilizan en las pantallas existentes.
+
+`npm run check:architecture` verifica las fronteras, la jerarquía atómica y la ausencia de ciclos. También se ejecuta antes del build. `@/` apunta a `src/` en Next, TypeScript y Vitest. `public/` y los archivos de configuración siguen en la raíz; Vercel no necesita cambios de Root Directory.
+
+Esta refactorización conserva las rutas API, las claves de Redis/localStorage y el reglamento. No requiere nuevas variables ni servicios. Al actualizar manualmente, elimina las antiguas carpetas raíz `app/`, `components/` y `lib/`; no mezcles la estructura anterior con `src/app/`. Las salas de la versión actual siguen siendo compatibles.
 
 Las escrituras usan un único script Lua que compara la versión y guarda el nuevo estado atómicamente. Una carrera pierde con HTTP 409. La caducidad de sala se renueva a 24 horas en cada acción guardada. Cada acción lleva un `requestId`; se conservan los últimos 100 recibos para no duplicar efectos al repetir solicitudes. Los mazos y los tokens no se incluyen en el estado público. No se confía en un playerId enviado por el cliente.
 
@@ -16010,5 +17113,5 @@ El vencimiento de partidas, subastas y tiradas, así como el cierre automático 
 
 ## Ilustraciones de los países y del mapa
 
-Los 24 países usan ilustraciones raster originales, generadas individualmente con la herramienta integrada de imágenes. Cada casilla y tarjeta reutiliza la imagen correspondiente en `public/art/countries/`. `public/art/world-center.webp` es el mapa central ilustrado, con rótulos de regiones renderizados en HTML. El mapeo de países se encuentra en `lib/game/art.ts`; los prompts completos están en `public/art/PROMPTS.md`. Se entregan en WebP y se sirven con `next/image`. No requieren generación de imágenes, claves adicionales ni servicios gráficos cuando juegas.
+Los 24 países usan ilustraciones raster originales, generadas individualmente con la herramienta integrada de imágenes. Cada casilla y tarjeta reutiliza la imagen correspondiente en `public/art/countries/`. `public/art/world-center.webp` es el mapa central ilustrado, con rótulos de regiones renderizados en HTML. El mapeo de países se encuentra en `src/presentation/assets/art.ts`; los prompts completos están en `public/art/PROMPTS.md`. Se entregan en WebP y se sirven con `next/image`. No requieren generación de imágenes, claves adicionales ni servicios gráficos cuando juegas.
 ````

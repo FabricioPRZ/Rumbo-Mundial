@@ -1,9 +1,10 @@
 import { describe, expect, it } from "vitest";
-import { engine, finishByTime } from "../lib/game/engine";
-import { BOARD, INITIAL_MONEY, SALARY } from "../lib/game/board";
-import { CARDS } from "../lib/game/cards";
-import { assetError, bankStock, rent, redemptionCost } from "../lib/game/rules";
-import { totalBills, wallet } from "../lib/game/money";
+import { engine } from "../src/domain/game/engine";
+import { finishByTime } from "../src/domain/game/timing";
+import { BOARD, INITIAL_MONEY, SALARY } from "../src/domain/game/board";
+import { CARDS } from "../src/domain/game/cards";
+import { assetError, bankStock, rent, redemptionCost } from "../src/domain/game/rules";
+import { totalBills, wallet } from "../src/domain/game/money";
 import { game, go, ctx } from "./helpers";
 
 describe("Tablero de referencia y reglas", () => {

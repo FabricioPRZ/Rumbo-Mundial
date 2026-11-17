@@ -1,5 +1,5 @@
 import { afterEach, expect, it, vi } from "vitest";
-import { audioPreferences, DEFAULT_AUDIO, GameAudio } from "../lib/audio";
+import { audioPreferences, DEFAULT_AUDIO, GameAudio } from "../src/infrastructure/browser/audio";
 
 function audioContext() {
   const parameter = () => ({ value: 0, setTargetAtTime: vi.fn(), setValueAtTime: vi.fn(), linearRampToValueAtTime: vi.fn(), exponentialRampToValueAtTime: vi.fn() });

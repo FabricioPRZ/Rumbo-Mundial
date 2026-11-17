@@ -1,6 +1,6 @@
 import { readdir, readFile, writeFile } from "node:fs/promises";
 import path from "node:path";
-const directories = ["app", "components", "lib", "tests", "scripts", "public/art"];
+const directories = ["src", "tests", "scripts", "docs", "public/art"];
 const files = [
   ".env.example",
   ".gitignore",
@@ -13,6 +13,7 @@ const files = [
   "tailwind.config.ts",
   "postcss.config.mjs",
   "eslint.config.mjs",
+  "vitest.config.ts",
 ];
 async function walk(dir) {
   const entries = await readdir(dir, { withFileTypes: true });

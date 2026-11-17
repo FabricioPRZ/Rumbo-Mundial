@@ -1,6 +1,6 @@
 # Rumbo Mundial
 
-Juego de mesa multijugador en español de México, con Next.js App Router, TypeScript estricto, Tailwind y Upstash Redis. Conserva los nombres y posiciones de los países del tablero de referencia aportado por el usuario, con ilustraciones SVG, billetes, casas, hoteles y textos de cartas creados en código. No muestra las fotografías ni utiliza logotipos o personajes del producto de referencia.
+Juego de mesa multijugador en español de México, con Next.js App Router, TypeScript estricto, Tailwind y Upstash Redis. Conserva los nombres y posiciones de los países del tablero de referencia aportado por el usuario, con ilustraciones originales de países y mapa, billetes y edificios en SVG/CSS y textos de cartas propios. No muestra las fotografías ni utiliza logotipos o personajes del producto de referencia.
 
 ## Ejecutar el proyecto
 
@@ -141,7 +141,7 @@ Las pruebas automatizadas validan permisos por token, aislamiento entre salas y 
 
 ## Criterios de adaptación y referencias contradictorias
 
-Los datos numéricos y nombres están centralizados en `lib/game/board.ts`. El documento de referencia original del usuario permanece en `reglas_turista_mundial.md` sin modificaciones. Para obtener un reglamento consistente:
+Los datos numéricos y nombres están centralizados en `src/domain/game/board.ts`. El documento de referencia original del usuario permanece en `reglas_turista_mundial.md` sin modificaciones. Para obtener un reglamento consistente:
 
 - La sección general del instructivo dice que caer con dados en Deportado es visita; la sección dedicada dice “por algún motivo”. Por decisión del usuario, se aplica deportación también al caer con dados: multa de $5,000 o tres turnos completos, con regreso a Salida sin sueldo. La elección aparece en la franja superior móvil y en el panel del jugador; quedarse no descuenta el turno de llegada.
 - La automatización de turnos, el plazo de 20 s para tirar y el abono automático del sueldo son reglas de esta adaptación solicitadas por el usuario. El servidor reserva el tiempo de las animaciones antes de iniciar el contador.
@@ -159,7 +159,9 @@ El nombre nuevo y el arte propio no constituyen una comprobación de disponibili
 ## Comprobar el código
 
 ```sh
+npm run check:architecture
 npm test
+npm run typecheck
 npm run lint
 npm run build
 ```
@@ -184,19 +186,31 @@ En el entorno de esta entrega se ejecutaron las pruebas, lint y compilación. La
 
 ## Arquitectura
 
-- `lib/game/engine.ts`: reducer determinista. Recibe dados, mazos y hora del servidor; nunca usa reloj o aleatoriedad propios.
-- `lib/game/board.ts`, `cards.ts`, `rules.ts`, `money.ts`: datos y reglas centralizados.
-- `lib/store.ts`: Redis REST, tokens UUID almacenados como hashes, control de versiones, recibos de idempotencia y presencia.
-- `app/api/rooms/**`: Route Handlers dinámicos, runtime Node.js, respuestas sin caché.
-- `components/Room.tsx`: polling secuencial cada segundo, pausa al ocultar pestaña, heartbeat cada 20 s y reconexión por token.
-- `components/TravelArt.tsx`: ilustraciones originales de globo, billetes y edificios en SVG/CSS. No descarga imágenes ni fuentes externas.
-- `components/Board.tsx`: posiciones visuales de fichas y colores de grupo reforzados, separados del indicador de dueño.
-- `lib/game/playback.ts`, `lib/useGamePlayback.ts`, `lib/game/presentation.ts`: cola compartida para dados, movimiento y avisos; reconexión sin repetir historia, preferencias de movimiento y duraciones coordinadas con los plazos del servidor.
-- `components/Victory.tsx`: podio con escalones, fichas, clasificación completa y confeti finito; empates y orden de eliminación conservan los puestos del motor. El confeti se omite con movimiento reducido.
-- `components/MobileTurnBar.tsx`: información y acciones inmediatas sobre el tablero en móvil y tableta.
-- `components/VoiceChat.tsx`, `lib/voice/client.ts`, `lib/voice/store.ts`: controles y conexiones WebRTC, SDP temporal autorizado por token y persistencia independiente del tablero.
-- `components/AudioControls.tsx`, `lib/useGameAudio.ts`, `lib/audio.ts`: preferencias locales, música original sintetizada, efectos de las escenas, pausa por visibilidad y limpieza de recursos.
-- `components/Activity.tsx`: escenas centrales compartidas, dados animados y fondo desenfocado. La bitácora no se muestra; el servidor conserva eventos para sincronizar las escenas. La cartera se presenta como una mano de billetes en la parte inferior.
+El código vive en `src/`, con arquitectura limpia, diseño atómico en la interfaz y módulos separados por responsabilidad. La guía completa, el diagrama de dependencias y ejemplos para extender el juego están en [docs/ARQUITECTURA.md](docs/ARQUITECTURA.md).
+
+```text
+src/
+├── app/                     Rutas de Next, metadata y Route Handlers
+├── domain/                  Reglas puras, estado, tablero y voz
+├── application/             Casos de uso y contratos de persistencia/plataforma
+├── infrastructure/          Redis, seguridad, HTTP del navegador, audio y WebRTC
+├── server/                  Composición, validación HTTP y configuración SEO
+└── presentation/
+    ├── atoms/               Botones, inputs, marcadores e ilustraciones
+    ├── molecules/           Campos, diálogos, volumen, dados y casillas
+    ├── organisms/           Tablero, lobby, paneles, cartera, tratos y voz
+    ├── templates/           Estructura de las pantallas
+    ├── pages/               Composición de Home y Room
+    ├── hooks/               Sesión, pagos, formularios, animaciones y audio
+    ├── services/            Reproducción de escenas y estimaciones de pago
+    └── assets/              Mapeo de ilustraciones
+```
+
+El dominio no depende de frameworks ni de infraestructura. Los casos de uso reciben repositorios, reloj y azar mediante contratos. `server/composition.ts` conecta las implementaciones reales. Los componentes visuales reciben datos y acciones; los hooks gestionan los efectos del navegador. Botones, campos, diálogos y controles de volumen se reutilizan en las pantallas existentes.
+
+`npm run check:architecture` verifica las fronteras, la jerarquía atómica y la ausencia de ciclos. También se ejecuta antes del build. `@/` apunta a `src/` en Next, TypeScript y Vitest. `public/` y los archivos de configuración siguen en la raíz; Vercel no necesita cambios de Root Directory.
+
+Esta refactorización conserva las rutas API, las claves de Redis/localStorage y el reglamento. No requiere nuevas variables ni servicios. Al actualizar manualmente, elimina las antiguas carpetas raíz `app/`, `components/` y `lib/`; no mezcles la estructura anterior con `src/app/`. Las salas de la versión actual siguen siendo compatibles.
 
 Las escrituras usan un único script Lua que compara la versión y guarda el nuevo estado atómicamente. Una carrera pierde con HTTP 409. La caducidad de sala se renueva a 24 horas en cada acción guardada. Cada acción lleva un `requestId`; se conservan los últimos 100 recibos para no duplicar efectos al repetir solicitudes. Los mazos y los tokens no se incluyen en el estado público. No se confía en un playerId enviado por el cliente.
 
@@ -208,4 +222,4 @@ El vencimiento de partidas, subastas y tiradas, así como el cierre automático 
 
 ## Ilustraciones de los países y del mapa
 
-Los 24 países usan ilustraciones raster originales, generadas individualmente con la herramienta integrada de imágenes. Cada casilla y tarjeta reutiliza la imagen correspondiente en `public/art/countries/`. `public/art/world-center.webp` es el mapa central ilustrado, con rótulos de regiones renderizados en HTML. El mapeo de países se encuentra en `lib/game/art.ts`; los prompts completos están en `public/art/PROMPTS.md`. Se entregan en WebP y se sirven con `next/image`. No requieren generación de imágenes, claves adicionales ni servicios gráficos cuando juegas.
+Los 24 países usan ilustraciones raster originales, generadas individualmente con la herramienta integrada de imágenes. Cada casilla y tarjeta reutiliza la imagen correspondiente en `public/art/countries/`. `public/art/world-center.webp` es el mapa central ilustrado, con rótulos de regiones renderizados en HTML. El mapeo de países se encuentra en `src/presentation/assets/art.ts`; los prompts completos están en `public/art/PROMPTS.md`. Se entregan en WebP y se sirven con `next/image`. No requieren generación de imágenes, claves adicionales ni servicios gráficos cuando juegas.

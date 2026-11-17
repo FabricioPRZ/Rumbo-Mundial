@@ -1,0 +1,13 @@
+import { act as execute } from "@/application/rooms/act";
+import { createRoom as create } from "@/application/rooms/create-room";
+import { getRoom as get } from "@/application/rooms/get-room";
+import { roomIdentity as identify } from "@/application/rooms/identity";
+import { joinRoom as join } from "@/application/rooms/join-room";
+import { roomDependencies } from "../composition";
+import { httpCall } from "./errors";
+import { actionRequestSchema, createRoomSchema, joinRoomSchema, roomId, tokenSchema } from "./room-schemas";
+export const createRoom = (input: unknown) => httpCall(() => create(roomDependencies, createRoomSchema.parse(input)));
+export const joinRoom = (id: string, input: unknown) => httpCall(() => join(roomDependencies, roomId.parse(id), joinRoomSchema.parse(input)));
+export const getRoom = (id: string, token: string | null, heartbeat: boolean) => httpCall(() => get(roomDependencies, roomId.parse(id), token, heartbeat));
+export const act = (id: string, input: unknown) => httpCall(() => execute(roomDependencies, roomId.parse(id), actionRequestSchema.parse(input)));
+export const roomIdentity = (id: string, token: string) => httpCall(() => identify(roomDependencies, roomId.parse(id), tokenSchema.parse(token)));
